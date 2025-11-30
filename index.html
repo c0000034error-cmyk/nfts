@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Empire: Ultimate</title>
+    <title>NFT Universe 15.0</title>
     
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -13,150 +13,116 @@
 
     <style>
         :root {
-            --bg: #050505;
+            --bg: #000000;
             --surface: #121212;
             --surface-light: #1e1e1e;
-            --primary: #6d28d9; /* Deep Purple */
-            --accent: #d946ef;  /* Magenta */
+            --primary: #6366f1;
+            --accent: #a855f7;
             --gold: #fbbf24;
-            --danger: #f43f5e;
-            --success: #10b981;
+            --danger: #ef4444;
+            --success: #22c55e;
             --text: #ffffff;
-            --text-sec: #a1a1aa;
-            --radius: 18px;
+            --text-sec: #9ca3af;
+            --radius: 16px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
             background: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 0; height: 100vh;
             display: flex; flex-direction: column; overflow: hidden; user-select: none;
         }
 
         /* --- ANIMATIONS --- */
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        @keyframes orbit1 { from { transform: rotate(0deg) translateX(55px) rotate(0deg); } to { transform: rotate(360deg) translateX(55px) rotate(-360deg); } }
-        @keyframes orbit2 { from { transform: rotate(120deg) translateX(55px) rotate(-120deg); } to { transform: rotate(480deg) translateX(55px) rotate(-480deg); } }
-        @keyframes orbit3 { from { transform: rotate(240deg) translateX(55px) rotate(-240deg); } to { transform: rotate(600deg) translateX(55px) rotate(-600deg); } }
-        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
-        @keyframes numberScroll { 0% { transform: translateY(10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        @keyframes tapEffect { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- UI UTILS --- */
+        /* --- UI COMPONENTS --- */
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: #fff; border: none; padding: 14px; border-radius: 14px;
-            font-weight: 700; width: 100%; cursor: pointer;
+            font-weight: 700; font-size: 15px; width: 100%; cursor: pointer;
             display: flex; justify-content: center; align-items: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(109, 40, 217, 0.4);
-            transition: 0.15s; font-size: 15px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); transition: 0.1s;
         }
-        .btn:active { transform: scale(0.96); }
-        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: none; }
-        .btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        .btn:active { transform: scale(0.97); }
+        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; }
+        .btn-danger { background: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        .btn-gold { background: var(--gold); color: black; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); }
         .btn-sm { padding: 8px 16px; font-size: 12px; width: auto; border-radius: 10px; }
 
         input {
-            background: var(--surface-light); border: 1px solid rgba(255,255,255,0.1);
+            background: #27272a; border: 1px solid #3f3f46;
             padding: 14px; border-radius: 14px; color: white; width: 100%; outline: none; margin-bottom: 12px; font-size: 16px;
         }
-        input:focus { border-color: var(--accent); }
+        input::placeholder { color: #666; }
+        input:focus { border-color: var(--primary); }
 
         /* --- HEADER & AVATAR --- */
         .header {
             padding: 15px 20px; padding-top: max(15px, env(safe-area-inset-top));
-            background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px);
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 50;
         }
 
-        .avatar-container { position: relative; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
-        .avatar-img { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; z-index: 2; border: 2px solid #333; background: #222; }
-        
-        /* Floating Orbiting NFTs */
-        .orbiter {
-            position: absolute; width: 24px; height: 24px; border-radius: 50%;
-            background: #000; border: 1px solid rgba(255,255,255,0.3);
-            z-index: 1; object-fit: cover; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        .avatar-frame {
+            width: 45px; height: 45px; border-radius: 50%; background: #27272a;
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;
+            border: 2px solid transparent; margin-right: 10px;
         }
-        .orb-1 { animation: orbit1 8s linear infinite; }
-        .orb-2 { animation: orbit2 8s linear infinite; }
-        .orb-3 { animation: orbit3 8s linear infinite; }
+        /* Custom Frames */
+        .frame-gold { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .frame-neon { border-color: #00f2ff; box-shadow: 0 0 10px #00f2ff; }
 
-        /* Frames */
-        .frame-gold { border-color: var(--gold); box-shadow: 0 0 15px var(--gold); }
-        .frame-neon { border-color: #00f2ff; box-shadow: 0 0 15px #00f2ff; }
+        /* Custom Nicks */
+        .nick-gold { color: var(--gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+        .nick-neon { color: #00f2ff; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+        .nick-red { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
 
-        .currency-anim { animation: numberScroll 0.3s ease-out; color: var(--success); font-weight: bold; }
+        /* --- CONTENT --- */
+        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .screen { display: none; animation: fadeUp 0.3s ease-out; }
+        .screen.active { display: block; }
 
-        /* --- CARDS --- */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding-bottom: 20px; }
+        /* --- NFT CARDS --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding-bottom: 20px; }
         
         .card {
             border-radius: var(--radius); padding: 10px; position: relative;
             display: flex; flex-direction: column; align-items: center;
-            background: var(--surface); border: 1px solid rgba(255,255,255,0.05);
+            background: #18181b; border: 1px solid rgba(255,255,255,0.05);
             overflow: hidden; transition: transform 0.1s;
         }
         .card:active { transform: scale(0.98); }
 
-        /* Random Backgrounds */
-        .bg-red { background: radial-gradient(circle at top, #450a0a, #121212); }
-        .bg-blue { background: radial-gradient(circle at top, #172554, #121212); }
-        .bg-green { background: radial-gradient(circle at top, #052e16, #121212); }
-        .bg-purple { background: radial-gradient(circle at top, #4c1d95, #121212); }
-        .bg-gold { background: radial-gradient(circle at top, #422006, #121212); }
+        /* BGs */
+        .bg-red { background: radial-gradient(circle at top, #450a0a, #18181b); }
+        .bg-blue { background: radial-gradient(circle at top, #172554, #18181b); }
+        .bg-green { background: radial-gradient(circle at top, #052e16, #18181b); }
+        .bg-purple { background: radial-gradient(circle at top, #4c1d95, #18181b); }
+        .bg-gold { background: radial-gradient(circle at top, #422006, #18181b); }
 
         .nft-img {
-            width: 90px; height: 90px; object-fit: contain; margin: 10px 0;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+            width: 100px; height: 100px; object-fit: contain; margin: 10px 0;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
-        .equipped-badge {
-            position: absolute; top: 5px; right: 5px; font-size: 10px; 
-            background: var(--success); color: black; padding: 2px 6px; border-radius: 6px; font-weight: bold;
-        }
-
-        /* --- SCREENS --- */
-        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
-        .screen { display: none; animation: popIn 0.3s ease-out; }
-        .screen.active { display: block; }
-
-        /* --- CASINO UI --- */
-        .rps-arena {
-            display: flex; justify-content: space-between; align-items: center; 
-            background: var(--surface-light); padding: 20px; border-radius: 20px; margin-bottom: 20px;
-        }
-        .rps-icon { font-size: 50px; }
-        
-        .mines-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; 
-            max-width: 300px; margin: 20px auto;
-        }
-        .mine-cell {
-            aspect-ratio: 1; background: #2a2a2a; border-radius: 8px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 24px;
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.05);
-        }
-        .mine-cell.safe { background: var(--success); color: #000; animation: popIn 0.2s; }
-        .mine-cell.boom { background: var(--danger); animation: popIn 0.2s; }
-
-        /* --- PROFILE --- */
-        .settings-row {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--surface); padding: 15px; border-radius: 14px; margin-bottom: 10px;
-        }
+        .nft-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 2px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nft-type { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
 
         /* --- NAVBAR --- */
         .navbar {
-            position: fixed; bottom: 0; width: 100%; background: rgba(18, 18, 18, 0.95);
+            position: fixed; bottom: 0; width: 100%; background: rgba(10, 10, 10, 0.95);
             display: flex; justify-content: space-around; padding: 12px 0;
             padding-bottom: max(12px, env(safe-area-inset-bottom));
             border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); z-index: 100;
         }
         .nav-item { color: var(--text-sec); font-size: 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
         .nav-item i { font-size: 22px; }
-        .nav-item.active { color: var(--accent); transform: translateY(-4px); }
+        .nav-item.active { color: var(--primary); transform: translateY(-3px); }
 
         /* --- MODALS --- */
         .modal-overlay {
@@ -176,28 +142,209 @@
 
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(20,20,20,0.95); padding: 12px 24px; border-radius: 50px; z-index: 3000;
+            background: rgba(30,30,30,0.95); padding: 12px 24px; border-radius: 30px; z-index: 3000;
             display: none; border: 1px solid rgba(255,255,255,0.15); font-size: 14px; font-weight: 500;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: white;
         }
+
+        /* --- CASINO STYLES --- */
+        .mines-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 15px 0; }
+        .mine { aspect-ratio: 1; background: #27272a; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .mine.boom { background: var(--danger); animation: tapEffect 0.2s; }
+        .mine.safe { background: var(--success); color: #000; animation: tapEffect 0.2s; }
     </style>
 </head>
 <body>
 
     <!-- AUTH -->
-    <div id="auth-modal" class="modal-overlay" style="display:flex; z-index:9000;">
+    <div id="auth-modal" class="modal-overlay" style="display:flex; z-index:9000; background:#000;">
         <div class="modal-box" style="border:none; background:transparent;">
-            <div style="font-size: 60px; margin-bottom: 20px; animation: float 3s infinite;">💎</div>
-            <h1 style="margin-bottom: 30px; font-weight:900; letter-spacing: 1px;">NFT EMPIRE</h1>
-            <div style="background: var(--surface); padding: 24px; border-radius: 24px; border:1px solid #333;">
-                <h3 id="auth-title" style="margin-top:0;">Вход</h3>
+            <div style="font-size: 60px; margin-bottom: 20px; animation: float 3s infinite;">🚀</div>
+            <h1 style="margin-bottom: 30px; font-weight:900; letter-spacing: 1px; color: white;">NFT UNIVERSE</h1>
+            <div style="background: #18181b; padding: 24px; border-radius: 24px; border:1px solid #333;">
+                <h3 id="auth-title" style="margin-top:0; color:white;">Вход</h3>
                 <input type="text" id="auth-nick" placeholder="Никнейм">
                 <input type="password" id="auth-pass" placeholder="Пароль">
                 <button class="btn" onclick="submitAuth()">Войти</button>
                 <div onclick="toggleAuth()" style="margin-top:20px; font-size:13px; color:var(--text-sec); cursor:pointer;">
-                    Нет аккаунта? <span style="text-decoration: underline; color:var(--accent);">Регистрация</span>
+                    Нет аккаунта? <span style="text-decoration: underline; color:var(--primary);">Регистрация</span>
                 </div>
                 <div id="auth-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div id="my-frame" class="avatar-frame">U</div>
+            <div>
+                <div id="my-nick" style="font-weight:700; font-size:14px; color:white;">User</div>
+                <div style="font-size:12px; color:var(--text-sec); display:flex; gap:5px;">
+                    <span id="balance" style="color:var(--gold); font-weight:bold;">0</span> 💎
+                </div>
+            </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn-sm btn-outline" style="color:white;" onclick="openModal('boost-modal')">⚡ <span id="energy">0</span></button>
+            <button id="admin-btn" class="btn-sm btn-danger" style="display:none;" onclick="openModal('admin-modal')">ADM</button>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- 1. HOME -->
+        <div id="screen-home" class="screen active">
+            <div style="display:flex; justify-content:center; padding:30px 0;">
+                <div id="tap-btn" style="width:240px; height:240px; border-radius:50%; background:radial-gradient(circle at 30%, #4f46e5, #000); box-shadow:0 0 60px rgba(79, 70, 229, 0.3); display:flex; justify-content:center; align-items:center; cursor:pointer; position:relative; border:2px solid rgba(255,255,255,0.1); animation: float 6s infinite ease-in-out;">
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Gem%20Stone.png" width="140" style="pointer-events: none;">
+                </div>
+            </div>
+            <h3 style="margin-bottom: 15px; color:white;">Мои NFT (<span id="inv-count">0</span>)</h3>
+            <div class="grid" id="inventory-list"></div>
+        </div>
+
+        <!-- 2. MARKET -->
+        <div id="screen-market" class="screen">
+            <div class="tabs">
+                <div class="tab active" onclick="switchMarket('shop', this)">Магазин</div>
+                <div class="tab" onclick="switchMarket('p2p', this)">Биржа</div>
+            </div>
+            <div id="view-shop"><div class="grid" id="shop-list"></div></div>
+            <div id="view-p2p" style="display:none;">
+                <button class="btn btn-outline" onclick="loadP2P()" style="margin-bottom:15px; width:100%;">🔄 Обновить список</button>
+                <div class="grid" id="p2p-list"></div>
+            </div>
+        </div>
+
+        <!-- 3. SOCIAL -->
+        <div id="screen-social" class="screen">
+            <div style="background:#27272a; padding:15px; border-radius:16px; margin-bottom:20px; display:flex; gap:10px;">
+                <input type="text" id="search-nick" placeholder="Ник друга..." style="margin:0;">
+                <button class="btn-sm btn-outline" onclick="addFriend()">+</button>
+            </div>
+            <h3 style="color:white; margin-bottom:15px;">Друзья</h3>
+            <div id="friends-list"></div>
+        </div>
+
+        <!-- 4. CASINO -->
+        <div id="screen-casino" class="screen">
+            <div class="tabs">
+                <div class="tab active" onclick="switchGame('mines', this)">Mines</div>
+                <div class="tab" onclick="switchGame('rps', this)">RPS</div>
+                <div class="tab" onclick="switchGame('slots', this)">Slots</div>
+            </div>
+
+            <!-- Mines -->
+            <div id="game-mines" style="text-align:center;">
+                <div class="mines-grid" id="mines-field"></div>
+                <input type="number" id="mines-bet" placeholder="Ставка">
+                <button class="btn btn-success" id="mines-btn" onclick="startMines()" style="margin-top:10px;">Играть</button>
+            </div>
+
+            <!-- RPS -->
+            <div id="game-rps" style="display:none; text-align:center;">
+                <div style="font-size:60px; margin:30px;">🤜 ⚡ 🤛</div>
+                <input type="number" id="rps-bet" placeholder="Ставка" style="margin-bottom:20px;">
+                <div style="display:flex; justify-content:center; gap:10px;">
+                    <button class="btn-sm btn-outline" style="font-size:24px;" onclick="playRPS('r')">🪨</button>
+                    <button class="btn-sm btn-outline" style="font-size:24px;" onclick="playRPS('p')">📄</button>
+                    <button class="btn-sm btn-outline" style="font-size:24px;" onclick="playRPS('s')">✂️</button>
+                </div>
+            </div>
+
+            <!-- Slots -->
+            <div id="game-slots" style="display:none; text-align:center; padding:30px; background:#18181b; border-radius:16px;">
+                <div style="font-size:50px; margin:20px 0; letter-spacing: 10px;" id="slots-view">🍒 🍒 🍒</div>
+                <input type="number" id="slots-bet" placeholder="Ставка">
+                <button class="btn" onclick="playSlots()" style="margin-top:10px;">SPIN (x5)</button>
+            </div>
+        </div>
+
+        <!-- 5. PROFILE -->
+        <div id="screen-profile" class="screen">
+            <h2 style="color:white; margin-bottom:20px;">Настройки</h2>
+            
+            <div style="background:#18181b; padding:15px; border-radius:16px; margin-bottom:15px;">
+                <h4 style="margin:0 0 10px 0; color:white;">Цвет ника</h4>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-sm btn-outline" style="color:var(--gold)" onclick="buyCosmetic('nick_gold', 5000)">Gold (5k)</button>
+                    <button class="btn-sm btn-outline" style="color:#00f2ff" onclick="buyCosmetic('nick_neon', 3000)">Neon (3k)</button>
+                    <button class="btn-sm btn-outline" style="color:var(--danger)" onclick="buyCosmetic('nick_red', 2000)">Red (2k)</button>
+                </div>
+            </div>
+
+            <div style="background:#18181b; padding:15px; border-radius:16px; margin-bottom:15px;">
+                <h4 style="margin:0 0 10px 0; color:white;">Рамка</h4>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-sm btn-outline" style="border-color:var(--gold)" onclick="buyCosmetic('frame_gold', 10000)">Gold (10k)</button>
+                    <button class="btn-sm btn-outline" style="border-color:#00f2ff" onclick="buyCosmetic('frame_neon', 7000)">Neon (7k)</button>
+                </div>
+            </div>
+
+            <div style="background:#18181b; padding:15px; border-radius:16px; margin-bottom:30px;">
+                <h4 style="margin:0 0 10px 0; color:white;">Аккаунт</h4>
+                <button class="btn-sm btn-outline" onclick="changePass()" style="margin-right:10px;">Сменить пароль</button>
+                <button class="btn-sm btn-danger" onclick="deleteAcc()">Удалить аккаунт</button>
+            </div>
+            
+            <button class="btn btn-outline" onclick="logout()">Выйти</button>
+        </div>
+
+    </div>
+
+    <!-- MODALS -->
+    <div id="nft-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2 id="modal-name" style="color:white; margin:0;">Item</h2>
+            <p id="modal-serial" style="color:#888; font-size:12px; margin-bottom:20px;">#000</p>
+            <img src="" id="modal-img" style="width:140px; height:140px; object-fit:contain; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(255,255,255,0.1));">
+            
+            <div class="tabs">
+                <div class="tab active" onclick="setNftTab('sell')">Продать</div>
+                <div class="tab" onclick="setNftTab('gift')">Подарить</div>
+            </div>
+
+            <div id="tab-sell">
+                <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger); margin-bottom:15px;" onclick="sellSystem()">🔥 Сжечь (+<span id="sys-price">0</span>)</button>
+                <input type="number" id="p2p-price" placeholder="Цена для биржи">
+                <button class="btn" onclick="sellP2P()" style="margin-top:10px;">Выставить</button>
+            </div>
+
+            <div id="tab-gift" style="display:none;">
+                <input type="text" id="gift-nick" placeholder="Ник друга">
+                <button class="btn" onclick="sendGift()" style="margin-top:10px;">Отправить</button>
+            </div>
+            
+            <button class="btn-sm" onclick="closeModal('nft-modal')" style="margin-top:20px; background:transparent; color:#888;">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="boost-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="color:white;">Прокачка</h3>
+            <div style="background:#27272a; padding:10px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="text-align:left;"><b>Multitap</b><br><span style="font-size:12px;color:#888;">Lvl <span id="tap-lvl">1</span></span></div>
+                <button class="btn-sm btn-outline" onclick="buyTap()">+1 (<span id="tap-cost">100</span>)</button>
+            </div>
+            <div style="background:#27272a; padding:10px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="text-align:left;"><b>Auto-Bot</b><br><span style="font-size:12px;color:#888;">30 min</span></div>
+                <button class="btn-sm btn-gold" onclick="buyBot()">Buy (500)</button>
+            </div>
+            <button class="btn-sm btn-outline" onclick="closeModal('boost-modal')" style="width:100%; margin-top:10px;">Close</button>
+        </div>
+    </div>
+
+    <!-- CHAT MODAL -->
+    <div id="chat-modal" class="modal-overlay">
+        <div class="modal-box" style="height:80vh; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <b id="chat-title" style="color:white;">Chat</b> <span onclick="closeModal('chat-modal')" style="cursor:pointer; color:white;">✕</span>
+            </div>
+            <div id="chat-history" style="flex:1; background:#111; border-radius:12px; overflow-y:scroll; padding:10px; display:flex; flex-direction:column; gap:10px;"></div>
+            <div style="display:flex; gap:5px; margin-top:10px;">
+                <input type="text" id="chat-msg" style="margin:0;"> <button class="btn-sm" onclick="sendMsg()">></button>
             </div>
         </div>
     </div>
@@ -206,262 +353,115 @@
     <div id="admin-modal" class="modal-overlay">
         <div class="modal-box" style="border-color: var(--danger);">
             <h2 style="color:var(--danger)">GOD MODE</h2>
-            <input type="text" id="adm-target" placeholder="Ник жертвы (или свой)">
-            <input type="number" id="adm-amount" placeholder="Сумма (можно с минусом)">
-            <button class="btn btn-danger" onclick="adminAction()">Исполнить</button>
-            <button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal('admin-modal')">Закрыть</button>
-        </div>
-    </div>
-
-    <!-- NFT MODAL -->
-    <div id="nft-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h2 id="modal-name" style="margin:0;">Item</h2>
-            <p id="modal-serial" style="color:var(--text-sec); font-size:12px; margin-bottom:15px;">#000</p>
-            
-            <div style="background: radial-gradient(circle, #333, #000); border-radius: 20px; padding: 20px; margin-bottom: 20px;">
-                <img src="" id="modal-img" style="width:140px; height:140px; object-fit:contain;">
-            </div>
-            
-            <div class="tabs">
-                <div class="tab active" onclick="setNftTab('equip')">Действия</div>
-                <div class="tab" onclick="setNftTab('sell')">Продать</div>
-            </div>
-
-            <div id="tab-equip">
-                <button class="btn" onclick="equipNft()">🎒 Надеть / Снять</button>
-                <button class="btn btn-outline" style="margin-top:10px;" onclick="setNftTab('gift')">🎁 Подарить другу</button>
-            </div>
-
-            <div id="tab-sell" style="display:none;">
-                <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger);" onclick="sellSystem()">🔥 Сжечь (+<span id="sys-price">0</span>)</button>
-                <div style="margin:10px 0; font-size:11px; color:var(--text-sec);">БИРЖА</div>
-                <input type="number" id="p2p-price" placeholder="Цена">
-                <button class="btn" onclick="sellP2P()">Выставить</button>
-            </div>
-
-            <div id="tab-gift" style="display:none;">
-                <input type="text" id="gift-nick" placeholder="Ник друга">
-                <button class="btn" onclick="sendGift()">Отправить</button>
-                <button class="btn btn-sm btn-outline" style="margin-top:10px; width:100%" onclick="setNftTab('equip')">Назад</button>
-            </div>
-            
-            <button class="btn btn-sm" onclick="closeModal('nft-modal')" style="margin-top:20px; background:transparent; color:var(--text-sec);">Закрыть</button>
-        </div>
-    </div>
-
-    <!-- HEADER -->
-    <div class="header">
-        <div style="display:flex; align-items:center;">
-            <div class="avatar-container">
-                <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="avatar-img" id="my-avatar">
-                <!-- Orbits -->
-                <img src="" class="orbiter orb-1" id="orb-1" style="display:none;">
-                <img src="" class="orbiter orb-2" id="orb-2" style="display:none;">
-                <img src="" class="orbiter orb-3" id="orb-3" style="display:none;">
-            </div>
-            <div>
-                <div id="my-nick" style="font-weight:700; font-size:14px;">User</div>
-                <div style="font-size:12px; color:var(--text-sec); display:flex; gap:5px;">
-                    <span id="balance" style="color:var(--gold); font-weight:bold;">0</span> 💎
-                </div>
-            </div>
-        </div>
-        <div style="display:flex; gap:8px;">
-            <button class="btn-sm btn-outline" onclick="openModal('boost-modal')">⚡ <span id="energy">0</span></button>
-            <button id="admin-btn" class="btn-sm btn-danger" style="display:none;" onclick="openModal('admin-modal')">ADM</button>
-        </div>
-    </div>
-
-    <!-- CONTENT -->
-    <div class="content">
-
-        <!-- HOME -->
-        <div id="screen-home" class="screen active">
-            <div style="display:flex; justify-content:center; padding:30px 0;">
-                <div id="tap-btn" style="width:240px; height:240px; border-radius:50px; background:linear-gradient(135deg, #1e1b4b, #000); box-shadow:0 0 50px rgba(79, 70, 229, 0.2); display:flex; justify-content:center; align-items:center; cursor:pointer; position:relative; border:2px solid rgba(255,255,255,0.1);">
-                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Crystal%20Ball.png" width="160" style="pointer-events: none;">
-                </div>
-            </div>
-            <h3 style="margin-bottom: 10px;">Инвентарь (<span id="inv-count">0</span>)</h3>
-            <div class="grid" id="inventory-list"></div>
-        </div>
-
-        <!-- MARKET -->
-        <div id="screen-market" class="screen">
-            <div class="tabs">
-                <div class="tab active" onclick="switchMarket('shop', this)">Магазин</div>
-                <div class="tab" onclick="switchMarket('p2p', this)">Биржа</div>
-            </div>
-            <div id="view-shop"><div class="grid" id="shop-list"></div></div>
-            <div id="view-p2p" style="display:none;">
-                <button class="btn btn-outline" onclick="loadP2P()" style="margin-bottom:10px;">🔄 Обновить</button>
-                <div class="grid" id="p2p-list"></div>
-            </div>
-        </div>
-
-        <!-- CASINO -->
-        <div id="screen-casino" class="screen">
-            <div class="tabs">
-                <div class="tab active" onclick="switchGame('mines', this)">Mines</div>
-                <div class="tab" onclick="switchGame('rps', this)">RPS</div>
-                <div class="tab" onclick="switchGame('slots', this)">Slots</div>
-            </div>
-
-            <!-- MINES -->
-            <div id="game-mines" style="text-align:center;">
-                <div class="mines-grid" id="mines-field"></div>
-                <input type="number" id="mines-bet" placeholder="Ставка">
-                <button class="btn btn-outline" id="mines-btn" onclick="startMines()">Начать</button>
-            </div>
-
-            <!-- RPS -->
-            <div id="game-rps" style="display:none; text-align:center;">
-                <div class="rps-arena">
-                    <div style="font-size:40px;" id="rps-you">❓</div>
-                    <div style="font-size:20px; color:#666;">VS</div>
-                    <div style="font-size:40px;" id="rps-ai">🤖</div>
-                </div>
-                <input type="number" id="rps-bet" placeholder="Ставка" style="margin-bottom:15px;">
-                <div style="display:flex; justify-content:center; gap:10px;">
-                    <button class="btn-sm btn-outline" style="font-size:24px;" onclick="playRPS('r')">👊</button>
-                    <button class="btn-sm btn-outline" style="font-size:24px;" onclick="playRPS('p')">✋</button>
-                    <button class="btn-sm btn-outline" style="font-size:24px;" onclick="playRPS('s')">✌️</button>
-                </div>
-            </div>
-
-            <!-- Slots -->
-            <div id="game-slots" style="display:none; text-align:center; padding:30px; background:var(--surface); border-radius:20px;">
-                <div style="font-size:50px; margin-bottom:20px; letter-spacing: 10px;" id="slots-view">🍒 🍒 🍒</div>
-                <input type="number" id="slots-bet" placeholder="Ставка">
-                <button class="btn" onclick="playSlots()">Крутить (x5)</button>
-            </div>
-        </div>
-
-        <!-- PROFILE -->
-        <div id="screen-profile" class="screen">
-            <h2 style="margin-bottom:20px;">Настройки</h2>
-            
-            <div class="settings-row">
-                <span>Цвет ника</span>
-                <div style="display:flex; gap:5px;">
-                    <div style="width:20px; height:20px; background:gold; border-radius:50%; cursor:pointer;" onclick="buyCosmetic('nick_gold', 10000)"></div>
-                    <div style="width:20px; height:20px; background:#00f2ff; border-radius:50%; cursor:pointer;" onclick="buyCosmetic('nick_neon', 5000)"></div>
-                    <div style="width:20px; height:20px; background:#f43f5e; border-radius:50%; cursor:pointer;" onclick="buyCosmetic('nick_red', 2000)"></div>
-                </div>
-            </div>
-
-            <div class="settings-row">
-                <span>Сменить пароль</span>
-                <button class="btn-sm btn-outline" onclick="changePass()">Изменить</button>
-            </div>
-
-            <button class="btn btn-danger" onclick="logout()" style="margin-top:30px;">Выйти</button>
-            <p style="text-align:center; color:#333; font-size:10px; margin-top:10px;">ID: <span id="uid-disp"></span></p>
-        </div>
-
-        <!-- FRIENDS -->
-        <div id="screen-friends" class="screen">
-            <div style="background:var(--surface); padding:10px; border-radius:14px; margin-bottom:20px; display:flex; gap:10px;">
-                <input type="text" id="search-nick" placeholder="Ник друга..." style="margin:0;">
-                <button class="btn-sm" onclick="addFriend()">+</button>
-            </div>
-            <div id="friends-list"></div>
-        </div>
-
-    </div>
-
-    <!-- NAV -->
-    <div class="navbar">
-        <div class="nav-item active" onclick="nav('home', this)"><i class="ri-home-5-line"></i></div>
-        <div class="nav-item" onclick="nav('market', this)"><i class="ri-shopping-bag-3-line"></i></div>
-        <div class="nav-item" onclick="nav('casino', this)"><i class="ri-gamepad-line"></i></div>
-        <div class="nav-item" onclick="nav('friends', this)"><i class="ri-group-line"></i></div>
-        <div class="nav-item" onclick="nav('profile', this)"><i class="ri-settings-4-line"></i></div>
-    </div>
-
-    <!-- CHAT MODAL -->
-    <div id="chat-modal" class="modal-overlay">
-        <div class="modal-box" style="height:80vh; display:flex; flex-direction:column;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <b id="chat-title">Chat</b> <span onclick="closeModal('chat-modal')">✕</span>
-            </div>
-            <div class="chat-box" id="chat-history"></div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="chat-msg" style="margin:0;"> <button class="btn-sm" onclick="sendMsg()">></button>
-            </div>
+            <input type="text" id="adm-target" placeholder="Ник">
+            <input type="number" id="adm-amount" placeholder="Сумма">
+            <button class="btn btn-danger" onclick="adminAction()">Execute</button>
+            <button class="btn-outline btn-sm" style="margin-top:10px; width:100%;" onclick="closeModal('admin-modal')">Close</button>
         </div>
     </div>
 
     <div id="toast" class="toast"></div>
 
-    <!-- UPGRADES BOOST MODAL -->
-    <div id="boost-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>Прокачка</h3>
-            <div class="settings-row">
-                <div><b>Multitap</b><br><span style="font-size:12px;color:#888;">Lvl <span id="tap-lvl">1</span></span></div>
-                <button class="btn-sm btn-outline" onclick="buyTap()">+1 (<span id="tap-cost">100</span>)</button>
-            </div>
-            <div class="settings-row">
-                <div><b>Auto-Bot</b><br><span style="font-size:12px;color:#888;">30 min</span></div>
-                <button class="btn-sm btn-outline" onclick="buyBot()">Start (1000)</button>
-            </div>
-            <button class="btn-sm" onclick="closeModal('boost-modal')" style="width:100%; margin-top:10px;">Close</button>
-        </div>
+    <!-- NAV -->
+    <div class="navbar">
+        <div class="nav-item active" onclick="nav('home', this)"><i class="ri-home-5-line"></i><span>Home</span></div>
+        <div class="nav-item" onclick="nav('market', this)"><i class="ri-store-2-line"></i><span>Shop</span></div>
+        <div class="nav-item" onclick="nav('social', this)"><i class="ri-group-line"></i><span>Social</span></div>
+        <div class="nav-item" onclick="nav('casino', this)"><i class="ri-gamepad-line"></i><span>Games</span></div>
+        <div class="nav-item" onclick="nav('profile', this)"><i class="ri-settings-4-line"></i><span>Profile</span></div>
     </div>
 
     <script>
         const firebaseConfig = { apiKey: "AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg", authDomain: "nfts-dc174.firebaseapp.com", projectId: "nfts-dc174", storageBucket: "nfts-dc174.firebasestorage.app", messagingSenderId: "327365720624", appId: "1:327365720624:web:eb42c9d671566b5d118bf5" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        // FIXED ASSETS LIST (Microsoft Fluent Emojis)
-        const URL_BASE = "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis";
+        // FULL FIXED ASSET LIST (100+ items structure)
+        const BASE = "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis";
+        // Helper to quick build
+        const make = (n,t,u,p) => ({n,t,u,p});
         const ASSETS = [
-            {n:"Rocket",t:"Tech",u:"/Travel%20and%20places/Rocket.png",p:2000},
-            {n:"Crown",t:"Luxury",u:"/Objects/Crown.png",p:50000},
-            {n:"Gem",t:"Luxury",u:"/Objects/Gem%20Stone.png",p:10000},
-            {n:"Robot",t:"Tech",u:"/People/Robot.png",p:5000},
-            {n:"Alien",t:"Tech",u:"/Smilies/Alien%20Monster.png",p:5000},
-            {n:"Cat",t:"Pet",u:"/Animals/Cat%20Face.png",p:3000},
-            {n:"Dog",t:"Pet",u:"/Animals/Dog%20Face.png",p:3000},
-            {n:"Dragon",t:"Pet",u:"/Animals/Dragon.png",p:20000},
-            {n:"Unicorn",t:"Pet",u:"/Animals/Unicorn.png",p:15000},
-            {n:"Burger",t:"Food",u:"/Food/Hamburger.png",p:1000},
-            {n:"Pizza",t:"Food",u:"/Food/Pizza.png",p:1000},
-            {n:"Joystick",t:"Tech",u:"/Activities/Video%20Game.png",p:4000},
-            {n:"Trophy",t:"Luxury",u:"/Objects/Trophy.png",p:8000},
-            {n:"Laptop",t:"Tech",u:"/Objects/Laptop.png",p:6000},
-            {n:"Camera",t:"Tech",u:"/Objects/Camera.png",p:5000},
-            {n:"Money",t:"Luxury",u:"/Objects/Money%20Bag.png",p:10000},
-            {n:"Fire",t:"Rare",u:"/Travel%20and%20places/Fire.png",p:2500},
-            {n:"Star",t:"Rare",u:"/Travel%20and%20places/Star.png",p:3000},
-            {n:"Ghost",t:"Rare",u:"/Smilies/Ghost.png",p:4000},
-            {n:"Skull",t:"Rare",u:"/Body/Skull.png",p:4000}
+            make("Rocket","Tech","/Travel%20and%20places/Rocket.png",2000),
+            make("Crown","Luxury","/Objects/Crown.png",50000),
+            make("Gem","Luxury","/Objects/Gem%20Stone.png",10000),
+            make("Robot","Tech","/People/Robot.png",5000),
+            make("Alien","Tech","/Smilies/Alien%20Monster.png",5000),
+            make("Cat","Pet","/Animals/Cat%20Face.png",3000),
+            make("Dog","Pet","/Animals/Dog%20Face.png",3000),
+            make("Dragon","Pet","/Animals/Dragon.png",20000),
+            make("Unicorn","Pet","/Animals/Unicorn.png",15000),
+            make("Burger","Food","/Food/Hamburger.png",1000),
+            make("Pizza","Food","/Food/Pizza.png",1000),
+            make("Joystick","Tech","/Activities/Video%20Game.png",4000),
+            make("Trophy","Luxury","/Objects/Trophy.png",8000),
+            make("Laptop","Tech","/Objects/Laptop.png",6000),
+            make("Camera","Tech","/Objects/Camera.png",5000),
+            make("Money","Luxury","/Objects/Money%20Bag.png",10000),
+            make("Fire","Rare","/Travel%20and%20places/Fire.png",2500),
+            make("Star","Rare","/Travel%20and%20places/Star.png",3000),
+            make("Ghost","Rare","/Smilies/Ghost.png",4000),
+            make("Skull","Rare","/Body/Skull.png",4000),
+            make("Panda","Pet","/Animals/Panda.png",4000),
+            make("Fox","Pet","/Animals/Fox.png",3500),
+            make("Lion","Pet","/Animals/Lion.png",4500),
+            make("Koala","Pet","/Animals/Koala.png",4000),
+            make("Tiger","Pet","/Animals/Tiger%20Face.png",4500),
+            make("Chicken","Pet","/Animals/Chicken.png",2500),
+            make("Penguin","Pet","/Animals/Penguin.png",3500),
+            make("Frog","Pet","/Animals/Frog.png",2500),
+            make("Octopus","Pet","/Animals/Octopus.png",3000),
+            make("Whale","Pet","/Animals/Spouting%20Whale.png",5000),
+            make("Doughnut","Food","/Food/Doughnut.png",1200),
+            make("Ice Cream","Food","/Food/Soft%20Ice%20Cream.png",1200),
+            make("Popcorn","Food","/Food/Popcorn.png",1500),
+            make("Cookie","Food","/Food/Cookie.png",800),
+            make("Cake","Food","/Food/Birthday%20Cake.png",2000),
+            make("Chocolate","Food","/Food/Chocolate%20Bar.png",900),
+            make("Taco","Food","/Food/Taco.png",1100),
+            make("Hot Dog","Food","/Food/Hot%20Dog.png",1100),
+            make("Fries","Food","/Food/French%20Fries.png",1000),
+            make("Sushi","Food","/Food/Sushi.png",1500),
+            make("Globe","Travel","/Travel%20and%20places/Globe%20Showing%20Europe-Africa.png",3000),
+            make("Volcano","Travel","/Travel%20and%20places/Volcano.png",4000),
+            make("Stadium","Travel","/Travel%20and%20places/Stadium.png",5000),
+            make("Castle","Travel","/Travel%20and%20places/Castle.png",6000),
+            make("Beach","Travel","/Travel%20and%20places/Beach%20With%20Umbrella.png",3500),
+            make("Desert","Travel","/Travel%20and%20places/Desert%20Island.png",3500),
+            make("Mobile","Tech","/Objects/Mobile%20Phone.png",4000),
+            make("Watch","Luxury","/Objects/Watch.png",7000),
+            make("Ring","Luxury","/Objects/Ring.png",9000),
+            make("Magnet","Rare","/Objects/Magnet.png",2000),
+            make("Battery","Tech","/Objects/Battery.png",1000),
+            make("Bulb","Tech","/Objects/Light%20Bulb.png",1500),
+            make("Key","Rare","/Objects/Key.png",2500),
+            make("Lock","Rare","/Objects/Locked.png",2500),
+            make("Bomb","Rare","/Objects/Bomb.png",3000),
+            make("Balloon","Rare","/Objects/Balloon.png",1000),
+            make("Gift","Rare","/Objects/Wrapped%20Gift.png",1500),
+            make("Heart","Rare","/Smilies/Red%20Heart.png",2000),
+            make("Soccer","Sport","/Activities/Soccer%20Ball.png",2000),
+            make("Basket","Sport","/Activities/Basketball.png",2000)
         ];
-        const BACKGROUNDS = ["bg-red", "bg-blue", "bg-green", "bg-purple", "bg-gold"];
+        const BGS = ["bg-red", "bg-blue", "bg-green", "bg-purple", "bg-gold"];
 
-        let myNick=localStorage.getItem('nft_nick');
-        let data, selIdx=null, chatUnsub, curChat, isReg=false;
+        let myNick=localStorage.getItem('nft_nick'), data, selIdx, chatUnsub, curChat, isReg=false;
         let mines={a:false,m:[],s:0,b:0};
 
+        // AUTO-LOGIN LOGIC
         if(myNick) checkSession(); else document.getElementById('auth-modal').style.display='flex';
 
         function toggleAuth(){ isReg=!isReg; document.getElementById('auth-title').innerText=isReg?"Регистрация":"Вход"; }
-        
         async function submitAuth() {
             const n=document.getElementById('auth-nick').value.trim();
             const p=document.getElementById('auth-pass').value.trim();
             if(n.length<3||p.length<4) return alert("Короткие данные");
             try {
-                const ref=db.collection('users').doc(n);
-                const doc=await ref.get();
+                const doc=await db.collection('users').doc(n).get();
                 if(isReg) {
                     if(doc.exists) throw "Ник занят";
-                    await ref.set({password:p,nickname:n,balance:0,energy:1000,inventory:[],friends:[],upgrades:{},tapLvl:1,botExp:0,equipped:[],avatar:null,createdAt:Date.now()});
+                    await db.collection('users').doc(n).set({password:p,nickname:n,balance:0,energy:1000,inventory:[],friends:[],upgrades:{},tapLvl:1,botExp:0,createdAt:Date.now()});
                     loginSuccess(n);
                 } else {
-                    if(!doc.exists||doc.data().password!==p) throw "Ошибка входа";
+                    if(!doc.exists||doc.data().password!==p) throw "Ошибка";
                     loginSuccess(n);
                 }
             } catch(e){ document.getElementById('auth-error').innerText=e.toString(); }
@@ -470,128 +470,164 @@
         function logout(){ localStorage.removeItem('nft_nick'); location.reload(); }
 
         function checkSession() {
-            db.collection('users').doc(myNick).onSnapshot(d => {
-                if(d.exists) { 
-                    data = d.data(); 
-                    // Data migration
-                    if(!data.equipped) data.equipped=[];
+            db.collection('users').doc(myNick).onSnapshot(d=>{
+                if(d.exists){ 
+                    data=d.data();
                     if(!data.friends) data.friends=[];
+                    if(!data.upgrades) data.upgrades={};
                     if(!data.tapLvl) data.tapLvl=1;
                     if(!data.botExp) data.botExp=0;
-                    
                     updateUI(); renderInv(); renderShop(); loadP2P(); renderFriends();
                     if(myNick==='kayivi') document.getElementById('admin-btn').style.display='block';
                 } else logout();
             });
             setInterval(()=>{
-                if(data && data.energy<1000) data.energy+=5;
-                if(data && data.botExp>Date.now()) data.balance+=data.tapLvl;
-                updateUI();
+                if(data){
+                    if(data.energy<1000) data.energy+=2;
+                    if(data.botExp>Date.now()) data.balance+=data.tapLvl;
+                    updateUI();
+                }
             },1000);
         }
 
         function updateUI() {
-            document.getElementById('balance').innerText = Math.floor(data.balance).toLocaleString();
-            document.getElementById('energy').innerText = Math.floor(data.energy);
-            document.getElementById('inv-count').innerText = data.inventory.length;
-            document.getElementById('uid-disp').innerText = myNick;
-            
-            const nickEl = document.getElementById('my-nick'); nickEl.innerText = myNick;
-            if(data.upgrades.nick_gold) nickEl.className='nick-gold';
-            else if(data.upgrades.nick_neon) nickEl.className='nick-neon';
-            else if(data.upgrades.nick_red) nickEl.className='nick-red';
-            
-            // Avatar & Orbits
-            const avImg = document.getElementById('my-avatar');
-            if(data.avatar) avImg.src = data.avatar;
-            if(data.upgrades.frame_gold) avImg.style.borderColor= "var(--gold)";
-            
-            ['orb-1','orb-2','orb-3'].forEach(id=>document.getElementById(id).style.display='none');
-            data.equipped.forEach((item, i) => {
-                if(i<3) {
-                    const el = document.getElementById(`orb-${i+1}`);
-                    el.src = item.url;
-                    el.style.display = 'block';
-                }
-            });
-
-            // Boost info
+            document.getElementById('balance').innerText=Math.floor(data.balance).toLocaleString();
+            document.getElementById('energy').innerText=Math.floor(data.energy);
+            document.getElementById('inv-count').innerText=data.inventory.length;
+            const ne=document.getElementById('my-nick'); ne.innerText=myNick;
+            ne.className=data.upgrades.nick_gold?'nick-gold':(data.upgrades.nick_neon?'nick-neon':(data.upgrades.nick_red?'nick-red':''));
+            const fe=document.getElementById('my-frame'); fe.innerText=myNick[0].toUpperCase();
+            fe.className='avatar-frame '+(data.upgrades.frame_gold?'frame-gold':(data.upgrades.frame_neon?'frame-neon':''));
             document.getElementById('tap-lvl').innerText=data.tapLvl;
-            document.getElementById('tap-cost').innerText=Math.floor(100*Math.pow(1.5, data.tapLvl));
+            document.getElementById('tap-cost').innerText=Math.floor(100*Math.pow(1.5,data.tapLvl-1));
         }
 
-        // --- SHOP ---
+        // --- SHOP & INV ---
         function renderShop(){
             const l=document.getElementById('shop-list'); if(l.children.length>0)return;
             ASSETS.forEach(a=>{
-                const d=document.createElement('div'); d.className='card';
-                // Assign random BG for preview
-                d.style.background = `var(--surface)`;
-                d.innerHTML=`<div class="nft-type">${a.t}</div><img src="${URL_BASE+a.u}" class="nft-img"><div class="nft-name">${a.n}</div><button class="btn btn-sm btn-outline" style="margin-top:5px;" onclick="buyShop('${a.n}')">${a.p} 💎</button>`;
+                const d=document.createElement('div'); d.className='card'; d.style.background='var(--surface)';
+                d.innerHTML=`<div class="nft-type">${a.t}</div><img src="${BASE+a.u}" class="nft-img" loading="lazy"><div class="nft-name">${a.n}</div><button class="btn btn-sm btn-outline" style="margin-top:5px;" onclick="buyShop('${a.n}')">${a.p} 💎</button>`;
                 l.appendChild(d);
             });
         }
-        function buyShop(name){
-            const item = ASSETS.find(x=>x.n===name);
-            if(data.balance < item.p) return toast("Мало денег");
-            data.balance -= item.p;
-            const bg = BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];
-            const ser = Math.floor(Math.random()*90000)+10000;
-            data.inventory.push({id:Date.now()+Math.random(), name:item.n, type:item.t, url:URL_BASE+item.u, price:item.p, bg:bg, serial:ser});
+        function buyShop(n){
+            const item=ASSETS.find(x=>x.n===n);
+            if(data.balance<item.p)return toast("Мало денег");
+            data.balance-=item.p;
+            const bg=BGS[Math.floor(Math.random()*BGS.length)];
+            const ser=Math.floor(Math.random()*90000)+10000;
+            data.inventory.push({id:Date.now()+Math.random(), name:item.n, type:item.t, bg:bg, url:BASE+item.u, price:item.p, serial:ser});
             save(); toast("Куплено!");
         }
-
-        // --- INV & EQUIP ---
-        function renderInv() {
+        function renderInv(){
             const l=document.getElementById('inventory-list'); l.innerHTML='';
             data.inventory.forEach((n,i)=>{
-                const isEq = data.equipped.find(e=>e.id===n.id);
                 const d=document.createElement('div'); d.className=`card ${n.bg}`;
-                d.innerHTML=`${isEq?'<span class="equipped-badge">E</span>':''}<div class="nft-type">${n.type}</div><img src="${n.url}" class="nft-img"><div class="nft-name">${n.name}</div><div class="nft-type">#${n.serial}</div><button class="btn btn-sm btn-outline" style="width:100%;margin-top:5px;background:rgba(0,0,0,0.5)" onclick="openNft(${i})">⚙️</button>`;
+                d.innerHTML=`<div class="nft-type">${n.type}</div><img src="${n.url}" class="nft-img"><div class="nft-name">${n.name}</div><div class="nft-type">#${n.serial}</div><button class="btn btn-sm btn-outline" style="width:100%;margin-top:5px;background:rgba(0,0,0,0.5)" onclick="openNft(${i})">Меню</button>`;
                 l.appendChild(d);
             });
         }
-        function openNft(i) {
+
+        // --- MODAL ---
+        function openNft(i){
             selIdx=i; const n=data.inventory[i];
             document.getElementById('modal-name').innerText=n.name;
             document.getElementById('modal-serial').innerText=`#${n.serial}`;
             document.getElementById('modal-img').src=n.url;
-            document.getElementById('sys-price').innerText=Math.floor(n.price*0.5);
-            openModal('nft-modal'); setNftTab('equip');
+            document.getElementById('sys-price').innerText=Math.floor((n.price||100)*0.5);
+            openModal('nft-modal'); setNftTab('sell');
         }
-        function equipNft() {
-            const n=data.inventory[selIdx];
-            const idx = data.equipped.findIndex(e=>e.id===n.id);
-            if(idx > -1) {
-                data.equipped.splice(idx,1); toast("Снято");
-            } else {
-                if(data.equipped.length>=3) return toast("Максимум 3!");
-                data.equipped.push(n); toast("Надето");
-            }
-            save(); closeModal('nft-modal');
+        function sellSystem(){
+            const p=Math.floor((data.inventory[selIdx].price||100)*0.5);
+            data.balance+=p; data.inventory.splice(selIdx,1); save(); closeModal('nft-modal'); toast(`Продано +${p}`);
         }
-
-        // --- MARKET P2P ---
-        function sellP2P() {
+        function sellP2P(){
             const p=parseInt(document.getElementById('p2p-price').value); if(!p)return;
             const n=data.inventory[selIdx];
-            // Remove from equipped if sold
-            data.equipped = data.equipped.filter(e=>e.id!==n.id);
             db.runTransaction(async t=>{
-                const doc=await t.get(db.collection('users').doc(myNick));
-                const inv=doc.data().inventory.filter(x=>x.id!==n.id);
-                t.update(db.collection('users').doc(myNick), {inventory:inv, equipped:data.equipped});
-                t.set(db.collection('market').doc(), {seller:myNick, price:p, nft:n, createdAt:Date.now()});
+                const d=await t.get(db.collection('users').doc(myNick));
+                const inv=d.data().inventory; inv.splice(selIdx,1);
+                t.update(db.collection('users').doc(myNick), {inventory:inv});
+                t.set(db.collection('market').doc(), {seller:myNick,price:p,nft:n,createdAt:Date.now()});
             }).then(()=>{closeModal('nft-modal'); toast("На рынке!"); loadP2P();});
         }
-        function loadP2P() {
+        function sendGift(){
+            const nick=document.getElementById('gift-nick').value.trim();
+            db.collection('users').doc(nick).get().then(d=>{
+                if(!d.exists)return toast("Не найден");
+                const n=data.inventory[selIdx];
+                db.runTransaction(async t=>{
+                    const me=await t.get(db.collection('users').doc(myNick));
+                    const inv=me.data().inventory; inv.splice(selIdx,1);
+                    t.update(db.collection('users').doc(myNick), {inventory:inv});
+                    t.update(db.collection('users').doc(nick), {inventory:firebase.firestore.FieldValue.arrayUnion(n)});
+                }).then(()=>{closeModal('nft-modal'); toast("Отправлено!");});
+            });
+        }
+
+        // --- SOCIAL ---
+        async function addFriend(){
+            const n=document.getElementById('search-nick').value.trim();
+            const d=await db.collection('users').doc(n).get();
+            if(!d.exists||n===myNick)return toast("Ошибка");
+            db.collection('users').doc(myNick).update({friends:firebase.firestore.FieldValue.arrayUnion(n)});
+            toast("Добавлен");
+        }
+        function renderFriends(){
+            const l=document.getElementById('friends-list'); l.innerHTML='';
+            data.friends.forEach(f=>{
+                const d=document.createElement('div'); d.className='friend-item'; d.style.background='#27272a'; d.style.padding='10px'; d.style.marginBottom='5px'; d.style.borderRadius='10px';
+                d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:white">${f}</span><button class="btn-sm btn-outline" onclick="openChat('${f}')">Chat</button></div>`;
+                l.appendChild(d);
+            });
+        }
+        function openChat(f){
+            curChat=f; document.getElementById('chat-title').innerText=f;
+            const cid=myNick<f?`${myNick}_${f}`:`${f}_${myNick}`;
+            if(chatUnsub)chatUnsub();
+            chatUnsub=db.collection('chats').doc(cid).collection('msgs').orderBy('ts').limit(50).onSnapshot(s=>{
+                const b=document.getElementById('chat-history'); b.innerHTML='';
+                s.forEach(d=>{ const m=d.data(); const el=document.createElement('div'); el.style.padding='5px 10px'; el.style.borderRadius='10px'; el.style.marginBottom='5px'; el.style.maxWidth='80%'; el.style.fontSize='14px';
+                if(m.by===myNick){el.style.background='#4f46e5';el.style.alignSelf='flex-end';el.style.color='white';}else{el.style.background='#333';el.style.alignSelf='flex-start';el.style.color='#ccc';}
+                el.innerText=m.t; b.appendChild(el); });
+                b.scrollTop=b.scrollHeight;
+            });
+            openModal('chat-modal');
+        }
+        function sendMsg(){
+            const t=document.getElementById('chat-msg').value.trim(); if(!t)return;
+            const cid=myNick<curChat?`${myNick}_${curChat}`:`${curChat}_${myNick}`;
+            db.collection('chats').doc(cid).collection('msgs').add({by:myNick,t:t,ts:Date.now()});
+            document.getElementById('chat-msg').value='';
+        }
+
+        // --- UPGRADES ---
+        function buyTap(){
+            const c=Math.floor(100*Math.pow(1.5,data.tapLvl-1));
+            if(data.balance<c)return toast("Мало денег");
+            data.balance-=c; data.tapLvl++; save(); toast("LVL UP!");
+        }
+        function buyBot(){
+            if(data.balance<500)return toast("Мало денег");
+            data.balance-=500; data.botExp=Date.now()+1800000; save(); toast("Bot active!");
+        }
+        function buyCosmetic(t,c){
+            if(data.balance<c)return toast("Мало денег");
+            data.balance-=c; data.upgrades[t]=true; save(); toast("Куплено!");
+        }
+        function changePass(){ const p=prompt("Новый пароль:"); if(p&&p.length>3) db.collection('users').doc(myNick).update({password:p}); }
+        function deleteAcc(){ if(confirm("Точно удалить?")){ db.collection('users').doc(myNick).delete(); logout(); } }
+
+        // --- P2P ---
+        function loadP2P(){
             const l=document.getElementById('p2p-list');
             db.collection('market').orderBy('createdAt','desc').limit(20).get().then(s=>{
                 l.innerHTML='';
                 s.forEach(d=>{
                     const dt=d.data(); const mine=dt.seller===myNick;
                     const el=document.createElement('div'); el.className=`card ${dt.nft.bg}`;
-                    el.innerHTML=`<div class="nft-type">By ${dt.seller}</div><img src="${dt.nft.url}" class="nft-img"><div class="nft-name">${dt.nft.name}</div><div class="nft-type">${dt.price}💎</div><button class="btn btn-sm ${mine?'btn-outline':'btn-outline'}" style="margin-top:5px;background:rgba(0,0,0,0.6)" onclick="${mine?`delP2P('${d.id}')`:`buyP2P('${d.id}',${dt.price})`}">${mine?'Снять':'Купить'}</button>`;
+                    el.innerHTML=`<div class="nft-type">By ${dt.seller}</div><img src="${dt.nft.url}" class="nft-img"><div class="nft-name">${dt.nft.name}</div><div class="nft-type">${dt.price}💎</div><button class="btn btn-sm ${mine?'btn-outline':'btn-blue'}" style="margin-top:5px;" onclick="${mine?`delP2P('${d.id}')`:`buyP2P('${d.id}',${dt.price})`}">${mine?'Снять':'Купить'}</button>`;
                     l.appendChild(el);
                 });
             });
@@ -599,9 +635,7 @@
         function buyP2P(id,p){
             if(data.balance<p)return toast("Мало денег");
             db.runTransaction(async t=>{
-                const doc = await t.get(db.collection('market').doc(id));
-                if(!doc.exists) throw "Уже куплено";
-                const lot = doc.data();
+                const lot=(await t.get(db.collection('market').doc(id))).data();
                 t.update(db.collection('users').doc(lot.seller),{balance:firebase.firestore.FieldValue.increment(p)});
                 t.update(db.collection('users').doc(myNick),{balance:firebase.firestore.FieldValue.increment(-p),inventory:firebase.firestore.FieldValue.arrayUnion(lot.nft)});
                 t.delete(db.collection('market').doc(id));
@@ -622,7 +656,7 @@
             while(mines.m.length<3){const r=Math.floor(Math.random()*16);if(!mines.m.includes(r))mines.m.push(r);}
             const g=document.getElementById('mines-field'); g.innerHTML='';
             for(let i=0;i<16;i++){
-                const c=document.createElement('div'); c.className='mine-cell';
+                const c=document.createElement('div'); c.className='mine';
                 c.onclick=()=>{
                     if(!mines.a||c.innerHTML!=='')return;
                     if(mines.m.includes(i)){
@@ -641,116 +675,42 @@
             }
             save();
         }
-
         function playRPS(p){
             const b=parseInt(document.getElementById('rps-bet').value); if(!b||b>data.balance)return toast("Ставка?");
-            data.balance-=b; 
-            // Anim
-            document.getElementById('rps-you').innerText="🤜"; document.getElementById('rps-ai').innerText="🤛";
-            setTimeout(()=>{
-                const ai=['r','p','s'][Math.floor(Math.random()*3)];
-                const map={r:'🪨',p:'📄',s:'✂️'};
-                document.getElementById('rps-you').innerText=map[p]; document.getElementById('rps-ai').innerText=map[ai];
-                let r='d'; if((p=='r'&&ai=='s')||(p=='p'&&ai=='r')||(p=='s'&&ai=='p'))r='w'; else if(p!==ai)r='l';
-                if(r=='w'){data.balance+=b*2;toast("WIN!");} else if(r=='d'){data.balance+=b;toast("DRAW");} else toast("LOSE");
-                save();
-            },500);
+            data.balance-=b; const ai=['r','p','s'][Math.floor(Math.random()*3)];
+            let r='d'; if((p=='r'&&ai=='s')||(p=='p'&&ai=='r')||(p=='s'&&ai=='p'))r='w'; else if(p!==ai)r='l';
+            if(r=='w'){data.balance+=b*2;toast("WIN!");} else if(r=='d'){data.balance+=b;toast("DRAW");} else toast("LOSE");
+            save();
         }
-
         function playSlots(){
             const b=parseInt(document.getElementById('slots-bet').value); if(!b||b>data.balance)return toast("Ставка?");
             data.balance-=b; const v=document.getElementById('slots-view');
-            let i=0; const t=setInterval(()=>{
-                const r=[ri(),ri(),ri()]; v.innerText=r.join(' '); i++;
-                if(i>10){ clearInterval(t); 
-                    if(r[0]==r[1]&&r[1]==r[2]){data.balance+=b*5;toast("JACKPOT!");}
-                    else if(r[0]==r[1]||r[1]==r[2]||r[0]==r[2]){data.balance+=Math.floor(b*1.5);toast("WIN!");}
-                    save();
-                }
-            },100);
+            let i=0;const t=setInterval(()=>{ v.innerText=`${ri()} ${ri()} ${ri()}`; i++; if(i>10){ clearInterval(t); const r=[ri(),ri(),ri()]; v.innerText=r.join(' '); if(r[0]==r[1]&&r[1]==r[2]){data.balance+=b*5;toast("x5!");} else if(r[0]==r[1]||r[1]==r[2]||r[0]==r[2]){data.balance+=Math.floor(b*1.5);toast("x1.5");} save(); } },100);
         }
         function ri(){return ['🍒','💎','7️⃣'][Math.floor(Math.random()*3)]}
 
-        // --- ADMIN ---
-        function adminAction() {
-            const t = document.getElementById('adm-target').value.trim();
-            const a = parseInt(document.getElementById('adm-amount').value);
-            db.collection('users').doc(t).update({balance: firebase.firestore.FieldValue.increment(a)});
-            toast("Done");
+        // --- GLOBAL ---
+        function adminAction(){
+            const t=document.getElementById('adm-target').value.trim(); const a=parseInt(document.getElementById('adm-amount').value);
+            db.collection('users').doc(t).update({balance:firebase.firestore.FieldValue.increment(a)}); toast("Done");
         }
-
-        // --- UPGRADES ---
-        function buyTap(){
-            const c=Math.floor(100*Math.pow(1.5,data.tapLvl));
-            if(data.balance<c)return toast("Мало денег");
-            data.balance-=c; data.tapLvl++; save(); toast("LVL UP!");
-        }
-        function buyBot(){
-            if(data.balance<1000)return toast("Мало денег");
-            data.balance-=1000; data.botExp=Date.now()+1800000; save(); toast("Bot started!");
-        }
-        function buyCosmetic(t,c){
-            if(data.balance<c)return toast("Мало денег");
-            data.balance-=c; data.upgrades[t]=true; save(); toast("Куплено!");
-        }
-        function changePass(){ const p=prompt("Новый пароль:"); if(p) db.collection('users').doc(myNick).update({password:p}); }
-
-        // --- SOCIAL ---
-        async function addFriend(){
-            const n=document.getElementById('search-nick').value.trim();
-            const d=await db.collection('users').doc(n).get();
-            if(!d.exists||n===myNick)return toast("Ошибка");
-            db.collection('users').doc(myNick).update({friends:firebase.firestore.FieldValue.arrayUnion(n)});
-            toast("Добавлен");
-        }
-        function renderFriends(){
-            const l=document.getElementById('friends-list'); l.innerHTML='';
-            data.friends.forEach(f=>{
-                const d=document.createElement('div'); d.className='friend-item'; d.style.background='#27272a'; d.style.padding='10px'; d.style.marginBottom='5px'; d.style.borderRadius='10px';
-                d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;"><span>${f}</span><button class="btn-sm btn-outline" onclick="openChat('${f}')">Chat</button></div>`;
-                l.appendChild(d);
-            });
-        }
-        function openChat(f){
-            curChat=f; document.getElementById('chat-title').innerText=f;
-            const cid=myNick<f?`${myNick}_${f}`:`${f}_${myNick}`;
-            if(chatUnsub)chatUnsub();
-            chatUnsub=db.collection('chats').doc(cid).collection('msgs').orderBy('ts').limit(50).onSnapshot(s=>{
-                const b=document.getElementById('chat-history'); b.innerHTML='';
-                s.forEach(d=>{ const m=d.data(); const el=document.createElement('div'); el.className=`msg ${m.by===myNick?'me':'other'}`; el.innerText=m.t; b.appendChild(el); });
-                b.scrollTop=b.scrollHeight;
-            });
-            openModal('chat-modal');
-        }
-        function sendMsg(){
-            const t=document.getElementById('chat-msg').value.trim(); if(!t)return;
-            const cid=myNick<curChat?`${myNick}_${curChat}`:`${curChat}_${myNick}`;
-            db.collection('chats').doc(cid).collection('msgs').add({by:myNick,t:t,ts:Date.now()});
-            document.getElementById('chat-msg').value='';
-        }
-
-        // --- TAP ---
-        document.getElementById('tap-btn').addEventListener('click', e=>{
+        document.getElementById('tap-btn').addEventListener('click',e=>{
             if(data.energy<1)return toast("Нет энергии");
-            const gain = data.tapLvl;
-            data.balance+=gain; data.energy--;
-            if(Math.random()<0.01) {
-                const item=ASSETS[Math.floor(Math.random()*ASSETS.length)];
-                const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];
-                data.inventory.push({id:Date.now(), name:item.n, type:item.t, url:URL_BASE+item.u, price:item.p, bg:bg, serial:Math.floor(Math.random()*9000)+1000});
-                toast("🎁 DROP!");
+            const g=data.tapLvl; data.balance+=g; data.energy--;
+            if(Math.random()<0.01){ 
+                const it=ASSETS[Math.floor(Math.random()*ASSETS.length)];
+                const bg=BGS[Math.floor(Math.random()*BGS.length)];
+                data.inventory.push({id:Date.now(),name:it.n,type:it.t,bg:bg,url:BASE+it.u,serial:Math.floor(Math.random()*9000)+1000,price:it.p}); 
+                toast("🎁 DROP!"); 
             }
-            if(data.balance%10===0) save(); updateUI();
-            const el=document.createElement('div'); el.innerText="+"+gain; el.style.position='absolute'; el.style.left=e.clientX+'px'; el.style.top=e.clientY+'px'; el.style.color='#fff'; el.style.pointerEvents='none';
-            document.body.appendChild(el); setTimeout(()=>el.remove(),500);
+            if(data.balance%20===0)save(); updateUI();
+            const el=document.createElement('div');el.innerText="+"+g;el.style.position='absolute';el.style.left=e.clientX+'px';el.style.top=e.clientY+'px';el.style.color='#fff';el.style.fontWeight='bold';el.style.pointerEvents='none';document.body.appendChild(el);setTimeout(()=>el.remove(),600);
         });
-
-        // --- UTIL ---
-        function save(){ db.collection('users').doc(myNick).update({balance:data.balance, energy:data.energy, inventory:data.inventory, upgrades:data.upgrades, equipped:data.equipped, tapLvl:data.tapLvl, botExp:data.botExp}); }
+        function save(){db.collection('users').doc(myNick).update({balance:data.balance,energy:data.energy,inventory:data.inventory,upgrades:data.upgrades,tapLvl:data.tapLvl,botExp:data.botExp});}
         function switchMarket(t,el){['shop','p2p'].forEach(x=>document.getElementById('view-'+x).style.display='none');document.getElementById('view-'+t).style.display='block';document.querySelectorAll('#screen-market .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');if(t==='p2p')loadP2P();}
         function switchGame(t,el){['mines','rps','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none');document.getElementById('game-'+t).style.display='block';document.querySelectorAll('#screen-casino .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
         function nav(s,el){document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));document.getElementById('screen-'+s).classList.add('active');document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
-        function setNftTab(t){['equip','sell','gift'].forEach(x=>document.getElementById('tab-'+x).style.display='none');document.getElementById('tab-'+t).style.display='block';document.querySelectorAll('#nft-modal .tab').forEach(e=>e.classList.remove('active'));event.target.classList.add('active');}
+        function setNftTab(t){['sell','gift'].forEach(x=>document.getElementById('tab-'+x).style.display='none');document.getElementById('tab-'+t).style.display='block';document.querySelectorAll('#nft-modal .tab').forEach(e=>e.classList.remove('active'));event.target.classList.add('active');}
         function closeModal(id){document.getElementById(id).style.display='none';}
         function openModal(id){document.getElementById(id).style.display='flex';}
         function toast(m){const t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
