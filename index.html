@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CryptoVerse: Ultimate</title>
+    <title>CryptoVerse: Secure Login</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -19,7 +19,6 @@
             --danger: #ef4444;
             --success: #22c55e;
             --text: #e4e4e7;
-            --text-muted: #a1a1aa;
             --radius: 12px;
         }
 
@@ -38,13 +37,9 @@
             user-select: none;
         }
 
-        /* === UI КОМПОНЕНТЫ === */
-        button {
-            border: none;
-            outline: none;
-            cursor: pointer;
-            font-family: inherit;
-        }
+        /* === UI СТИЛИ === */
+        button { border: none; outline: none; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
 
         .header {
             padding: 15px;
@@ -53,10 +48,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
             z-index: 50;
         }
-        .user-info { font-size: 14px; color: var(--text-muted); }
         .balance { font-size: 20px; color: var(--primary); font-weight: bold; }
 
         .content {
@@ -64,14 +57,12 @@
             overflow-y: auto;
             padding: 15px;
             padding-bottom: 80px;
-            scroll-behavior: smooth;
         }
 
         .screen { display: none; animation: fade 0.3s ease; }
         .screen.active { display: block; }
         @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* КАРТОЧКИ И СЕТКИ */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .card {
             background: var(--panel);
@@ -79,145 +70,84 @@
             padding: 12px;
             border: 1px solid #27272a;
             position: relative;
-            overflow: hidden;
         }
 
         .btn {
             background: var(--primary);
             color: #000;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             width: 100%;
-            font-weight: 600;
-            margin-top: 5px;
+            font-weight: 700;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .btn-link {
+            background: none;
+            color: var(--accent);
+            text-decoration: underline;
+            padding: 5px;
+            margin-top: 10px;
+            font-size: 13px;
         }
         .btn-sm { padding: 5px 10px; font-size: 12px; width: auto; }
         .btn-danger { background: var(--danger); color: #fff; }
-        .btn-accent { background: var(--accent); color: #fff; }
-        .btn:disabled { opacity: 0.5; filter: grayscale(1); }
 
-        /* === ГЕНЕРАТИВНЫЕ NFT === */
-        .nft-preview {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        /* ВХОД / РЕГИСТРАЦИЯ */
+        #auth-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 1000;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 30px;
         }
-        .rarity-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.7);
-            color: #fff;
-        }
-        .wear-bar {
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            margin: 5px 0;
-            overflow: hidden;
-        }
-        .wear-fill { height: 100%; transition: width 0.3s; }
-
-        /* === ТАПАЛКА === */
-        .coin-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 300px;
-        }
-        .coin-btn {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
-            border: 8px solid rgba(255,255,255,0.1);
-            box-shadow: 0 0 50px rgba(245, 158, 11, 0.3);
-            font-size: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.05s;
-        }
-        .coin-btn:active { transform: scale(0.95); }
-
-        /* === СОЦИАЛКА И ЧАТ === */
-        .chat-box {
-            height: 300px;
-            background: #000;
-            border-radius: 8px;
-            overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .msg { padding: 8px; border-radius: 8px; font-size: 13px; max-width: 80%; }
-        .msg.me { align-self: flex-end; background: var(--accent); color: white; }
-        .msg.other { align-self: flex-start; background: #333; }
-        .friend-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: #222;
-            margin-bottom: 5px;
-            border-radius: 8px;
-        }
-
-        /* === ВХОД === */
-        #login-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        .auth-box {
+            width: 100%; max-width: 350px;
+            background: var(--panel);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            text-align: center;
         }
         input {
             background: #27272a;
             border: 1px solid #3f3f46;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
             color: #fff;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-size: 16px;
+            outline: none;
         }
+        input:focus { border-color: var(--accent); }
 
-        /* === МЕНЮ === */
+        /* NFT & GAME UI */
+        .nft-preview {
+            width: 100%; aspect-ratio: 1; border-radius: 8px;
+            margin-bottom: 8px; position: relative;
+        }
+        .coin-btn {
+            width: 220px; height: 220px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
+            border: 8px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.3);
+            font-size: 80px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; margin: 0 auto;
+        }
+        .coin-btn:active { transform: scale(0.95); }
+
+        /* МЕНЮ */
         .navbar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            position: fixed; bottom: 0; width: 100%;
             background: rgba(24, 24, 27, 0.95);
-            display: flex;
-            border-top: 1px solid #333;
-            backdrop-filter: blur(5px);
+            display: flex; border-top: 1px solid #333;
             padding-bottom: env(safe-area-inset-bottom);
         }
-        .nav-item {
-            flex: 1;
-            padding: 12px 0;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            cursor: pointer;
-        }
+        .nav-item { flex: 1; padding: 12px 0; text-align: center; font-size: 10px; color: #666; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
         .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
 
-        /* Уведомления */
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: #333; padding: 10px 20px; border-radius: 20px;
@@ -227,13 +157,21 @@
 </head>
 <body>
 
-    <!-- МОДАЛКА ВХОДА -->
-    <div id="login-modal">
-        <h1>🚀 CryptoVerse</h1>
-        <p>Придумай уникальный никнейм</p>
-        <input type="text" id="username-input" placeholder="@nickname" maxlength="15">
-        <button class="btn" onclick="registerUser()">Начать игру</button>
-        <p id="login-error" style="color:red; font-size:12px; margin-top:10px; text-align:center;"></p>
+    <!-- МОДАЛКА АВТОРИЗАЦИИ -->
+    <div id="auth-modal">
+        <div class="auth-box">
+            <h1 id="auth-title">Вход</h1>
+            <p style="color:#888; margin-bottom: 20px; font-size: 14px;">Добро пожаловать в CryptoVerse</p>
+            
+            <input type="text" id="auth-nick" placeholder="Никнейм (Логин)" autocomplete="off">
+            <input type="password" id="auth-pass" placeholder="Пароль (мин. 6 символов)">
+            
+            <button class="btn" id="auth-submit-btn" onclick="submitAuth()">Войти</button>
+            
+            <button class="btn-link" id="auth-toggle-btn" onclick="toggleAuthMode()">Нет аккаунта? Регистрация</button>
+            
+            <p id="auth-error" style="color:var(--danger); font-size:13px; margin-top:15px; min-height:18px;"></p>
+        </div>
     </div>
 
     <!-- УВЕДОМЛЕНИЕ -->
@@ -241,97 +179,56 @@
 
     <!-- ВЕРХ -->
     <div class="header">
-        <div>
-            <div id="my-nick" class="user-info">Загрузка...</div>
+        <div style="font-size:14px; color:#aaa;">
+            👤 <span id="my-nick">...</span>
         </div>
         <div class="balance">
             <span id="balance">0</span> 💰
         </div>
+        <button class="btn-sm btn-danger" onclick="logout()" style="margin-left:10px;">Выйти</button>
     </div>
 
     <!-- КОНТЕНТ -->
     <div class="content">
 
-        <!-- 1. ТАПАЛКА -->
+        <!-- ДОМ -->
         <div id="tab-home" class="screen active">
-            <div class="coin-wrapper">
+            <div style="display:flex; justify-content:center; align-items:center; height:300px;">
                 <div class="coin-btn" id="tap-btn">₿</div>
             </div>
-            <div style="text-align: center; margin-top: 20px;">
+            <div style="text-align: center;">
                 <p>⚡ Энергия: <span id="energy">1000</span></p>
             </div>
-            
-            <h3>Мои NFT (Инвентарь)</h3>
-            <div class="grid" id="inventory-list">
-                <!-- Сюда грузятся NFT -->
-            </div>
+            <h3>Мои NFT</h3>
+            <div class="grid" id="inventory-list"></div>
         </div>
 
-        <!-- 2. РЫНОК -->
+        <!-- РЫНОК -->
         <div id="tab-market" class="screen">
-            <h2>🌍 Мировой Рынок</h2>
-            <p style="font-size: 12px; color: #888;">Покупай уникальные NFT у других игроков</p>
-            <button class="btn btn-accent" onclick="loadMarket()" style="margin-bottom: 10px;">Обновить рынок</button>
-            <div class="grid" id="market-list">
-                <p>Загрузка лотов...</p>
-            </div>
+            <h2>🌍 Рынок</h2>
+            <button class="btn" style="background:var(--accent); color:white; margin-bottom:10px;" onclick="loadMarket()">Обновить</button>
+            <div class="grid" id="market-list"><p>Загрузка...</p></div>
         </div>
 
-        <!-- 3. СОЦИАЛКА -->
-        <div id="tab-social" class="screen">
-            <h2>👥 Друзья и Чат</h2>
-            
-            <div style="background: #222; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                <input type="text" id="search-nick" placeholder="Найти игрока по нику...">
-                <button class="btn btn-sm" onclick="searchUser()">Найти и добавить</button>
-            </div>
-
-            <h3>Мои друзья</h3>
-            <div id="friends-list">
-                <p style="color:#666">Нет друзей</p>
-            </div>
-
-            <div id="chat-interface" style="display:none; margin-top: 20px;">
-                <h3 id="chat-with-name">Чат</h3>
-                <div class="chat-box" id="chat-messages"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="msg-input" placeholder="Сообщение...">
-                    <button class="btn btn-accent" style="width: 50px;" onclick="sendMessage()">➤</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. КАЗИНО -->
+        <!-- КАЗИНО -->
         <div id="tab-casino" class="screen">
-            <h2>🎰 Казино Лас-Вегас</h2>
-            
-            <div class="card">
-                <h3>Слоты 777</h3>
-                <div style="font-size: 40px; letter-spacing: 10px; margin: 10px 0;" id="slots-display">🍒 🍋 🍇</div>
+            <h2>🎰 Слоты</h2>
+            <div class="card" style="text-align:center;">
+                <div style="font-size: 40px; margin: 15px 0;" id="slots-display">🍒 🍋 🍇</div>
                 <input type="number" id="slot-bet" placeholder="Ставка" style="text-align:center;">
                 <button class="btn" onclick="spinSlots()">Крутить (x5)</button>
             </div>
-
-            <div class="card" style="margin-top: 15px;">
-                <h3>Рулетка (x2)</h3>
-                <input type="number" id="roulette-bet" placeholder="Ставка" style="text-align:center;">
-                <div style="display:flex; gap:10px; margin-top:5px;">
-                    <button class="btn btn-danger" onclick="playRoulette('red')">🔴 Red</button>
-                    <button class="btn" style="background:#333; color:white;" onclick="playRoulette('black')">⚫ Black</button>
-                </div>
-            </div>
         </div>
+
     </div>
 
     <!-- МЕНЮ -->
     <div class="navbar">
         <div class="nav-item active" onclick="nav('home')"><span class="nav-icon">🏠</span>Дом</div>
         <div class="nav-item" onclick="nav('market')"><span class="nav-icon">🛒</span>Рынок</div>
-        <div class="nav-item" onclick="nav('social')"><span class="nav-icon">💬</span>Чат</div>
-        <div class="nav-item" onclick="nav('casino')"><span class="nav-icon">🎲</span>Игры</div>
+        <div class="nav-item" onclick="nav('casino')"><span class="nav-icon">🎰</span>Слоты</div>
     </div>
 
-    <!-- СКРИПТЫ -->
     <script>
         // === КОНФИГУРАЦИЯ FIREBASE ===
         const firebaseConfig = {
@@ -347,157 +244,126 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // === СОСТОЯНИЕ ИГРЫ ===
+        // === ПЕРЕМЕННЫЕ ===
         let myUid = null;
         let myData = null;
-        let currentChatFriend = null;
-        let unsubscribeChat = null;
+        let isRegisterMode = false; // false = Вход, true = Регистрация
 
-        // === ИНИЦИАЛИЗАЦИЯ ===
-        auth.onAuthStateChanged(async (user) => {
+        // === ЛОГИКА АВТОРИЗАЦИИ ===
+        
+        // Проверка при загрузке: если уже вошел - грузим игру, иначе показываем модалку
+        auth.onAuthStateChanged((user) => {
             if (user) {
                 myUid = user.uid;
-                await checkProfile();
+                document.getElementById('auth-modal').style.display = 'none';
+                initGame();
             } else {
-                // Если не вошел, показываем модалку
+                document.getElementById('auth-modal').style.display = 'flex';
             }
         });
 
-        // 1. РЕГИСТРАЦИЯ И ПРОФИЛЬ (ИСПРАВЛЕННАЯ)
-        async function registerUser() {
-            const nickInput = document.getElementById('username-input');
-            const nick = nickInput.value.trim();
-            const errorP = document.getElementById('login-error');
-            
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            const title = document.getElementById('auth-title');
+            const btn = document.getElementById('auth-submit-btn');
+            const toggle = document.getElementById('auth-toggle-btn');
+            const error = document.getElementById('auth-error');
+
+            error.innerText = ""; // Очистить ошибки
+
+            if (isRegisterMode) {
+                title.innerText = "Регистрация";
+                btn.innerText = "Создать аккаунт";
+                toggle.innerText = "Уже есть аккаунт? Войти";
+            } else {
+                title.innerText = "Вход";
+                btn.innerText = "Войти";
+                toggle.innerText = "Нет аккаунта? Регистрация";
+            }
+        }
+
+        async function submitAuth() {
+            const nick = document.getElementById('auth-nick').value.trim();
+            const pass = document.getElementById('auth-pass').value.trim();
+            const errorEl = document.getElementById('auth-error');
+
             if (nick.length < 3) {
-                errorP.innerText = "Ник слишком короткий!";
+                errorEl.innerText = "Ник слишком короткий (мин 3)";
+                return;
+            }
+            if (pass.length < 6) {
+                errorEl.innerText = "Пароль слишком короткий (мин 6)";
                 return;
             }
 
+            // Firebase требует email, поэтому мы делаем фейковый email из ника
+            // Удаляем пробелы и спецсимволы для email
+            const safeNick = nick.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+            const fakeEmail = `${safeNick}@game.local`;
+
+            errorEl.innerText = "Обработка...";
+
             try {
-                // 1. Входим анонимно (если еще не вошли)
-                if (!auth.currentUser) {
-                    const cred = await auth.signInAnonymously();
-                    myUid = cred.user.uid;
-                } else {
-                    myUid = auth.currentUser.uid;
-                }
-
-                // 2. Проверяем занят ли ник
-                const check = await db.collection('users').where('nickname', '==', nick).get();
-                
-                if (!check.empty) {
-                    // НИК ЗАНЯТ
-                    const oldDoc = check.docs[0];
-                    const oldData = oldDoc.data();
+                if (isRegisterMode) {
+                    // --- РЕГИСТРАЦИЯ ---
                     
-                    // Спрашиваем пользователя
-                    const isMe = confirm(`Ник "${nick}" уже существует (Баланс: ${oldData.balance}). Это твой аккаунт? \n\nOK - Войти в него\nОтмена - Выбрать другой ник`);
-                    
-                    if (isMe) {
-                        // === ВОССТАНОВЛЕНИЕ ===
-                        // Переносим данные со старого аккаунта на новый UID
-                        await db.collection('users').doc(myUid).set(oldData);
-                        
-                        // Удаляем старую привязку, если UID изменился
-                        if(oldDoc.id !== myUid) {
-                            await db.collection('users').doc(oldDoc.id).delete();
-                        }
-                        
-                        document.getElementById('login-modal').style.display = 'none';
-                        // initGame() вызовется автоматически через слушатель
-                        return;
-                    } else {
-                        errorP.innerText = "Этот ник занят, придумай другой.";
-                        return;
+                    // 1. Проверяем, не занят ли ник в базе (для красоты)
+                    const check = await db.collection('users').where('nickname', '==', nick).get();
+                    if (!check.empty) {
+                        throw new Error("Этот никнейм уже занят!");
                     }
+
+                    // 2. Создаем Auth User
+                    const cred = await auth.createUserWithEmailAndPassword(fakeEmail, pass);
+                    
+                    // 3. Создаем профиль в базе
+                    const newProfile = {
+                        nickname: nick,
+                        email: fakeEmail,
+                        balance: 1000,
+                        energy: 1000,
+                        inventory: [generateNFT("Common")], // Подарок
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    await db.collection('users').doc(cred.user.uid).set(newProfile);
+                    // onAuthStateChanged сработает сам и пустит в игру
+
+                } else {
+                    // --- ВХОД ---
+                    await auth.signInWithEmailAndPassword(fakeEmail, pass);
+                    // onAuthStateChanged сработает сам
                 }
-
-                // 3. Создаем новый профиль
-                const newProfile = {
-                    nickname: nick,
-                    balance: 1000, 
-                    energy: 1000,
-                    inventory: [], 
-                    friends: [],
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                // Дарим первый бесплатный NFT
-                newProfile.inventory.push(generateNFT("Common"));
-
-                await db.collection('users').doc(myUid).set(newProfile);
-                document.getElementById('login-modal').style.display = 'none';
 
             } catch (e) {
                 console.error(e);
-                errorP.innerText = "Ошибка: " + e.message;
+                let msg = e.message;
+                if (e.code === 'auth/email-already-in-use') msg = "Этот ник уже занят (Email занят).";
+                if (e.code === 'auth/wrong-password') msg = "Неверный пароль.";
+                if (e.code === 'auth/user-not-found') msg = "Пользователь не найден.";
+                if (e.code === 'auth/invalid-email') msg = "Недопустимые символы в нике.";
+                errorEl.innerText = msg;
             }
         }
 
-        async function checkProfile() {
-            const doc = await db.collection('users').doc(myUid).get();
-            if (doc.exists) {
-                document.getElementById('login-modal').style.display = 'none';
-                initGame();
-            } else {
-                document.getElementById('login-modal').style.display = 'flex';
-            }
+        function logout() {
+            auth.signOut();
+            window.location.reload();
         }
 
+        // === ИГРОВАЯ ЛОГИКА ===
         function initGame() {
-            // Слушаем изменения профиля
+            // Подписка на данные игрока
             db.collection('users').doc(myUid).onSnapshot(doc => {
-                myData = doc.data();
-                if(myData) {
+                if(doc.exists) {
+                    myData = doc.data();
                     updateUI();
                     renderInventory();
-                    renderFriends();
                 }
             });
             loadMarket();
         }
 
-        // === ГЕНЕРАТОР NFT (Паттерны) ===
-        function generateNFT(forcedRarity = null) {
-            const rarityChance = Math.random();
-            let rarity = "Common";
-            if (rarityChance > 0.7) rarity = "Rare";
-            if (rarityChance > 0.95) rarity = "Legendary";
-            if (forcedRarity) rarity = forcedRarity;
-
-            const seed = Math.floor(Math.random() * 1000000);
-            
-            return {
-                id: Date.now() + "_" + Math.floor(Math.random()*1000),
-                seed: seed,
-                rarity: rarity,
-                wear: 100, // 100% прочности
-                value: calculateValue(rarity, 100)
-            };
-        }
-
-        function calculateValue(rarity, wear) {
-            let base = 100;
-            if (rarity === "Rare") base = 500;
-            if (rarity === "Legendary") base = 2500;
-            return Math.floor(base * (wear / 100));
-        }
-
-        function getPattern(seed, rarity) {
-            const h1 = seed % 360;
-            const h2 = (seed * 2) % 360;
-            const type = (seed % 3 === 0) ? 'linear-gradient' : (seed % 3 === 1) ? 'radial-gradient' : 'conic-gradient';
-            
-            let colors = `hsl(${h1}, 70%, 50%), hsl(${h2}, 70%, 30%)`;
-            if (rarity === 'Legendary') colors += `, gold`;
-
-            if (type === 'radial-gradient') return `radial-gradient(circle, ${colors})`;
-            if (type === 'conic-gradient') return `conic-gradient(from 45deg, ${colors})`;
-            return `linear-gradient(45deg, ${colors})`;
-        }
-
-        // === ИНВЕНТАРЬ И UI ===
         function updateUI() {
             if(!myData) return;
             document.getElementById('balance').innerText = myData.balance;
@@ -505,391 +371,197 @@
             document.getElementById('my-nick').innerText = myData.nickname;
         }
 
-        function renderInventory() {
-            const list = document.getElementById('inventory-list');
-            list.innerHTML = '';
-            
-            myData.inventory.forEach((nft, index) => {
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `
-                    <div class="nft-preview" style="background: ${getPattern(nft.seed, nft.rarity)}">
-                        <span class="rarity-badge" style="background:${getRarityColor(nft.rarity)}">${nft.rarity}</span>
-                    </div>
-                    <div class="wear-bar"><div class="wear-fill" style="width:${nft.wear}%; background:${getWearColor(nft.wear)}"></div></div>
-                    <div style="font-size:11px; display:flex; justify-content:space-between;">
-                        <span>Износ: ${nft.wear}%</span>
-                        <span>Цена ~${nft.value}</span>
-                    </div>
-                    <button class="btn btn-sm" onclick="sellItemModal(${index})">Продать</button>
-                    <button class="btn btn-sm btn-accent" style="margin-top:2px;" onclick="giftItem(${index})">Подарить</button>
-                `;
-                list.appendChild(div);
-            });
+        // --- ГЕНЕРАТОР NFT ---
+        function generateNFT(forcedRarity) {
+            const r = Math.random();
+            let rarity = forcedRarity || (r > 0.95 ? "Legendary" : r > 0.7 ? "Rare" : "Common");
+            return {
+                id: Date.now() + "_" + Math.floor(Math.random()*1000),
+                seed: Math.floor(Math.random() * 1000000),
+                rarity: rarity,
+                price: calculateValue(rarity)
+            };
+        }
+        function calculateValue(rarity) {
+            if (rarity === "Legendary") return 5000;
+            if (rarity === "Rare") return 1000;
+            return 100;
+        }
+        function getPattern(seed, rarity) {
+            const h1 = seed % 360; 
+            const h2 = (seed * 2) % 360;
+            let c = `hsl(${h1}, 70%, 50%), hsl(${h2}, 70%, 30%)`;
+            if (rarity === 'Legendary') c += `, #ffd700`;
+            return `linear-gradient(45deg, ${c})`;
         }
 
-        function getRarityColor(r) {
-            if(r==='Legendary') return '#fbbf24';
-            if(r==='Rare') return '#818cf8';
-            return '#71717a';
-        }
-        function getWearColor(w) {
-            if(w > 70) return '#22c55e';
-            if(w > 30) return '#facc15';
-            return '#ef4444';
-        }
-
-        // === ГЕЙМПЛЕЙ: ТАПАЛКА ===
+        // --- ТАПАЛКА ---
         document.getElementById('tap-btn').addEventListener('click', (e) => {
-            if (myData.energy < 1) {
-                showToast("Нет энергии!");
-                return;
-            }
-
-            const dropChance = Math.random();
-            let msg = "+1 Монета";
-            let foundNft = false;
-
-            if (dropChance < 0.01) { // 1% шанс
-                const newNft = generateNFT();
-                myData.inventory.push(newNft);
-                msg = "🔥 НАЙДЕН NFT!";
-                foundNft = true;
-            }
-
-            myData.balance += 1;
-            myData.energy -= 1;
+            if (myData.energy < 1) { showToast("Нет энергии!"); return; }
             
-            if (foundNft || myData.balance % 20 === 0) {
+            // Шанс выпадения
+            let drop = null;
+            if(Math.random() < 0.02) drop = generateNFT();
+
+            myData.balance++;
+            myData.energy--;
+            if(drop) {
+                myData.inventory.push(drop);
+                showToast(`Выпал NFT: ${drop.rarity}!`);
+            }
+
+            // Оптимизация сохранения (раз в 10 кликов или при дропе)
+            if(drop || myData.balance % 10 === 0) {
                 db.collection('users').doc(myUid).update({
                     balance: myData.balance,
                     energy: myData.energy,
                     inventory: myData.inventory
                 });
             }
-            
             updateUI();
             
             // Анимация
-            const float = document.createElement('div');
-            float.innerText = msg;
-            float.style.position = 'absolute';
-            float.style.left = e.clientX + 'px';
-            float.style.top = e.clientY + 'px';
-            float.style.color = foundNft ? 'gold' : 'white';
-            float.style.fontWeight = 'bold';
-            float.style.pointerEvents = 'none';
-            float.style.transition = '1s';
-            document.body.appendChild(float);
-            setTimeout(() => {
-                float.style.transform = 'translateY(-100px)';
-                float.style.opacity = 0;
-            }, 50);
-            setTimeout(() => float.remove(), 1000);
+            const f = document.createElement('div');
+            f.innerText = drop ? "🎁" : "+1";
+            f.style.position='absolute'; f.style.left=e.clientX+'px'; f.style.top=e.clientY+'px';
+            f.style.color='white'; f.style.pointerEvents='none'; f.style.fontWeight='bold';
+            document.body.appendChild(f);
+            setTimeout(()=>{ f.style.transform='translateY(-50px)'; f.style.opacity=0; },50);
+            setTimeout(()=>f.remove(), 500);
         });
 
+        // Реген энергии
         setInterval(() => {
-            if (myData && myData.energy < 1000) {
+            if(myData && myData.energy < 1000) {
                 myData.energy = Math.min(1000, myData.energy + 5);
                 updateUI();
             }
         }, 1000);
 
-        // === РЫНОК (MARKETPLACE) ===
-        function sellItemModal(index) {
-            const price = prompt("Введите цену продажи:");
-            if (!price || isNaN(price) || price < 1) return;
-
-            const nft = myData.inventory[index];
-            
-            const itemRef = db.collection('market').doc();
-            
-            db.runTransaction(async (t) => {
-                const userRef = db.collection('users').doc(myUid);
-                const userDoc = await t.get(userRef);
-                const inv = userDoc.data().inventory;
-                inv.splice(index, 1);
-                
-                t.update(userRef, { inventory: inv });
-                t.set(itemRef, {
-                    sellerId: myUid,
-                    sellerName: myData.nickname,
-                    price: parseInt(price),
-                    nft: nft,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }).then(() => {
-                showToast("Лот выставлен!");
-                loadMarket();
-            }).catch(e => showToast("Ошибка: " + e));
-        }
-
-        function loadMarket() {
-            const container = document.getElementById('market-list');
-            container.innerHTML = 'Загрузка...';
-            
-            db.collection('market').orderBy('createdAt', 'desc').limit(20).get().then(snapshot => {
-                container.innerHTML = '';
-                if(snapshot.empty) container.innerHTML = "<p>Рынок пуст</p>";
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const isMine = data.sellerId === myUid;
-                    
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerHTML = `
-                        <div class="nft-preview" style="background: ${getPattern(data.nft.seed, data.nft.rarity)}">
-                            <span class="rarity-badge">${data.nft.rarity}</span>
-                        </div>
-                        <div style="font-size:12px; margin-bottom:5px;">
-                            <b>${data.sellerName}</b><br>
-                            Износ: ${data.nft.wear}%
-                        </div>
-                        <button class="btn ${isMine ? 'btn-danger' : 'btn-success'}" 
-                            onclick="${isMine ? `cancelSell('${doc.id}')` : `buyItem('${doc.id}', ${data.price})`}">
-                            ${isMine ? 'Снять' : `Купить ${data.price}💰`}
-                        </button>
-                    `;
-                    container.appendChild(div);
-                });
-            });
-        }
-
-        function buyItem(marketId, price) {
-            if (myData.balance < price) {
-                showToast("Не хватает денег!");
-                return;
-            }
-
-            db.runTransaction(async (t) => {
-                const marketRef = db.collection('market').doc(marketId);
-                const marketDoc = await t.get(marketRef);
-                if (!marketDoc.exists) throw "Лот уже куплен!";
-
-                const lotData = marketDoc.data();
-                const buyerRef = db.collection('users').doc(myUid);
-                const sellerRef = db.collection('users').doc(lotData.sellerId);
-
-                t.update(sellerRef, { balance: firebase.firestore.FieldValue.increment(price) });
-                t.update(buyerRef, {
-                    balance: firebase.firestore.FieldValue.increment(-price),
-                    inventory: firebase.firestore.FieldValue.arrayUnion(lotData.nft)
-                });
-                t.delete(marketRef);
-
-            }).then(() => {
-                showToast("Куплено!");
-                loadMarket();
-            }).catch(e => showToast("Ошибка: " + e));
-        }
-
-        function cancelSell(marketId) {
-             db.runTransaction(async (t) => {
-                const marketRef = db.collection('market').doc(marketId);
-                const marketDoc = await t.get(marketRef);
-                const lotData = marketDoc.data();
-                const userRef = db.collection('users').doc(myUid);
-                
-                t.update(userRef, { inventory: firebase.firestore.FieldValue.arrayUnion(lotData.nft) });
-                t.delete(marketRef);
-            }).then(() => {
-                showToast("Лот снят");
-                loadMarket();
-            });
-        }
-
-        // === СОЦИАЛКА И ЧАТ ===
-        async function searchUser() {
-            const nick = document.getElementById('search-nick').value.trim();
-            if(!nick) return;
-
-            const snap = await db.collection('users').where('nickname', '==', nick).get();
-            if (snap.empty) {
-                showToast("Игрок не найден");
-                return;
-            }
-            
-            const friendData = snap.docs[0].data();
-            const friendId = snap.docs[0].id;
-            
-            if (friendId === myUid) { showToast("Это вы!"); return; }
-
-            const friendObj = { uid: friendId, nickname: friendData.nickname };
-            const exists = myData.friends.find(f => f.uid === friendId);
-            if(exists) { showToast("Уже в друзьях"); return; }
-
-            await db.collection('users').doc(myUid).update({
-                friends: firebase.firestore.FieldValue.arrayUnion(friendObj)
-            });
-            showToast("Друг добавлен!");
-        }
-
-        function renderFriends() {
-            const list = document.getElementById('friends-list');
+        // --- ИНВЕНТАРЬ ---
+        function renderInventory() {
+            const list = document.getElementById('inventory-list');
             list.innerHTML = '';
-            
-            if(!myData.friends || myData.friends.length === 0) {
-                list.innerHTML = '<p>Нет друзей</p>';
-                return;
-            }
-
-            myData.friends.forEach(f => {
+            myData.inventory.forEach((nft, i) => {
                 const div = document.createElement('div');
-                div.className = 'friend-item';
+                div.className = 'card';
                 div.innerHTML = `
-                    <span>${f.nickname}</span>
-                    <button class="btn btn-sm btn-accent" style="width:auto;" onclick="openChat('${f.uid}', '${f.nickname}')">Чат</button>
+                    <div class="nft-preview" style="background:${getPattern(nft.seed, nft.rarity)}"></div>
+                    <div style="font-size:12px;">${nft.rarity}<br>~${nft.price}💰</div>
+                    <button class="btn btn-sm" onclick="sellNFT(${i})">Продать</button>
                 `;
                 list.appendChild(div);
             });
         }
 
-        function openChat(uid, name) {
-            currentChatFriend = uid;
-            document.getElementById('chat-interface').style.display = 'block';
-            document.getElementById('chat-with-name').innerText = "Чат с " + name;
+        function sellNFT(index) {
+            const price = prompt("Цена продажи:");
+            if(!price || isNaN(price)) return;
             
-            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-            
-            if(unsubscribeChat) unsubscribeChat();
+            const nft = myData.inventory[index];
+            const itemRef = db.collection('market').doc();
 
-            const chatDiv = document.getElementById('chat-messages');
-            chatDiv.innerHTML = 'Загрузка...';
-
-            unsubscribeChat = db.collection('chats').doc(chatId).collection('messages')
-                .orderBy('timestamp', 'asc')
-                .limit(50)
-                .onSnapshot(snap => {
-                    chatDiv.innerHTML = '';
-                    snap.forEach(doc => {
-                        const m = doc.data();
-                        const el = document.createElement('div');
-                        el.className = `msg ${m.senderId === myUid ? 'me' : 'other'}`;
-                        el.innerText = m.text;
-                        chatDiv.appendChild(el);
-                    });
-                    chatDiv.scrollTop = chatDiv.scrollHeight;
+            // Транзакция продажи
+            db.runTransaction(async (t) => {
+                const uRef = db.collection('users').doc(myUid);
+                const uDoc = await t.get(uRef);
+                const inv = uDoc.data().inventory;
+                inv.splice(index, 1);
+                t.update(uRef, { inventory: inv });
+                t.set(itemRef, {
+                    seller: myUid, sellerName: myData.nickname,
+                    price: parseInt(price), nft: nft,
+                    createdAt: Date.now()
                 });
+            }).then(() => { showToast("Выставлено на рынок"); loadMarket(); });
         }
 
-        function sendMessage() {
-            const inp = document.getElementById('msg-input');
-            const text = inp.value.trim();
-            if(!text || !currentChatFriend) return;
-
-            const chatId = myUid < currentChatFriend ? `${myUid}_${currentChatFriend}` : `${currentChatFriend}_${myUid}`;
-            
-            db.collection('chats').doc(chatId).collection('messages').add({
-                text: text,
-                senderId: myUid,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        // --- РЫНОК ---
+        function loadMarket() {
+            const list = document.getElementById('market-list');
+            list.innerHTML = 'Загрузка...';
+            db.collection('market').orderBy('createdAt', 'desc').limit(20).get().then(snap => {
+                list.innerHTML = '';
+                if(snap.empty) list.innerHTML = 'Пусто';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const isMe = d.seller === myUid;
+                    list.innerHTML += `
+                        <div class="card">
+                            <div class="nft-preview" style="background:${getPattern(d.nft.seed, d.nft.rarity)}"></div>
+                            <div style="font-size:12px;"><b>${d.sellerName}</b><br>${d.nft.rarity}</div>
+                            <button class="btn ${isMe?'btn-danger':''}" onclick="${isMe?`cancel('${doc.id}')`:`buy('${doc.id}', ${d.price})`}">
+                                ${isMe ? 'Снять' : `Купить ${d.price}`}
+                            </button>
+                        </div>
+                    `;
+                });
             });
-            inp.value = '';
         }
 
-        function giftItem(index) {
-            const targetNick = prompt("Введите ник друга для подарка:");
-            if(!targetNick) return;
-
-            db.collection('users').where('nickname', '==', targetNick).get().then(async (snap) => {
-                if(snap.empty) { showToast("Игрок не найден"); return; }
-                const targetId = snap.docs[0].id;
-                const nft = myData.inventory[index];
+        function buy(id, price) {
+            if(myData.balance < price) return showToast("Мало денег");
+            db.runTransaction(async (t) => {
+                const mRef = db.collection('market').doc(id);
+                const mDoc = await t.get(mRef);
+                if(!mDoc.exists) throw "Уже купили";
+                const item = mDoc.data();
                 
-                await db.runTransaction(async (t) => {
-                    const myRef = db.collection('users').doc(myUid);
-                    const targetRef = db.collection('users').doc(targetId);
-                    
-                    const myDoc = await t.get(myRef);
-                    const inv = myDoc.data().inventory;
-                    inv.splice(index, 1);
-                    
-                    t.update(myRef, { inventory: inv });
-                    t.update(targetRef, { inventory: firebase.firestore.FieldValue.arrayUnion(nft) });
+                const buyerRef = db.collection('users').doc(myUid);
+                const sellerRef = db.collection('users').doc(item.seller);
+
+                t.update(sellerRef, { balance: firebase.firestore.FieldValue.increment(price) });
+                t.update(buyerRef, { 
+                    balance: firebase.firestore.FieldValue.increment(-price),
+                    inventory: firebase.firestore.FieldValue.arrayUnion(item.nft)
                 });
-                showToast("Подарок отправлен!");
-            });
-        }
-
-        // === КАЗИНО ===
-        function spinSlots() {
-            const betInput = document.getElementById('slot-bet');
-            const bet = parseInt(betInput.value);
-            if (!bet || bet < 10 || bet > myData.balance) {
-                showToast("Некорректная ставка (мин 10)");
-                return;
-            }
-
-            myData.balance -= bet;
-            updateUI();
-
-            const icons = ['🍒', '🍋', '🍇', '💎', '7️⃣'];
-            const res = [];
-            const display = document.getElementById('slots-display');
-            let spins = 0;
-            const interval = setInterval(() => {
-                display.innerText = `${icons[Math.floor(Math.random()*5)]} ${icons[Math.floor(Math.random()*5)]} ${icons[Math.floor(Math.random()*5)]}`;
-                spins++;
-                if(spins > 10) {
-                    clearInterval(interval);
-                    for(let i=0; i<3; i++) res.push(icons[Math.floor(Math.random()*icons.length)]);
-                    display.innerText = res.join(' ');
-                    
-                    if (res[0] === res[1] && res[1] === res[2]) {
-                        const win = bet * 5;
-                        myData.balance += win;
-                        showToast(`ДЖЕКПОТ! +${win}`);
-                    } else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) {
-                        const win = Math.floor(bet * 1.5);
-                        myData.balance += win;
-                        showToast(`Пара! +${win}`);
-                    } else {
-                        showToast("Проигрыш");
-                    }
-                    db.collection('users').doc(myUid).update({balance: myData.balance});
-                    updateUI();
-                }
-            }, 100);
+                t.delete(mRef);
+            }).then(() => { showToast("Куплено!"); loadMarket(); }).catch(e=>showToast(e));
         }
         
-        function playRoulette(color) {
-            const betInput = document.getElementById('roulette-bet');
-            const bet = parseInt(betInput.value);
-            if (!bet || bet <= 0 || bet > myData.balance) {
-                showToast("Ошибка ставки");
-                return;
-            }
+        function cancel(id) {
+            db.collection('market').doc(id).get().then(doc => {
+                const d = doc.data();
+                db.collection('users').doc(myUid).update({
+                    inventory: firebase.firestore.FieldValue.arrayUnion(d.nft)
+                });
+                doc.ref.delete();
+                loadMarket();
+            });
+        }
+
+        // --- КАЗИНО ---
+        function spinSlots() {
+            const betInput = document.getElementById('slot-bet');
+            let bet = parseInt(betInput.value);
+            if(!bet || bet < 10 || bet > myData.balance) return showToast("Ставка от 10");
             
             myData.balance -= bet;
-            const result = Math.random() < 0.5 ? 'red' : 'black';
-            
-            if(result === color) {
-                myData.balance += bet * 2;
-                showToast(`Выпало ${result === 'red'?'🔴':'⚫'}! Победа!`);
-            } else {
-                showToast(`Выпало ${result === 'red'?'🔴':'⚫'}. Неудача.`);
-            }
-            
-            db.collection('users').doc(myUid).update({balance: myData.balance});
             updateUI();
-        }
-
-        // === НАВИГАЦИЯ ===
-        function nav(tab) {
-            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
             
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const map = {'home':0, 'market':1, 'social':2, 'casino':3};
-            document.querySelectorAll('.nav-item')[map[tab]].classList.add('active');
+            const em = ['🍒','🍋','🍇','7️⃣'];
+            const res = [0,0,0].map(()=>em[Math.floor(Math.random()*em.length)]);
+            document.getElementById('slots-display').innerText = res.join(' ');
+            
+            if(res[0]===res[1] && res[1]===res[2]) {
+                const win = bet*5; myData.balance+=win; showToast(`Джекпот! +${win}`);
+            } else if(res[0]===res[1] || res[1]===res[2] || res[0]===res[2]) {
+                const win = Math.floor(bet*1.5); myData.balance+=win; showToast(`Пара! +${win}`);
+            }
+            db.collection('users').doc(myUid).update({balance: myData.balance});
         }
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2000);
+        // --- НАВИГАЦИЯ ---
+        function nav(t) {
+            document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+            document.getElementById('tab-'+t).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+            const map = {'home':0, 'market':1, 'casino':2};
+            document.querySelectorAll('.nav-item')[map[t]].classList.add('active');
+        }
+        function showToast(m) {
+            const t = document.getElementById('toast'); t.innerText=m; t.style.display='block';
+            setTimeout(()=>t.style.display='none', 2000);
         }
     </script>
 </body>
