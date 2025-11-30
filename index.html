@@ -3,1663 +3,894 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>dolbaebsms - Secure Messenger</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>CryptoVerse: Ultimate</title>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
     <style>
-        * {
+        :root {
+            --bg: #09090b;
+            --panel: #18181b;
+            --primary: #f59e0b;
+            --accent: #6366f1;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --text: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        :root {
-            --primary: #0088cc;
-            --primary-dark: #006699;
-            --background: #0f172a;
-            --surface: #1e293b;
-            --surface-light: #334155;
-            --text: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --success: #10b981;
-            --error: #ef4444;
-            --voice: #8b5cf6;
-            --warning: #f59e0b;
-            --new-chat: #8b5cf6;
-            --photo: #ec4899;
-            --video: #f97316;
-        }
-
-        /* Анимации */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes recording {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-        }
-
-        @keyframes voicePlay {
-            0%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(1.5); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--background);
-            color: var(--text);
             height: 100vh;
-            height: 100dvh;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
-            touch-action: manipulation;
-            -webkit-overflow-scrolling: touch;
+            user-select: none;
         }
 
-        .app-container {
-            width: 100%;
-            height: 100%;
-            background: var(--surface);
+        /* === UI КОМПОНЕНТЫ === */
+        button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .header {
+            padding: 15px;
+            background: rgba(24, 24, 27, 0.9);
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            z-index: 50;
+        }
+        .user-info { font-size: 14px; color: var(--text-muted); }
+        .balance { font-size: 20px; color: var(--primary); font-weight: bold; }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 80px;
+            scroll-behavior: smooth;
+        }
+
+        .screen { display: none; animation: fade 0.3s ease; }
+        .screen.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* КАРТОЧКИ И СЕТКИ */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card {
+            background: var(--panel);
+            border-radius: var(--radius);
+            padding: 12px;
+            border: 1px solid #27272a;
             position: relative;
             overflow: hidden;
-        }
-
-        .screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: var(--surface);
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
-        /* Welcome Screen */
-        .welcome-screen {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            gap: 2rem;
-            padding: 2rem;
-            width: 100%;
-        }
-
-        .logo {
-            font-size: 4rem;
-            color: var(--primary);
-        }
-
-        .title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, var(--primary), var(--success));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .auth-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
         }
 
         .btn {
-            padding: 1.2rem;
-            border: none;
-            border-radius: 16px;
-            font-size: 1.1rem;
+            background: var(--primary);
+            color: #000;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-height: 54px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-top: 5px;
+        }
+        .btn-sm { padding: 5px 10px; font-size: 12px; width: auto; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-accent { background: var(--accent); color: #fff; }
+        .btn:disabled { opacity: 0.5; filter: grayscale(1); }
+
+        /* === ГЕНЕРАТИВНЫЕ NFT === */
+        .nft-preview {
             width: 100%;
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-
-        .btn-voice {
-            background: var(--voice);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--error);
-            color: white;
-        }
-
-        .btn-photo {
-            background: var(--photo);
-            color: white;
-        }
-
-        .btn-video {
-            background: var(--video);
-            color: white;
-        }
-
-        /* Forms */
-        .form-container {
-            padding: 1.5rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            width: 100%;
-        }
-
-        .safe-input {
-            border: 2px solid var(--surface-light);
-            background: var(--background);
-            color: var(--text);
-            padding: 1.2rem;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            width: 100%;
-            transition: all 0.3s ease;
-            min-height: 54px;
-        }
-
-        /* Chat Screen */
-        .chat-header {
-            padding: 1rem 1.5rem;
-            background: var(--surface-light);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid var(--surface);
-            min-height: 70px;
-            width: 100%;
-        }
-
-        .avatar {
-            width: 45px;
-            height: 45px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            margin-bottom: 8px;
             position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
-
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--error);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .chats-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-        }
-
-        .chat-item {
-            padding: 1.2rem;
-            margin: 0.5rem 0;
-            background: var(--surface-light);
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            animation: fadeIn 0.5s ease-out;
-            border-left: 4px solid transparent;
-            position: relative;
-            width: 100%;
-        }
-
-        .chat-item:active {
-            background: var(--primary);
-            transform: scale(0.98);
-        }
-
-        .chat-item-unread {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: var(--error);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .messages-area {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 1rem 1.2rem;
-            border-radius: 20px;
-            background: var(--surface-light);
-            word-wrap: break-word;
-            position: relative;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .message.deleted {
-            background: var(--surface);
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        .message.sent {
-            background: var(--primary);
-            align-self: flex-end;
-        }
-
-        .message.sent.deleted {
-            background: var(--surface);
-            color: var(--text-secondary);
-        }
-
-        .message.voice-message {
-            background: var(--voice);
-            padding: 1rem;
-        }
-
-        .message.photo-message {
-            background: var(--photo);
-            padding: 0.5rem;
-        }
-
-        .message.video-message {
-            background: var(--video);
-            padding: 0.5rem;
-        }
-
-        .media-content {
-            max-width: 250px;
-            max-height: 300px;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .media-content img, .media-content video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .voice-player {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.5rem 0;
-        }
-
-        .voice-visualizer {
-            display: flex;
-            align-items: end;
-            gap: 3px;
-            height: 30px;
-            flex: 1;
-        }
-
-        .voice-bar {
-            width: 3px;
-            background: white;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .voice-bar.active {
-            animation: voicePlay 0.6s ease-in-out infinite;
-        }
-
-        .voice-bar:nth-child(1).active { height: 8px; animation-delay: 0s; }
-        .voice-bar:nth-child(2).active { height: 12px; animation-delay: 0.1s; }
-        .voice-bar:nth-child(3).active { height: 16px; animation-delay: 0.2s; }
-        .voice-bar:nth-child(4).active { height: 20px; animation-delay: 0.3s; }
-        .voice-bar:nth-child(5).active { height: 16px; animation-delay: 0.4s; }
-        .voice-bar:nth-child(6).active { height: 12px; animation-delay: 0.5s; }
-        .voice-bar:nth-child(7).active { height: 8px; animation-delay: 0.6s; }
-
-        .voice-duration {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.8);
-            min-width: 40px;
-        }
-
-        .message-actions {
-            position: absolute;
-            top: -8px;
-            right: 8px;
-            display: none;
-            gap: 5px;
-        }
-
-        .message:hover .message-actions,
-        .message:active .message-actions {
-            display: flex;
-        }
-
-        .delete-btn {
-            background: var(--error);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .message-input-area {
-            padding: 1.2rem;
-            background: var(--surface-light);
-            border-top: 1px solid var(--surface);
-            width: 100%;
-        }
-
-        .message-input-area.hidden {
-            display: none;
-        }
-
-        .input-with-buttons {
-            display: flex;
-            gap: 0.8rem;
-            align-items: center;
-            width: 100%;
-        }
-
-        .media-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 1rem 1.2rem;
-            border: 2px solid var(--surface);
-            border-radius: 25px;
-            background: var(--background);
-            color: var(--text);
-            font-size: 1.1rem;
-            min-height: 50px;
-        }
-
-        .send-btn, .voice-btn, .photo-btn, .video-btn {
-            width: 50px;
-            height: 50px;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .send-btn {
-            background: var(--primary);
-        }
-
-        .voice-btn {
-            background: var(--voice);
-        }
-
-        .voice-btn.recording {
-            animation: recording 1s infinite;
-            background: var(--error);
-        }
-
-        .photo-btn {
-            background: var(--photo);
-        }
-
-        .video-btn {
-            background: var(--video);
-        }
-
-        .search-container {
-            padding: 1.2rem;
-            background: var(--surface-light);
-            border-bottom: 1px solid var(--surface);
-            width: 100%;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 0.8rem;
-            align-items: center;
-            width: 100%;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 1rem 1.2rem;
-            border: 2px solid var(--surface);
-            border-radius: 25px;
-            background: var(--background);
-            color: var(--text);
-            font-size: 1.1rem;
-            min-height: 50px;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-size: 1rem;
-            color: var(--text-secondary);
-            padding: 0.5rem 0;
-            width: 100%;
-        }
-
-        .recording-info {
-            display: none;
-            text-align: center;
-            color: var(--error);
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .recording-info.active {
-            display: block;
-        }
-
-        .media-preview {
-            display: none;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .media-preview.active {
-            display: block;
-        }
-
-        .preview-content {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .preview-content img, .preview-content video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .remove-preview {
+        .rarity-badge {
             position: absolute;
             top: 5px;
             right: 5px;
-            background: var(--error);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
         }
-
-        /* Модальное окно для медиа */
-        .media-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .media-modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            position: relative;
-        }
-
-        .modal-content img, .modal-content video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            background: var(--error);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        /* Адаптация для телефонов */
-        @media (max-width: 768px) {
-            .chat-header {
-                padding: 0.8rem 1rem;
-                min-height: 60px;
-            }
-            
-            .avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-            }
-            
-            .message {
-                max-width: 90%;
-                padding: 0.8rem 1rem;
-            }
-            
-            .btn {
-                padding: 1rem;
-                min-height: 48px;
-                font-size: 1rem;
-            }
-            
-            .safe-input, .message-input, .search-input {
-                padding: 1rem;
-                min-height: 48px;
-                font-size: 1rem;
-            }
-            
-            .send-btn, .voice-btn, .photo-btn, .video-btn {
-                width: 45px;
-                height: 45px;
-            }
-            
-            .welcome-screen {
-                padding: 1.5rem;
-            }
-            
-            .auth-buttons {
-                max-width: 280px;
-            }
-
-            .media-content {
-                max-width: 200px;
-                max-height: 250px;
-            }
-        }
-
-        /* Улучшенная прокрутка для iOS */
-        .messages-area::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .messages-area::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .messages-area::-webkit-scrollbar-thumb {
-            background: var(--primary);
+        .wear-bar {
+            height: 4px;
+            background: #333;
             border-radius: 2px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        .wear-fill { height: 100%; transition: width 0.3s; }
+
+        /* === ТАПАЛКА === */
+        .coin-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+        .coin-btn {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
+            border: 8px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.3);
+            font-size: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.05s;
+        }
+        .coin-btn:active { transform: scale(0.95); }
+
+        /* === СОЦИАЛКА И ЧАТ === */
+        .chat-box {
+            height: 300px;
+            background: #000;
+            border-radius: 8px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .msg { padding: 8px; border-radius: 8px; font-size: 13px; max-width: 80%; }
+        .msg.me { align-self: flex-end; background: var(--accent); color: white; }
+        .msg.other { align-self: flex-start; background: #333; }
+        .friend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #222;
+            margin-bottom: 5px;
+            border-radius: 8px;
+        }
+
+        /* === ВХОД === */
+        #login-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        input {
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            padding: 12px;
+            border-radius: 8px;
+            color: #fff;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        /* === МЕНЮ === */
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(24, 24, 27, 0.95);
+            display: flex;
+            border-top: 1px solid #333;
+            backdrop-filter: blur(5px);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-item {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+        /* Уведомления */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #333; padding: 10px 20px; border-radius: 20px;
+            z-index: 2000; display: none; border: 1px solid #555;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Welcome Screen -->
-        <div class="screen active" id="welcomeScreen">
-            <div class="welcome-screen">
-                <div class="logo">
-                    <i class="fas fa-comment-dots"></i>
-                </div>
-                <div class="title">dolbaebsms</div>
-                <div class="auth-buttons">
-                    <button class="btn btn-primary" onclick="showScreen('register')">
-                        Создать аккаунт
-                    </button>
-                    <button class="btn btn-secondary" onclick="showScreen('login')">
-                        Войти
-                    </button>
+
+    <!-- МОДАЛКА ВХОДА -->
+    <div id="login-modal">
+        <h1>🚀 CryptoVerse</h1>
+        <p>Придумай уникальный никнейм</p>
+        <input type="text" id="username-input" placeholder="@nickname" maxlength="15">
+        <button class="btn" onclick="registerUser()">Начать игру</button>
+        <p id="login-error" style="color:red; font-size:12px; margin-top:10px; text-align:center;"></p>
+    </div>
+
+    <!-- УВЕДОМЛЕНИЕ -->
+    <div id="toast" class="toast">Сообщение</div>
+
+    <!-- ВЕРХ -->
+    <div class="header">
+        <div>
+            <div id="my-nick" class="user-info">Загрузка...</div>
+        </div>
+        <div class="balance">
+            <span id="balance">0</span> 💰
+        </div>
+    </div>
+
+    <!-- КОНТЕНТ -->
+    <div class="content">
+
+        <!-- 1. ТАПАЛКА -->
+        <div id="tab-home" class="screen active">
+            <div class="coin-wrapper">
+                <div class="coin-btn" id="tap-btn">₿</div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <p>⚡ Энергия: <span id="energy">1000</span></p>
+            </div>
+            
+            <h3>Мои NFT (Инвентарь)</h3>
+            <div class="grid" id="inventory-list">
+                <!-- Сюда грузятся NFT -->
+            </div>
+        </div>
+
+        <!-- 2. РЫНОК -->
+        <div id="tab-market" class="screen">
+            <h2>🌍 Мировой Рынок</h2>
+            <p style="font-size: 12px; color: #888;">Покупай уникальные NFT у других игроков</p>
+            <button class="btn btn-accent" onclick="loadMarket()" style="margin-bottom: 10px;">Обновить рынок</button>
+            <div class="grid" id="market-list">
+                <p>Загрузка лотов...</p>
+            </div>
+        </div>
+
+        <!-- 3. СОЦИАЛКА -->
+        <div id="tab-social" class="screen">
+            <h2>👥 Друзья и Чат</h2>
+            
+            <div style="background: #222; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <input type="text" id="search-nick" placeholder="Найти игрока по нику...">
+                <button class="btn btn-sm" onclick="searchUser()">Найти и добавить</button>
+            </div>
+
+            <h3>Мои друзья</h3>
+            <div id="friends-list">
+                <p style="color:#666">Нет друзей</p>
+            </div>
+
+            <div id="chat-interface" style="display:none; margin-top: 20px;">
+                <h3 id="chat-with-name">Чат</h3>
+                <div class="chat-box" id="chat-messages"></div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="msg-input" placeholder="Сообщение...">
+                    <button class="btn btn-accent" style="width: 50px;" onclick="sendMessage()">➤</button>
                 </div>
             </div>
         </div>
 
-        <!-- Register Screen -->
-        <div class="screen" id="register">
-            <div class="chat-header">
-                <button class="btn btn-secondary" onclick="showScreen('welcome')" style="width: auto;">
-                    ← Назад
-                </button>
-                <div style="flex: 1; text-align: center;">
-                    <div>Регистрация</div>
-                </div>
-                <div style="width: 60px;"></div>
-            </div>
-            <div class="form-container">
-                <h2 style="text-align: center;">Создать аккаунт</h2>
-                <input type="text" class="safe-input" id="regUsername" placeholder="Логин" required>
-                <input type="password" class="safe-input" id="regPassword" placeholder="Пароль" required>
-                <div class="remember-me">
-                    <input type="checkbox" id="rememberReg">
-                    <label for="rememberReg">Запомнить меня</label>
-                </div>
-                <button class="btn btn-primary" onclick="register()">
-                    Создать аккаунт
-                </button>
-            </div>
-        </div>
-
-        <!-- Login Screen -->
-        <div class="screen" id="login">
-            <div class="chat-header">
-                <button class="btn btn-secondary" onclick="showScreen('welcome')" style="width: auto;">
-                    ← Назад
-                </button>
-                <div style="flex: 1; text-align: center;">
-                    <div>Вход</div>
-                </div>
-                <div style="width: 60px;"></div>
-            </div>
-            <div class="form-container">
-                <h2 style="text-align: center;">Вход в аккаунт</h2>
-                <input type="text" class="safe-input" id="loginUsername" placeholder="Логин" required>
-                <input type="password" class="safe-input" id="loginPassword" placeholder="Пароль" required>
-                <div class="remember-me">
-                    <input type="checkbox" id="rememberLogin" checked>
-                    <label for="rememberLogin">Запомнить меня</label>
-                </div>
-                <button class="btn btn-primary" onclick="login()">
-                    Войти
-                </button>
-            </div>
-        </div>
-
-        <!-- Chat List Screen -->
-        <div class="screen" id="chatList">
-            <div class="chat-header">
-                <div class="avatar" id="userAvatar">
-                    U
-                    <div class="notification-badge" id="globalNotification" style="display: none;">!</div>
-                </div>
-                <div style="flex: 1;">
-                    <div id="userName">Пользователь</div>
-                    <div style="font-size: 0.8rem; color: var(--text-secondary);">🟢 В сети</div>
-                </div>
-                <button class="btn btn-danger" onclick="logout()" style="width: auto;">
-                    Выйти
-                </button>
+        <!-- 4. КАЗИНО -->
+        <div id="tab-casino" class="screen">
+            <h2>🎰 Казино Лас-Вегас</h2>
+            
+            <div class="card">
+                <h3>Слоты 777</h3>
+                <div style="font-size: 40px; letter-spacing: 10px; margin: 10px 0;" id="slots-display">🍒 🍋 🍇</div>
+                <input type="number" id="slot-bet" placeholder="Ставка" style="text-align:center;">
+                <button class="btn" onclick="spinSlots()">Крутить (x5)</button>
             </div>
 
-            <div class="search-container">
-                <div class="search-box">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Поиск пользователей...">
-                    <button class="btn btn-primary" onclick="searchUser()" style="width: auto;">
-                        Найти
-                    </button>
-                </div>
-            </div>
-
-            <div class="chats-container">
-                <div id="chatsList">
-                    <div class="chat-item">Загрузка чатов...</div>
-                </div>
-                <div id="searchResults"></div>
-            </div>
-        </div>
-
-        <!-- Chat Messages Screen -->
-        <div class="screen" id="chatMessages">
-            <div class="chat-header">
-                <button class="btn btn-secondary" onclick="showScreen('chatList')" style="width: auto;">
-                    ← Назад
-                </button>
-                <div style="flex: 1; text-align: center;">
-                    <div id="chatWithUser">Чат</div>
-                </div>
-                <div style="width: 60px;"></div>
-            </div>
-
-            <div class="messages-area" id="messages">
-                <div class="message">Выберите чат чтобы начать общение</div>
-            </div>
-
-            <div class="message-input-area hidden" id="messageInputArea">
-                <div class="media-preview" id="mediaPreview">
-                    <div class="preview-content" id="previewContent">
-                        <button class="remove-preview" onclick="removeMediaPreview()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="input-with-buttons">
-                    <div class="media-buttons">
-                        <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <button class="photo-btn" onclick="openPhotoPicker()">
-                            <i class="fas fa-camera"></i>
-                        </button>
-                        <button class="video-btn" onclick="openVideoPicker()">
-                            <i class="fas fa-video"></i>
-                        </button>
-                    </div>
-                    <input type="text" class="message-input" id="messageInput" placeholder="Сообщение...">
-                    <button class="send-btn" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="recording-info" id="recordingInfo">
-                    <i class="fas fa-circle" style="animation: recording 1s infinite"></i>
-                    Запись... Нажмите еще раз чтобы отправить
+            <div class="card" style="margin-top: 15px;">
+                <h3>Рулетка (x2)</h3>
+                <input type="number" id="roulette-bet" placeholder="Ставка" style="text-align:center;">
+                <div style="display:flex; gap:10px; margin-top:5px;">
+                    <button class="btn btn-danger" onclick="playRoulette('red')">🔴 Red</button>
+                    <button class="btn" style="background:#333; color:white;" onclick="playRoulette('black')">⚫ Black</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно для медиа -->
-    <div class="media-modal" id="mediaModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeMediaModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            <div id="modalMediaContent"></div>
-        </div>
+    <!-- МЕНЮ -->
+    <div class="navbar">
+        <div class="nav-item active" onclick="nav('home')"><span class="nav-icon">🏠</span>Дом</div>
+        <div class="nav-item" onclick="nav('market')"><span class="nav-icon">🛒</span>Рынок</div>
+        <div class="nav-item" onclick="nav('social')"><span class="nav-icon">💬</span>Чат</div>
+        <div class="nav-item" onclick="nav('casino')"><span class="nav-icon">🎲</span>Игры</div>
     </div>
 
-    <!-- Скрытый input для выбора файлов -->
-    <input type="file" id="photoInput" accept="image/*" style="display: none;">
-    <input type="file" id="videoInput" accept="video/*" style="display: none;">
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
-    
+    <!-- СКРИПТЫ -->
     <script>
-        // Конфигурация Firebase
+        // === КОНФИГУРАЦИЯ FIREBASE ===
         const firebaseConfig = {
-            apiKey: "AIzaSyA35T6z2FYS6m9IEJ9x7evxCphgpLhgMX4",
-            authDomain: "dolbaebsms-live.firebaseapp.com",
-            databaseURL: "https://dolbaebsms-live-default-rtdb.firebaseio.com",
-            projectId: "dolbaebsms-live",
-            storageBucket: "dolbaebsms-live.firebasestorage.app",
-            messagingSenderId: "912825721862",
-            appId: "1:912825721862:web:b92d7f7f553ca4536c0f87",
-            measurementId: "G-SCD5JVFM5E"
+            apiKey: "AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg",
+            authDomain: "nfts-dc174.firebaseapp.com",
+            projectId: "nfts-dc174",
+            storageBucket: "nfts-dc174.firebasestorage.app",
+            messagingSenderId: "327365720624",
+            appId: "1:327365720624:web:eb42c9d671566b5d118bf5"
         };
 
-        // Инициализация Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            firebase.analytics();
-            console.log("Firebase подключен!");
-        } catch (error) {
-            console.error("Ошибка Firebase:", error);
-            alert("Ошибка подключения к базе данных");
-        }
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        const database = firebase.database();
+        // === СОСТОЯНИЕ ИГРЫ ===
+        let myUid = null;
+        let myData = null;
+        let currentChatFriend = null;
+        let unsubscribeChat = null;
 
-        let currentUser = null;
-        let currentChatWith = null;
-        let messageListener = null;
-        let chatListListener = null;
-        let lastMessages = new Set();
-        let currentMessages = {};
-        let userChats = new Map();
-        let unreadMessages = new Map();
-        let isRecording = false;
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let currentAudio = null;
-        let currentlyPlayingMessageId = null;
-        let currentMediaFile = null;
-        let currentMediaType = null;
-
-        // Навигация
-        function showScreen(screenId) {
-            console.log('Переход на экран:', screenId);
-            
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            
-            const targetScreen = document.getElementById(screenId);
-            if (targetScreen) {
-                targetScreen.classList.add('active');
+        // === ИНИЦИАЛИЗАЦИЯ ===
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                myUid = user.uid;
+                await checkProfile();
             } else {
-                document.getElementById('welcomeScreen').classList.add('active');
+                // Если не вошел, показываем модалку
             }
-        }
+        });
 
-        // Регистрация и вход
-        function register() {
-            const username = document.getElementById('regUsername').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const remember = document.getElementById('rememberReg').checked;
-
-            if (!username || !password) {
-                alert('Заполните все поля');
+        // 1. РЕГИСТРАЦИЯ И ПРОФИЛЬ (ИСПРАВЛЕННАЯ)
+        async function registerUser() {
+            const nickInput = document.getElementById('username-input');
+            const nick = nickInput.value.trim();
+            const errorP = document.getElementById('login-error');
+            
+            if (nick.length < 3) {
+                errorP.innerText = "Ник слишком короткий!";
                 return;
             }
 
-            const usersRef = database.ref('users/' + username);
-            
-            usersRef.once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    alert('Этот логин уже занят');
-                    return;
+            try {
+                // 1. Входим анонимно (если еще не вошли)
+                if (!auth.currentUser) {
+                    const cred = await auth.signInAnonymously();
+                    myUid = cred.user.uid;
                 } else {
-                    usersRef.set({
-                        username: username,
-                        password: password,
-                        createdAt: Date.now(),
-                        isOnline: true,
-                        lastSeen: Date.now()
-                    }).then(() => {
-                        if (remember) {
-                            localStorage.setItem('savedUser', username);
-                            localStorage.setItem('savedPassword', password);
+                    myUid = auth.currentUser.uid;
+                }
+
+                // 2. Проверяем занят ли ник
+                const check = await db.collection('users').where('nickname', '==', nick).get();
+                
+                if (!check.empty) {
+                    // НИК ЗАНЯТ
+                    const oldDoc = check.docs[0];
+                    const oldData = oldDoc.data();
+                    
+                    // Спрашиваем пользователя
+                    const isMe = confirm(`Ник "${nick}" уже существует (Баланс: ${oldData.balance}). Это твой аккаунт? \n\nOK - Войти в него\nОтмена - Выбрать другой ник`);
+                    
+                    if (isMe) {
+                        // === ВОССТАНОВЛЕНИЕ ===
+                        // Переносим данные со старого аккаунта на новый UID
+                        await db.collection('users').doc(myUid).set(oldData);
+                        
+                        // Удаляем старую привязку, если UID изменился
+                        if(oldDoc.id !== myUid) {
+                            await db.collection('users').doc(oldDoc.id).delete();
                         }
-                        loginUser(username);
-                    });
-                }
-            });
-        }
-
-        function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const remember = document.getElementById('rememberLogin').checked;
-
-            if (!username || !password) {
-                alert('Заполните все поля');
-                return;
-            }
-
-            const usersRef = database.ref('users/' + username);
-            
-            usersRef.once('value').then((snapshot) => {
-                if (!snapshot.exists()) {
-                    alert('Пользователь не найден');
-                    return;
-                }
-
-                const userData = snapshot.val();
-                
-                if (userData.password === password) {
-                    if (remember) {
-                        localStorage.setItem('savedUser', username);
-                        localStorage.setItem('savedPassword', password);
-                    }
-                    loginUser(username);
-                } else {
-                    alert('Неверный пароль');
-                }
-            });
-        }
-
-        function loginUser(username) {
-            currentUser = username;
-            const userRef = database.ref('users/' + username);
-            userRef.update({
-                isOnline: true,
-                lastSeen: Date.now()
-            });
-
-            showScreen('chatList');
-            document.getElementById('userName').textContent = username;
-            document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
-            startChatListListener();
-        }
-
-        function logout() {
-            if (currentUser) {
-                const userRef = database.ref('users/' + currentUser);
-                userRef.update({
-                    isOnline: false,
-                    lastSeen: Date.now()
-                });
-            }
-            
-            if (messageListener) {
-                const chatId = generateChatId(currentUser, currentChatWith);
-                const messagesRef = database.ref('messages/' + chatId);
-                messagesRef.off('child_added', messageListener);
-            }
-            
-            if (chatListListener) {
-                const messagesRef = database.ref('messages');
-                messagesRef.off('child_added', chatListListener);
-            }
-            
-            currentUser = null;
-            currentChatWith = null;
-            lastMessages.clear();
-            currentMessages = {};
-            userChats.clear();
-            unreadMessages.clear();
-            
-            showScreen('welcome');
-        }
-
-        // Слушатель для автоматического обновления списка чатов
-        function startChatListListener() {
-            if (!currentUser) return;
-
-            const messagesRef = database.ref('messages');
-            
-            chatListListener = messagesRef.on('child_added', (snapshot) => {
-                const chatId = snapshot.key;
-                const users = chatId.split('_');
-                
-                if (users.includes(currentUser)) {
-                    const otherUser = users.find(user => user !== currentUser);
-                    const messages = snapshot.val();
-                    const lastMessage = getLastMessage(messages);
-                    
-                    userChats.set(otherUser, {
-                        user: otherUser,
-                        lastMessage: lastMessage,
-                        timestamp: lastMessage ? lastMessage.timestamp : 0,
-                        unread: isMessageUnread(lastMessage)
-                    });
-
-                    if (isMessageUnread(lastMessage)) {
-                        updateUnreadCount(otherUser);
-                    }
-                    
-                    displayChatsList(Array.from(userChats.values()));
-                }
-            });
-        }
-
-        function isMessageUnread(message) {
-            return message && 
-                   message.sender !== currentUser && 
-                   (!message.read || !message.read[currentUser]) &&
-                   !message.deleted;
-        }
-
-        function updateUnreadCount(user) {
-            if (!unreadMessages.has(user)) {
-                unreadMessages.set(user, 0);
-            }
-            unreadMessages.set(user, unreadMessages.get(user) + 1);
-            
-            const globalNotification = document.getElementById('globalNotification');
-            if (globalNotification) {
-                globalNotification.style.display = 'flex';
-                globalNotification.textContent = unreadMessages.size;
-            }
-        }
-
-        function markMessagesAsRead(chatWithUser) {
-            if (!currentUser || !chatWithUser) return;
-
-            const chatId = generateChatId(currentUser, chatWithUser);
-            const messagesRef = database.ref('messages/' + chatId);
-            
-            messagesRef.once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    const updates = {};
-                    snapshot.forEach((childSnapshot) => {
-                        const message = childSnapshot.val();
-                        if (message.sender === chatWithUser && (!message.read || !message.read[currentUser]) && !message.deleted) {
-                            updates[childSnapshot.key + '/read/' + currentUser] = true;
-                        }
-                    });
-                    
-                    if (Object.keys(updates).length > 0) {
-                        messagesRef.update(updates);
-                    }
-                }
-            });
-
-            unreadMessages.delete(chatWithUser);
-            userChats.delete(chatWithUser);
-            
-            const globalNotification = document.getElementById('globalNotification');
-            if (globalNotification) {
-                if (unreadMessages.size === 0) {
-                    globalNotification.style.display = 'none';
-                } else {
-                    globalNotification.textContent = unreadMessages.size;
-                }
-            }
-        }
-
-        function getLastMessage(messages) {
-            let lastMessage = null;
-            let lastTimestamp = 0;
-            
-            Object.values(messages).forEach(message => {
-                if (message.timestamp > lastTimestamp && !message.deleted) {
-                    lastTimestamp = message.timestamp;
-                    lastMessage = message;
-                }
-            });
-            
-            return lastMessage;
-        }
-
-        function displayChatsList(chats) {
-            const chatsList = document.getElementById('chatsList');
-            
-            if (chats.length === 0) {
-                chatsList.innerHTML = '<div class="chat-item">Нет чатов. Начните общение!</div>';
-                return;
-            }
-
-            chats.sort((a, b) => b.timestamp - a.timestamp);
-            
-            chatsList.innerHTML = '';
-            chats.forEach(chat => {
-                const chatItem = document.createElement('div');
-                const hasUnread = unreadMessages.has(chat.user);
-                
-                chatItem.className = `chat-item ${hasUnread ? 'has-unread' : ''}`;
-                chatItem.onclick = () => startChat(chat.user);
-                
-                let lastMsg = 'Нет сообщений';
-                if (chat.lastMessage) {
-                    if (chat.lastMessage.deleted) {
-                        lastMsg = '🗑️ Сообщение удалено';
-                    } else if (chat.lastMessage.type === 'voice') {
-                        lastMsg = '🎤 Голосовое сообщение';
-                    } else if (chat.lastMessage.type === 'photo') {
-                        lastMsg = '📷 Фото';
-                    } else if (chat.lastMessage.type === 'video') {
-                        lastMsg = '🎥 Видео';
-                    } else if (chat.lastMessage.sender === currentUser) {
-                        lastMsg = 'Вы: ' + chat.lastMessage.text;
+                        
+                        document.getElementById('login-modal').style.display = 'none';
+                        // initGame() вызовется автоматически через слушатель
+                        return;
                     } else {
-                        lastMsg = chat.lastMessage.text;
+                        errorP.innerText = "Этот ник занят, придумай другой.";
+                        return;
                     }
                 }
-                
-                const unreadCount = unreadMessages.get(chat.user) || 0;
-                
-                chatItem.innerHTML = `
-                    <div style="font-weight: bold;">${chat.user}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center;">
-                        <span>${lastMsg}</span>
-                        ${unreadCount > 0 ? `<div class="chat-item-unread">${unreadCount}</div>` : ''}
-                    </div>
-                `;
-                
-                chatsList.appendChild(chatItem);
-            });
-        }
 
-        function searchUser() {
-            const searchTerm = document.getElementById('searchInput').value.trim();
-            const resultsContainer = document.getElementById('searchResults');
-            
-            resultsContainer.innerHTML = '';
-            
-            if (!searchTerm) {
-                displayChatsList(Array.from(userChats.values()));
-                return;
+                // 3. Создаем новый профиль
+                const newProfile = {
+                    nickname: nick,
+                    balance: 1000, 
+                    energy: 1000,
+                    inventory: [], 
+                    friends: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Дарим первый бесплатный NFT
+                newProfile.inventory.push(generateNFT("Common"));
+
+                await db.collection('users').doc(myUid).set(newProfile);
+                document.getElementById('login-modal').style.display = 'none';
+
+            } catch (e) {
+                console.error(e);
+                errorP.innerText = "Ошибка: " + e.message;
             }
-
-            const usersRef = database.ref('users');
-            usersRef.orderByChild('username')
-                   .startAt(searchTerm)
-                   .endAt(searchTerm + '\uf8ff')
-                   .once('value')
-                   .then((snapshot) => {
-                resultsContainer.innerHTML = '<div style="padding: 1rem; color: var(--text-secondary);">Результаты поиска:</div>';
-                
-                let found = false;
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const user = childSnapshot.val();
-                        if (user.username !== currentUser) {
-                            found = true;
-                            const userDiv = document.createElement('div');
-                            userDiv.className = 'chat-item';
-                            userDiv.onclick = () => startChat(user.username);
-                            userDiv.innerHTML = `
-                                <div style="font-weight: bold;">${user.username}</div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary);">
-                                    ${user.isOnline ? '🟢 онлайн' : '⚫ не в сети'}
-                                </div>
-                            `;
-                            resultsContainer.appendChild(userDiv);
-                        }
-                    });
-                }
-                
-                if (!found) {
-                    resultsContainer.innerHTML += '<div class="chat-item">Пользователи не найдены</div>';
-                }
-            });
         }
 
-        function startChat(username) {
-            stopCurrentAudio();
-            removeMediaPreview();
-            currentChatWith = username;
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-            document.getElementById('chatWithUser').textContent = username;
-            
-            markMessagesAsRead(username);
-            
-            showScreen('chatMessages');
-            loadChatMessages();
-        }
-
-        function loadChatMessages() {
-            const messagesContainer = document.getElementById('messages');
-            const messageInputArea = document.getElementById('messageInputArea');
-            
-            messagesContainer.innerHTML = '';
-            messageInputArea.classList.remove('hidden');
-            lastMessages.clear();
-            currentMessages = {};
-
-            if (!currentUser || !currentChatWith) return;
-
-            const chatId = generateChatId(currentUser, currentChatWith);
-            const messagesRef = database.ref('messages/' + chatId);
-
-            if (messageListener) {
-                messagesRef.off('child_added', messageListener);
-            }
-
-            messagesRef.orderByChild('timestamp').once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const message = childSnapshot.val();
-                        const messageId = childSnapshot.key;
-                        if (!message.deleted) {
-                            displayMessage(message, messageId);
-                        }
-                    });
-                }
-                
-                markMessagesAsRead(currentChatWith);
-            });
-
-            messageListener = messagesRef.orderByChild('timestamp').on('child_added', (snapshot) => {
-                const message = snapshot.val();
-                const messageId = snapshot.key;
-                if (!message.deleted) {
-                    displayMessage(message, messageId);
-                    
-                    if (message.sender === currentChatWith && (!message.read || !message.read[currentUser])) {
-                        const messageRef = database.ref('messages/' + chatId + '/' + messageId + '/read/' + currentUser);
-                        messageRef.set(true);
-                    }
-                }
-            });
-        }
-
-        function displayMessage(message, messageId) {
-            const messageUniqueId = `${message.sender}_${message.timestamp}_${message.text ? message.text.substring(0, 20) : message.type}`;
-            
-            if (lastMessages.has(messageUniqueId)) {
-                return;
-            }
-            
-            lastMessages.add(messageUniqueId);
-            currentMessages[messageId] = message;
-            
-            const messagesContainer = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            
-            const isOwnMessage = message.sender === currentUser;
-            const messageType = message.type || 'text';
-            
-            messageDiv.className = `message ${isOwnMessage ? 'sent' : 'received'} ${messageType}-message`;
-            messageDiv.setAttribute('data-message-id', messageId);
-            
-            if (messageType === 'voice') {
-                const isCurrentlyPlaying = currentlyPlayingMessageId === messageId;
-                messageDiv.innerHTML = `
-                    <div class="voice-player">
-                        <button onclick="toggleVoicePlayback('${messageId}', '${message.audioData}')" style="background: none; border: none; color: white; font-size: 1.2rem;">
-                            <i class="fas fa-${isCurrentlyPlaying ? 'pause' : 'play'}"></i>
-                        </button>
-                        <div class="voice-visualizer">
-                            <div class="voice-bar ${isCurrentlyPlaying ? 'active' : ''}"></div>
-                            <div class="voice-bar ${isCurrentlyPlaying ? 'active' : ''}"></div>
-                            <div class="voice-bar ${isCurrentlyPlaying ? 'active' : ''}"></div>
-                            <div class="voice-bar ${isCurrentlyPlaying ? 'active' : ''}"></div>
-                            <div class="voice-bar ${isCurrentlyPlaying ? 'active' : ''}"></div>
-                            <div class="voice-bar ${isCurrentlyPlaying ? 'active' : ''}"></div>
-                            <div class="voice-bar ${isCurrentlyPlaying ? 'active' : ''}"></div>
-                        </div>
-                        <div class="voice-duration">${message.duration || '0:05'}</div>
-                    </div>
-                    ${isOwnMessage ? `
-                        <div class="message-actions">
-                            <button class="delete-btn" onclick="deleteMessage('${messageId}')" title="Удалить">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    ` : ''}
-                `;
-            } else if (messageType === 'photo' || messageType === 'video') {
-                const mediaElement = messageType === 'photo' ? 
-                    `<img src="${message.mediaUrl}" alt="Фото" onclick="openMediaModal('${message.mediaUrl}', '${messageType}')">` :
-                    `<video controls onclick="openMediaModal('${message.mediaUrl}', '${messageType}')">
-                        <source src="${message.mediaUrl}" type="video/mp4">
-                    </video>`;
-                
-                messageDiv.innerHTML = `
-                    <div class="media-content">
-                        ${mediaElement}
-                    </div>
-                    ${isOwnMessage ? `
-                        <div class="message-actions">
-                            <button class="delete-btn" onclick="deleteMessage('${messageId}')" title="Удалить">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    ` : ''}
-                `;
+        async function checkProfile() {
+            const doc = await db.collection('users').doc(myUid).get();
+            if (doc.exists) {
+                document.getElementById('login-modal').style.display = 'none';
+                initGame();
             } else {
-                messageDiv.textContent = message.text;
-                if (isOwnMessage) {
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'message-actions';
-                    actionsDiv.innerHTML = `
-                        <button class="delete-btn" onclick="deleteMessage('${messageId}')" title="Удалить">
-                            <i class="fas fa-trash"></i>
+                document.getElementById('login-modal').style.display = 'flex';
+            }
+        }
+
+        function initGame() {
+            // Слушаем изменения профиля
+            db.collection('users').doc(myUid).onSnapshot(doc => {
+                myData = doc.data();
+                if(myData) {
+                    updateUI();
+                    renderInventory();
+                    renderFriends();
+                }
+            });
+            loadMarket();
+        }
+
+        // === ГЕНЕРАТОР NFT (Паттерны) ===
+        function generateNFT(forcedRarity = null) {
+            const rarityChance = Math.random();
+            let rarity = "Common";
+            if (rarityChance > 0.7) rarity = "Rare";
+            if (rarityChance > 0.95) rarity = "Legendary";
+            if (forcedRarity) rarity = forcedRarity;
+
+            const seed = Math.floor(Math.random() * 1000000);
+            
+            return {
+                id: Date.now() + "_" + Math.floor(Math.random()*1000),
+                seed: seed,
+                rarity: rarity,
+                wear: 100, // 100% прочности
+                value: calculateValue(rarity, 100)
+            };
+        }
+
+        function calculateValue(rarity, wear) {
+            let base = 100;
+            if (rarity === "Rare") base = 500;
+            if (rarity === "Legendary") base = 2500;
+            return Math.floor(base * (wear / 100));
+        }
+
+        function getPattern(seed, rarity) {
+            const h1 = seed % 360;
+            const h2 = (seed * 2) % 360;
+            const type = (seed % 3 === 0) ? 'linear-gradient' : (seed % 3 === 1) ? 'radial-gradient' : 'conic-gradient';
+            
+            let colors = `hsl(${h1}, 70%, 50%), hsl(${h2}, 70%, 30%)`;
+            if (rarity === 'Legendary') colors += `, gold`;
+
+            if (type === 'radial-gradient') return `radial-gradient(circle, ${colors})`;
+            if (type === 'conic-gradient') return `conic-gradient(from 45deg, ${colors})`;
+            return `linear-gradient(45deg, ${colors})`;
+        }
+
+        // === ИНВЕНТАРЬ И UI ===
+        function updateUI() {
+            if(!myData) return;
+            document.getElementById('balance').innerText = myData.balance;
+            document.getElementById('energy').innerText = myData.energy;
+            document.getElementById('my-nick').innerText = myData.nickname;
+        }
+
+        function renderInventory() {
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = '';
+            
+            myData.inventory.forEach((nft, index) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="nft-preview" style="background: ${getPattern(nft.seed, nft.rarity)}">
+                        <span class="rarity-badge" style="background:${getRarityColor(nft.rarity)}">${nft.rarity}</span>
+                    </div>
+                    <div class="wear-bar"><div class="wear-fill" style="width:${nft.wear}%; background:${getWearColor(nft.wear)}"></div></div>
+                    <div style="font-size:11px; display:flex; justify-content:space-between;">
+                        <span>Износ: ${nft.wear}%</span>
+                        <span>Цена ~${nft.value}</span>
+                    </div>
+                    <button class="btn btn-sm" onclick="sellItemModal(${index})">Продать</button>
+                    <button class="btn btn-sm btn-accent" style="margin-top:2px;" onclick="giftItem(${index})">Подарить</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function getRarityColor(r) {
+            if(r==='Legendary') return '#fbbf24';
+            if(r==='Rare') return '#818cf8';
+            return '#71717a';
+        }
+        function getWearColor(w) {
+            if(w > 70) return '#22c55e';
+            if(w > 30) return '#facc15';
+            return '#ef4444';
+        }
+
+        // === ГЕЙМПЛЕЙ: ТАПАЛКА ===
+        document.getElementById('tap-btn').addEventListener('click', (e) => {
+            if (myData.energy < 1) {
+                showToast("Нет энергии!");
+                return;
+            }
+
+            const dropChance = Math.random();
+            let msg = "+1 Монета";
+            let foundNft = false;
+
+            if (dropChance < 0.01) { // 1% шанс
+                const newNft = generateNFT();
+                myData.inventory.push(newNft);
+                msg = "🔥 НАЙДЕН NFT!";
+                foundNft = true;
+            }
+
+            myData.balance += 1;
+            myData.energy -= 1;
+            
+            if (foundNft || myData.balance % 20 === 0) {
+                db.collection('users').doc(myUid).update({
+                    balance: myData.balance,
+                    energy: myData.energy,
+                    inventory: myData.inventory
+                });
+            }
+            
+            updateUI();
+            
+            // Анимация
+            const float = document.createElement('div');
+            float.innerText = msg;
+            float.style.position = 'absolute';
+            float.style.left = e.clientX + 'px';
+            float.style.top = e.clientY + 'px';
+            float.style.color = foundNft ? 'gold' : 'white';
+            float.style.fontWeight = 'bold';
+            float.style.pointerEvents = 'none';
+            float.style.transition = '1s';
+            document.body.appendChild(float);
+            setTimeout(() => {
+                float.style.transform = 'translateY(-100px)';
+                float.style.opacity = 0;
+            }, 50);
+            setTimeout(() => float.remove(), 1000);
+        });
+
+        setInterval(() => {
+            if (myData && myData.energy < 1000) {
+                myData.energy = Math.min(1000, myData.energy + 5);
+                updateUI();
+            }
+        }, 1000);
+
+        // === РЫНОК (MARKETPLACE) ===
+        function sellItemModal(index) {
+            const price = prompt("Введите цену продажи:");
+            if (!price || isNaN(price) || price < 1) return;
+
+            const nft = myData.inventory[index];
+            
+            const itemRef = db.collection('market').doc();
+            
+            db.runTransaction(async (t) => {
+                const userRef = db.collection('users').doc(myUid);
+                const userDoc = await t.get(userRef);
+                const inv = userDoc.data().inventory;
+                inv.splice(index, 1);
+                
+                t.update(userRef, { inventory: inv });
+                t.set(itemRef, {
+                    sellerId: myUid,
+                    sellerName: myData.nickname,
+                    price: parseInt(price),
+                    nft: nft,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }).then(() => {
+                showToast("Лот выставлен!");
+                loadMarket();
+            }).catch(e => showToast("Ошибка: " + e));
+        }
+
+        function loadMarket() {
+            const container = document.getElementById('market-list');
+            container.innerHTML = 'Загрузка...';
+            
+            db.collection('market').orderBy('createdAt', 'desc').limit(20).get().then(snapshot => {
+                container.innerHTML = '';
+                if(snapshot.empty) container.innerHTML = "<p>Рынок пуст</p>";
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const isMine = data.sellerId === myUid;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.innerHTML = `
+                        <div class="nft-preview" style="background: ${getPattern(data.nft.seed, data.nft.rarity)}">
+                            <span class="rarity-badge">${data.nft.rarity}</span>
+                        </div>
+                        <div style="font-size:12px; margin-bottom:5px;">
+                            <b>${data.sellerName}</b><br>
+                            Износ: ${data.nft.wear}%
+                        </div>
+                        <button class="btn ${isMine ? 'btn-danger' : 'btn-success'}" 
+                            onclick="${isMine ? `cancelSell('${doc.id}')` : `buyItem('${doc.id}', ${data.price})`}">
+                            ${isMine ? 'Снять' : `Купить ${data.price}💰`}
                         </button>
                     `;
-                    messageDiv.appendChild(actionsDiv);
-                }
-            }
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            if (lastMessages.size > 50) {
-                const firstMessage = lastMessages.values().next().value;
-                lastMessages.delete(firstMessage);
-            }
+                    container.appendChild(div);
+                });
+            });
         }
 
-        // ГОЛОСОВЫЕ СООБЩЕНИЯ
-        function toggleVoiceRecording() {
-            if (!isRecording) {
-                startVoiceRecording();
-            } else {
-                stopVoiceRecording();
-            }
-        }
-
-        function startVoiceRecording() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('Ваш браузер не поддерживает запись аудио');
+        function buyItem(marketId, price) {
+            if (myData.balance < price) {
+                showToast("Не хватает денег!");
                 return;
             }
 
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    isRecording = true;
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
+            db.runTransaction(async (t) => {
+                const marketRef = db.collection('market').doc(marketId);
+                const marketDoc = await t.get(marketRef);
+                if (!marketDoc.exists) throw "Лот уже куплен!";
 
-                    mediaRecorder.ondataavailable = event => {
-                        audioChunks.push(event.data);
-                    };
+                const lotData = marketDoc.data();
+                const buyerRef = db.collection('users').doc(myUid);
+                const sellerRef = db.collection('users').doc(lotData.sellerId);
 
-                    mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                        sendVoiceMessage(audioBlob);
-                    };
+                t.update(sellerRef, { balance: firebase.firestore.FieldValue.increment(price) });
+                t.update(buyerRef, {
+                    balance: firebase.firestore.FieldValue.increment(-price),
+                    inventory: firebase.firestore.FieldValue.arrayUnion(lotData.nft)
+                });
+                t.delete(marketRef);
 
-                    mediaRecorder.start();
-                    
-                    document.getElementById('voiceBtn').classList.add('recording');
-                    document.getElementById('recordingInfo').classList.add('active');
-                    document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-stop"></i>';
-                })
-                .catch(error => {
-                    console.error('Ошибка доступа к микрофону:', error);
-                    alert('Не удалось получить доступ к микрофону');
+            }).then(() => {
+                showToast("Куплено!");
+                loadMarket();
+            }).catch(e => showToast("Ошибка: " + e));
+        }
+
+        function cancelSell(marketId) {
+             db.runTransaction(async (t) => {
+                const marketRef = db.collection('market').doc(marketId);
+                const marketDoc = await t.get(marketRef);
+                const lotData = marketDoc.data();
+                const userRef = db.collection('users').doc(myUid);
+                
+                t.update(userRef, { inventory: firebase.firestore.FieldValue.arrayUnion(lotData.nft) });
+                t.delete(marketRef);
+            }).then(() => {
+                showToast("Лот снят");
+                loadMarket();
+            });
+        }
+
+        // === СОЦИАЛКА И ЧАТ ===
+        async function searchUser() {
+            const nick = document.getElementById('search-nick').value.trim();
+            if(!nick) return;
+
+            const snap = await db.collection('users').where('nickname', '==', nick).get();
+            if (snap.empty) {
+                showToast("Игрок не найден");
+                return;
+            }
+            
+            const friendData = snap.docs[0].data();
+            const friendId = snap.docs[0].id;
+            
+            if (friendId === myUid) { showToast("Это вы!"); return; }
+
+            const friendObj = { uid: friendId, nickname: friendData.nickname };
+            const exists = myData.friends.find(f => f.uid === friendId);
+            if(exists) { showToast("Уже в друзьях"); return; }
+
+            await db.collection('users').doc(myUid).update({
+                friends: firebase.firestore.FieldValue.arrayUnion(friendObj)
+            });
+            showToast("Друг добавлен!");
+        }
+
+        function renderFriends() {
+            const list = document.getElementById('friends-list');
+            list.innerHTML = '';
+            
+            if(!myData.friends || myData.friends.length === 0) {
+                list.innerHTML = '<p>Нет друзей</p>';
+                return;
+            }
+
+            myData.friends.forEach(f => {
+                const div = document.createElement('div');
+                div.className = 'friend-item';
+                div.innerHTML = `
+                    <span>${f.nickname}</span>
+                    <button class="btn btn-sm btn-accent" style="width:auto;" onclick="openChat('${f.uid}', '${f.nickname}')">Чат</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function openChat(uid, name) {
+            currentChatFriend = uid;
+            document.getElementById('chat-interface').style.display = 'block';
+            document.getElementById('chat-with-name').innerText = "Чат с " + name;
+            
+            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+            
+            if(unsubscribeChat) unsubscribeChat();
+
+            const chatDiv = document.getElementById('chat-messages');
+            chatDiv.innerHTML = 'Загрузка...';
+
+            unsubscribeChat = db.collection('chats').doc(chatId).collection('messages')
+                .orderBy('timestamp', 'asc')
+                .limit(50)
+                .onSnapshot(snap => {
+                    chatDiv.innerHTML = '';
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const el = document.createElement('div');
+                        el.className = `msg ${m.senderId === myUid ? 'me' : 'other'}`;
+                        el.innerText = m.text;
+                        chatDiv.appendChild(el);
+                    });
+                    chatDiv.scrollTop = chatDiv.scrollHeight;
                 });
         }
 
-        function stopVoiceRecording() {
-            if (mediaRecorder && isRecording) {
-                mediaRecorder.stop();
-                isRecording = false;
-                
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                
-                document.getElementById('voiceBtn').classList.remove('recording');
-                document.getElementById('recordingInfo').classList.remove('active');
-                document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-microphone"></i>';
-            }
-        }
-
-        function sendVoiceMessage(audioBlob) {
-            if (!currentUser || !currentChatWith) return;
-
-            const reader = new FileReader();
-            reader.readAsDataURL(audioBlob);
-            reader.onloadend = function() {
-                const base64Audio = reader.result;
-                
-                const chatId = generateChatId(currentUser, currentChatWith);
-                const messagesRef = database.ref('messages/' + chatId);
-
-                const messageData = {
-                    sender: currentUser,
-                    type: 'voice',
-                    audioData: base64Audio,
-                    duration: '0:05',
-                    timestamp: Date.now()
-                };
-
-                messagesRef.push(messageData);
-            };
-        }
-
-        function toggleVoicePlayback(messageId, audioData) {
-            if (currentlyPlayingMessageId === messageId) {
-                stopCurrentAudio();
-            } else {
-                stopCurrentAudio();
-                
-                currentAudio = new Audio(audioData);
-                currentlyPlayingMessageId = messageId;
-                
-                const messageElement = document.querySelector(`[onclick*="${messageId}"]`);
-                if (messageElement) {
-                    const icon = messageElement.querySelector('i');
-                    if (icon) icon.className = 'fas fa-pause';
-                    
-                    const voiceBars = messageElement.closest('.voice-player').querySelectorAll('.voice-bar');
-                    voiceBars.forEach(bar => bar.classList.add('active'));
-                }
-                
-                currentAudio.play().catch(error => {
-                    console.error('Ошибка воспроизведения:', error);
-                    alert('Не удалось воспроизвести голосовое сообщение');
-                    stopCurrentAudio();
-                });
-                
-                currentAudio.onended = () => {
-                    stopCurrentAudio();
-                };
-            }
-        }
-
-        function stopCurrentAudio() {
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-            if (currentlyPlayingMessageId) {
-                const previousMessageElement = document.querySelector(`[onclick*="${currentlyPlayingMessageId}"]`);
-                if (previousMessageElement) {
-                    const icon = previousMessageElement.querySelector('i');
-                    if (icon) icon.className = 'fas fa-play';
-                    
-                    const voiceBars = previousMessageElement.closest('.voice-player').querySelectorAll('.voice-bar');
-                    voiceBars.forEach(bar => bar.classList.remove('active'));
-                }
-                currentlyPlayingMessageId = null;
-            }
-        }
-
-        // ФОТО И ВИДЕО
-        function openPhotoPicker() {
-            document.getElementById('photoInput').click();
-        }
-
-        function openVideoPicker() {
-            document.getElementById('videoInput').click();
-        }
-
-        document.getElementById('photoInput').addEventListener('change', function(e) {
-            handleMediaSelection(e.target.files[0], 'photo');
-        });
-
-        document.getElementById('videoInput').addEventListener('change', function(e) {
-            handleMediaSelection(e.target.files[0], 'video');
-        });
-
-        function handleMediaSelection(file, type) {
-            if (!file) return;
-
-            const maxSize = type === 'photo' ? 10 * 1024 * 1024 : 50 * 1024 * 1024; // 10MB для фото, 50MB для видео
-            if (file.size > maxSize) {
-                alert(`Файл слишком большой. Максимальный размер: ${maxSize / 1024 / 1024}MB`);
-                return;
-            }
-
-            currentMediaFile = file;
-            currentMediaType = type;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const previewContent = document.getElementById('previewContent');
-                if (type === 'photo') {
-                    previewContent.innerHTML = `
-                        <button class="remove-preview" onclick="removeMediaPreview()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <img src="${e.target.result}" alt="Предпросмотр фото">
-                    `;
-                } else {
-                    previewContent.innerHTML = `
-                        <button class="remove-preview" onclick="removeMediaPreview()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <video controls>
-                            <source src="${e.target.result}" type="video/mp4">
-                        </video>
-                    `;
-                }
-                document.getElementById('mediaPreview').classList.add('active');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeMediaPreview() {
-            currentMediaFile = null;
-            currentMediaType = null;
-            document.getElementById('mediaPreview').classList.remove('active');
-            document.getElementById('previewContent').innerHTML = `
-                <button class="remove-preview" onclick="removeMediaPreview()">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-        }
-
-        function sendMediaMessage() {
-            if (!currentMediaFile || !currentUser || !currentChatWith) return;
-
-            const reader = new FileReader();
-            reader.readAsDataURL(currentMediaFile);
-            reader.onloadend = function() {
-                const mediaData = reader.result;
-                
-                const chatId = generateChatId(currentUser, currentChatWith);
-                const messagesRef = database.ref('messages/' + chatId);
-
-                const messageData = {
-                    sender: currentUser,
-                    type: currentMediaType,
-                    mediaUrl: mediaData,
-                    timestamp: Date.now()
-                };
-
-                messagesRef.push(messageData);
-                removeMediaPreview();
-            };
-        }
-
-        // МОДАЛЬНОЕ ОКНО ДЛЯ МЕДИА
-        function openMediaModal(mediaUrl, type) {
-            const modalContent = document.getElementById('modalMediaContent');
-            if (type === 'photo') {
-                modalContent.innerHTML = `<img src="${mediaUrl}" alt="Фото">`;
-            } else {
-                modalContent.innerHTML = `<video controls autoplay>
-                    <source src="${mediaUrl}" type="video/mp4">
-                </video>`;
-            }
-            document.getElementById('mediaModal').classList.add('active');
-        }
-
-        function closeMediaModal() {
-            document.getElementById('mediaModal').classList.remove('active');
-            const modalContent = document.getElementById('modalMediaContent');
-            modalContent.innerHTML = '';
-        }
-
-        // ОСНОВНЫЕ ФУНКЦИИ
         function sendMessage() {
-            if (currentMediaFile) {
-                sendMediaMessage();
+            const inp = document.getElementById('msg-input');
+            const text = inp.value.trim();
+            if(!text || !currentChatFriend) return;
+
+            const chatId = myUid < currentChatFriend ? `${myUid}_${currentChatFriend}` : `${currentChatFriend}_${myUid}`;
+            
+            db.collection('chats').doc(chatId).collection('messages').add({
+                text: text,
+                senderId: myUid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            inp.value = '';
+        }
+
+        function giftItem(index) {
+            const targetNick = prompt("Введите ник друга для подарка:");
+            if(!targetNick) return;
+
+            db.collection('users').where('nickname', '==', targetNick).get().then(async (snap) => {
+                if(snap.empty) { showToast("Игрок не найден"); return; }
+                const targetId = snap.docs[0].id;
+                const nft = myData.inventory[index];
+                
+                await db.runTransaction(async (t) => {
+                    const myRef = db.collection('users').doc(myUid);
+                    const targetRef = db.collection('users').doc(targetId);
+                    
+                    const myDoc = await t.get(myRef);
+                    const inv = myDoc.data().inventory;
+                    inv.splice(index, 1);
+                    
+                    t.update(myRef, { inventory: inv });
+                    t.update(targetRef, { inventory: firebase.firestore.FieldValue.arrayUnion(nft) });
+                });
+                showToast("Подарок отправлен!");
+            });
+        }
+
+        // === КАЗИНО ===
+        function spinSlots() {
+            const betInput = document.getElementById('slot-bet');
+            const bet = parseInt(betInput.value);
+            if (!bet || bet < 10 || bet > myData.balance) {
+                showToast("Некорректная ставка (мин 10)");
                 return;
             }
 
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
+            myData.balance -= bet;
+            updateUI();
 
-            if (!text || !currentUser || !currentChatWith) return;
-
-            const chatId = generateChatId(currentUser, currentChatWith);
-            const messagesRef = database.ref('messages/' + chatId);
-
-            const messageData = {
-                sender: currentUser,
-                text: text,
-                timestamp: Date.now()
-            };
-
-            messagesRef.push(messageData);
-            input.value = '';
+            const icons = ['🍒', '🍋', '🍇', '💎', '7️⃣'];
+            const res = [];
+            const display = document.getElementById('slots-display');
+            let spins = 0;
+            const interval = setInterval(() => {
+                display.innerText = `${icons[Math.floor(Math.random()*5)]} ${icons[Math.floor(Math.random()*5)]} ${icons[Math.floor(Math.random()*5)]}`;
+                spins++;
+                if(spins > 10) {
+                    clearInterval(interval);
+                    for(let i=0; i<3; i++) res.push(icons[Math.floor(Math.random()*icons.length)]);
+                    display.innerText = res.join(' ');
+                    
+                    if (res[0] === res[1] && res[1] === res[2]) {
+                        const win = bet * 5;
+                        myData.balance += win;
+                        showToast(`ДЖЕКПОТ! +${win}`);
+                    } else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) {
+                        const win = Math.floor(bet * 1.5);
+                        myData.balance += win;
+                        showToast(`Пара! +${win}`);
+                    } else {
+                        showToast("Проигрыш");
+                    }
+                    db.collection('users').doc(myUid).update({balance: myData.balance});
+                    updateUI();
+                }
+            }, 100);
         }
-
-        function deleteMessage(messageId) {
-            if (!currentUser || !currentChatWith || !messageId) return;
-            
-            if (confirm('Удалить это сообщение? Оно будет удалено у всех участников чата.')) {
-                const chatId = generateChatId(currentUser, currentChatWith);
-                const messageRef = database.ref('messages/' + chatId + '/' + messageId);
-                
-                messageRef.update({
-                    deleted: true,
-                    deletedAt: Date.now(),
-                    deletedBy: currentUser
-                });
-            }
-        }
-
-        function generateChatId(user1, user2) {
-            return [user1, user2].sort().join('_');
-        }
-
-        // Автозагрузка пользователя
-        window.addEventListener('load', function() {
-            const savedUser = localStorage.getItem('savedUser');
-            const savedPassword = localStorage.getItem('savedPassword');
-            
-            if (savedUser && savedPassword) {
-                document.getElementById('loginUsername').value = savedUser;
-                document.getElementById('loginPassword').value = savedPassword;
-                document.getElementById('rememberLogin').checked = true;
+        
+        function playRoulette(color) {
+            const betInput = document.getElementById('roulette-bet');
+            const bet = parseInt(betInput.value);
+            if (!bet || bet <= 0 || bet > myData.balance) {
+                showToast("Ошибка ставки");
+                return;
             }
             
-            showScreen('welcomeScreen');
-        });
+            myData.balance -= bet;
+            const result = Math.random() < 0.5 ? 'red' : 'black';
+            
+            if(result === color) {
+                myData.balance += bet * 2;
+                showToast(`Выпало ${result === 'red'?'🔴':'⚫'}! Победа!`);
+            } else {
+                showToast(`Выпало ${result === 'red'?'🔴':'⚫'}. Неудача.`);
+            }
+            
+            db.collection('users').doc(myUid).update({balance: myData.balance});
+            updateUI();
+        }
 
-        // Обработчики клавиш
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMessage();
-        });
+        // === НАВИГАЦИЯ ===
+        function nav(tab) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const map = {'home':0, 'market':1, 'social':2, 'casino':3};
+            document.querySelectorAll('.nav-item')[map[tab]].classList.add('active');
+        }
 
-        document.getElementById('regPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') register();
-        });
-
-        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
-        });
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
     </script>
 </body>
 </html>
