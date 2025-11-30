@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe 15.0</title>
+    <title>NFT Universe: Clean</title>
     
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -107,7 +107,7 @@
         .bg-gold { background: radial-gradient(circle at top, #422006, #18181b); }
 
         .nft-img {
-            width: 100px; height: 100px; object-fit: contain; margin: 10px 0;
+            width: 90px; height: 90px; object-fit: contain; margin: 10px 0;
             filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
         .nft-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 2px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -375,9 +375,8 @@
         const firebaseConfig = { apiKey: "AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg", authDomain: "nfts-dc174.firebaseapp.com", projectId: "nfts-dc174", storageBucket: "nfts-dc174.firebasestorage.app", messagingSenderId: "327365720624", appId: "1:327365720624:web:eb42c9d671566b5d118bf5" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        // FULL FIXED ASSET LIST (100+ items structure)
+        // FULL FIXED ASSET LIST (100% Working)
         const BASE = "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis";
-        // Helper to quick build
         const make = (n,t,u,p) => ({n,t,u,p});
         const ASSETS = [
             make("Rocket","Tech","/Travel%20and%20places/Rocket.png",2000),
@@ -506,25 +505,24 @@
         function renderShop(){
             const l=document.getElementById('shop-list'); if(l.children.length>0)return;
             ASSETS.forEach(a=>{
-                const d=document.createElement('div'); d.className='card'; d.style.background='var(--surface)';
-                d.innerHTML=`<div class="nft-type">${a.t}</div><img src="${BASE+a.u}" class="nft-img" loading="lazy"><div class="nft-name">${a.n}</div><button class="btn btn-sm btn-outline" style="margin-top:5px;" onclick="buyShop('${a.n}')">${a.p} 💎</button>`;
+                const p=a.t==='Luxury'?5000:(a.t==='Rare'?2000:500);
+                const d=document.createElement('div'); d.className=`card ${a.b}`;
+                d.innerHTML=`<div class="nft-type">${a.t}</div><img src="${BASE+a.u}" class="nft-img" loading="lazy"><div class="nft-name">${a.n}</div><button class="btn btn-sm btn-outline" style="margin-top:5px;" onclick="buyShop('${a.n}')">${p} 💎</button>`;
                 l.appendChild(d);
             });
         }
-        function buyShop(n){
-            const item=ASSETS.find(x=>x.n===n);
-            if(data.balance<item.p)return toast("Мало денег");
-            data.balance-=item.p;
-            const bg=BGS[Math.floor(Math.random()*BGS.length)];
+        function buyShop(n,p){
+            if(data.balance<p)return toast("Мало денег");
+            const it=ASSETS.find(x=>x.n===n);
             const ser=Math.floor(Math.random()*90000)+10000;
-            data.inventory.push({id:Date.now()+Math.random(), name:item.n, type:item.t, bg:bg, url:BASE+item.u, price:item.p, serial:ser});
+            data.balance-=p; data.inventory.push({id:Date.now()+Math.random(), name:it.n, type:it.t, bg:it.b, url:BASE+it.u, serial:ser, price:p});
             save(); toast("Куплено!");
         }
         function renderInv(){
             const l=document.getElementById('inventory-list'); l.innerHTML='';
             data.inventory.forEach((n,i)=>{
                 const d=document.createElement('div'); d.className=`card ${n.bg}`;
-                d.innerHTML=`<div class="nft-type">${n.type}</div><img src="${n.url}" class="nft-img"><div class="nft-name">${n.name}</div><div class="nft-type">#${n.serial}</div><button class="btn btn-sm btn-outline" style="width:100%;margin-top:5px;background:rgba(0,0,0,0.5)" onclick="openNft(${i})">Меню</button>`;
+                d.innerHTML=`<div class="nft-type">${n.type}</div><img src="${n.url}" class="nft-img"><div class="nft-name">${n.name}</div><div class="nft-type">#${n.serial}</div><button class="btn btn-sm btn-outline" style="width:100%;margin-top:5px;" onclick="openNft(${i})">Меню</button>`;
                 l.appendChild(d);
             });
         }
@@ -532,11 +530,10 @@
         // --- MODAL ---
         function openNft(i){
             selIdx=i; const n=data.inventory[i];
-            document.getElementById('modal-name').innerText=n.name;
-            document.getElementById('modal-serial').innerText=`#${n.serial}`;
+            document.getElementById('modal-name').innerText=n.name + " #"+n.serial;
             document.getElementById('modal-img').src=n.url;
             document.getElementById('sys-price').innerText=Math.floor((n.price||100)*0.5);
-            openModal('nft-modal'); setNftTab('sell');
+            openModal('nft-modal');
         }
         function sellSystem(){
             const p=Math.floor((data.inventory[selIdx].price||100)*0.5);
@@ -555,7 +552,7 @@
         function sendGift(){
             const nick=document.getElementById('gift-nick').value.trim();
             db.collection('users').doc(nick).get().then(d=>{
-                if(!d.exists)return toast("Не найден");
+                if(!d.exists)return toast("Игрок не найден");
                 const n=data.inventory[selIdx];
                 db.runTransaction(async t=>{
                     const me=await t.get(db.collection('users').doc(myNick));
@@ -606,7 +603,7 @@
         function buyTap(){
             const c=Math.floor(100*Math.pow(1.5,data.tapLvl-1));
             if(data.balance<c)return toast("Мало денег");
-            data.balance-=c; data.tapLvl++; save(); toast("LVL UP!");
+            data.balance-=c; data.tapLvl++; save(); toast("Upgraded!");
         }
         function buyBot(){
             if(data.balance<500)return toast("Мало денег");
@@ -614,12 +611,15 @@
         }
         function buyCosmetic(t,c){
             if(data.balance<c)return toast("Мало денег");
+            if(data.upgrades[t])return toast("Куплено");
             data.balance-=c; data.upgrades[t]=true; save(); toast("Куплено!");
         }
         function changePass(){ const p=prompt("Новый пароль:"); if(p&&p.length>3) db.collection('users').doc(myNick).update({password:p}); }
-        function deleteAcc(){ if(confirm("Точно удалить?")){ db.collection('users').doc(myNick).delete(); logout(); } }
+        function deleteAcc(){
+            if(confirm("Удалить?")){ db.collection('users').doc(myNick).delete(); logout(); }
+        }
 
-        // --- P2P ---
+        // --- MARKET P2P ---
         function loadP2P(){
             const l=document.getElementById('p2p-list');
             db.collection('market').orderBy('createdAt','desc').limit(20).get().then(s=>{
@@ -654,32 +654,37 @@
             if(!b||b>data.balance)return toast("Ставка?");
             data.balance-=b; mines={a:true,m:[],s:0,b:b};
             while(mines.m.length<3){const r=Math.floor(Math.random()*16);if(!mines.m.includes(r))mines.m.push(r);}
+            renderMines(false); document.getElementById('mines-btn').innerText="Забрать"; document.getElementById('mines-btn').onclick=cashMines; save();
+        }
+        function renderMines(rev){
             const g=document.getElementById('mines-field'); g.innerHTML='';
             for(let i=0;i<16;i++){
                 const c=document.createElement('div'); c.className='mine';
-                c.onclick=()=>{
-                    if(!mines.a||c.innerHTML!=='')return;
-                    if(mines.m.includes(i)){
-                        c.innerHTML='💣'; c.classList.add('boom'); mines.a=false; toast("BOOM!");
-                        document.getElementById('mines-btn').innerText="Играть"; document.getElementById('mines-btn').onclick=startMines;
-                    } else {
-                        c.innerHTML='💎'; c.classList.add('safe'); mines.s++;
-                        document.getElementById('mines-btn').innerText=`Забрать (${Math.floor(mines.b*(1+mines.s*0.4))})`;
-                        document.getElementById('mines-btn').onclick=()=>{
-                            const w=Math.floor(mines.b*(1+mines.s*0.4)); data.balance+=w; save(); toast("WIN +"+w); mines.a=false; 
-                            document.getElementById('mines-btn').innerText="Играть"; document.getElementById('mines-btn').onclick=startMines;
-                        };
-                    }
-                };
+                if(rev){ if(mines.m.includes(i)){c.innerHTML='💣';c.classList.add('boom');}else c.innerHTML='💎'; }
+                else c.onclick=()=>clickMine(i,c);
                 g.appendChild(c);
             }
-            save();
         }
+        function clickMine(i,c){
+            if(!mines.a||c.innerHTML!=='')return;
+            if(mines.m.includes(i)){
+                c.innerHTML='💥'; c.classList.add('boom'); mines.a=false; toast("LOSE"); renderMines(true); resetMines();
+            } else {
+                c.innerHTML='💎'; c.classList.add('safe'); mines.s++;
+                document.getElementById('mines-btn').innerText=`Забрать (${Math.floor(mines.b*(1+mines.s*0.3))})`;
+            }
+        }
+        function cashMines(){
+            if(!mines.a||mines.s===0)return;
+            const w=Math.floor(mines.b*(1+mines.s*0.3)); data.balance+=w; toast("WIN "+w); mines.a=false; save(); renderMines(true); resetMines();
+        }
+        function resetMines(){ const b=document.getElementById('mines-btn'); b.innerText="Играть"; b.onclick=startMines; }
+        
         function playRPS(p){
             const b=parseInt(document.getElementById('rps-bet').value); if(!b||b>data.balance)return toast("Ставка?");
             data.balance-=b; const ai=['r','p','s'][Math.floor(Math.random()*3)];
             let r='d'; if((p=='r'&&ai=='s')||(p=='p'&&ai=='r')||(p=='s'&&ai=='p'))r='w'; else if(p!==ai)r='l';
-            if(r=='w'){data.balance+=b*2;toast("WIN!");} else if(r=='d'){data.balance+=b;toast("DRAW");} else toast("LOSE");
+            if(r=='w'){data.balance+=b*2;toast("WIN");} else if(r=='d'){data.balance+=b;toast("DRAW");} else toast("LOSE");
             save();
         }
         function playSlots(){
