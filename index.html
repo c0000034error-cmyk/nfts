@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe: FULL 30.0</title>
+    <title>NFT Universe: SAFE</title>
     
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -133,7 +133,6 @@
         .lb-nick { flex: 1; text-align: left; margin-left: 10px; }
         .lb-val { font-family: monospace; color: var(--success); }
         
-        /* MINES COMPACT */
         .mines-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px auto; max-width: 220px; }
         .mine { aspect-ratio: 1; background: #27272a; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .mine.boom { background: var(--danger); }
@@ -142,6 +141,10 @@
         
         .settings-row { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 12px; border-radius: 12px; margin-bottom: 8px; }
         .bot-timer { font-size: 10px; color: var(--success); margin-left: 5px; font-weight: bold; display: none; }
+        
+        /* CHECKBOX */
+        .checkbox-container { display: flex; align-items: center; gap: 10px; color: #888; font-size: 13px; margin-top: 10px; justify-content: center; cursor: pointer; }
+        .checkbox-container input { width: auto; margin: 0; }
     </style>
 </head>
 <body>
@@ -155,7 +158,11 @@
                 <h3 id="auth-title" style="margin-top:0; color:white;">Вход</h3>
                 <input type="text" id="auth-nick" placeholder="Никнейм">
                 <input type="password" id="auth-pass" placeholder="Пароль">
-                <button class="btn" onclick="submitAuth()">Войти</button>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="remember-me" checked>
+                    Запомнить меня
+                </label>
+                <button class="btn" onclick="submitAuth()" style="margin-top: 15px;">Войти</button>
                 <div onclick="toggleAuth()" style="margin-top:20px; font-size:13px; color: #a1a1aa; cursor:pointer;">
                     Нет аккаунта? <span style="text-decoration: underline; color:var(--primary);">Регистрация</span>
                 </div>
@@ -194,7 +201,7 @@
             <div class="combo-text" id="combo-text"></div>
             <div style="display:flex; justify-content:center; padding:20px 0;">
                 <div id="tap-btn" style="width:240px; height:240px; border-radius:50%; background:radial-gradient(circle at 30%, #6366f1, #000); box-shadow:0 0 60px rgba(99, 102, 241, 0.3); display:flex; justify-content:center; align-items:center; cursor:pointer; position:relative; border:4px solid rgba(255,255,255,0.1);">
-                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Crystal%20Ball.png" width="160" style="pointer-events: none;">
+                    <img src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis/Objects/Money%20Bag.png" width="160" style="pointer-events: none;">
                 </div>
             </div>
             <div class="combo-container" id="combo-cont">
@@ -303,6 +310,17 @@
     </div>
 
     <!-- MODALS -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="color:white;">Подтверждение</h3>
+            <p id="confirm-text" style="color:#ccc; margin:15px 0;">Вы уверены?</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-danger" onclick="confirmAction()">Да, купить</button>
+                <button class="btn btn-outline" onclick="closeModal('confirm-modal')">Отмена</button>
+            </div>
+        </div>
+    </div>
+
     <div id="nft-modal" class="modal-overlay">
         <div class="modal-box">
             <h2 id="modal-name" style="color:white; margin:0;">Item</h2>
@@ -339,11 +357,11 @@
                 <button class="btn-sm btn-outline" onclick="buyTap()">+1 (<span id="tap-cost">100</span>)</button>
             </div>
             <div class="settings-row">
-                <div><b>Крит Шанс</b><br><span style="font-size:11px;color:#888;">Ур. <span id="crit-lvl">1</span></span></div>
+                <div><b>Шанс Крита</b><br><span style="font-size:11px;color:#888;">Ур. <span id="crit-lvl">1</span></span></div>
                 <button class="btn-sm btn-outline" onclick="buyCrit()">+1% (<span id="crit-cost">500</span>)</button>
             </div>
             <div class="settings-row">
-                <div><b>Реген</b><br><span style="font-size:11px;color:#888;">Ур. <span id="regen-lvl">1</span></span></div>
+                <div><b>Реген Энергии</b><br><span style="font-size:11px;color:#888;">Ур. <span id="regen-lvl">1</span></span></div>
                 <button class="btn-sm btn-outline" onclick="buyRegen()">+1 (<span id="regen-cost">300</span>)</button>
             </div>
             <div class="settings-row">
@@ -357,7 +375,7 @@
     <div id="chat-modal" class="modal-overlay">
         <div class="modal-box" style="height:80vh; display:flex; flex-direction:column;">
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <b id="chat-title">Чат</b> <span onclick="closeModal('chat-modal')" style="cursor:pointer;color:white;">✕</span>
+                <b id="chat-title" style="color:white;">Чат</b> <span onclick="closeModal('chat-modal')" style="cursor:pointer;color:white;">✕</span>
             </div>
             <div id="chat-history" style="flex:1; background:#111; border-radius:12px; overflow-y:scroll; padding:10px; display:flex; flex-direction:column; gap:10px;"></div>
             <div style="display:flex; gap:5px; margin-top:10px;">
@@ -392,91 +410,19 @@
         const firebaseConfig = { apiKey: "AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg", authDomain: "nfts-dc174.firebaseapp.com", projectId: "nfts-dc174", storageBucket: "nfts-dc174.firebasestorage.app", messagingSenderId: "327365720624", appId: "1:327365720624:web:eb42c9d671566b5d118bf5" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        const BASE = "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis";
+        const BASE = "https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis";
         const make = (n,t,u,p) => ({n,t,u,p});
         const ASSETS = [
-            make("Ракета","Техно","/Travel%20and%20places/Rocket.png",2000),
-            make("Корона","Роскошь","/Objects/Crown.png",50000),
-            make("Алмаз","Роскошь","/Objects/Gem%20Stone.png",10000),
-            make("Пришелец","Техно","/Smilies/Alien%20Monster.png",5000),
-            make("Кот","Питомец","/Animals/Cat%20Face.png",3000),
-            make("Собака","Питомец","/Animals/Dog%20Face.png",3000),
-            make("Дракон","Питомец","/Animals/Dragon.png",20000),
-            make("Единорог","Питомец","/Animals/Unicorn.png",15000),
-            make("Бургер","Еда","/Food/Hamburger.png",1000),
-            make("Пицца","Еда","/Food/Pizza.png",1000),
-            make("Джойстик","Техно","/Activities/Video%20Game.png",4000),
-            make("Ноутбук","Техно","/Objects/Laptop.png",6000),
-            make("Камера","Техно","/Objects/Camera.png",5000),
-            make("Деньги","Роскошь","/Objects/Money%20Bag.png",10000),
-            make("Огонь","Редкое","/Travel%20and%20places/Fire.png",2500),
-            make("Звезда","Редкое","/Travel%20and%20places/Star.png",3000),
-            make("Призрак","Редкое","/Smilies/Ghost.png",4000),
-            make("Панда","Питомец","/Animals/Panda.png",4000),
-            make("Лиса","Питомец","/Animals/Fox.png",3500),
-            make("Лев","Питомец","/Animals/Lion.png",4500),
-            make("Коала","Питомец","/Animals/Koala.png",4000),
-            make("Тигр","Питомец","/Animals/Tiger%20Face.png",4500),
-            make("Лягушка","Питомец","/Animals/Frog.png",2500),
-            make("Осьминог","Питомец","/Animals/Octopus.png",3000),
-            make("Кит","Питомец","/Animals/Spouting%20Whale.png",5000),
-            make("Дельфин","Питомец","/Animals/Dolphin.png",4000),
-            make("Бабочка","Питомец","/Animals/Butterfly.png",2000),
-            make("Курица","Питомец","/Animals/Chicken.png",1500),
-            make("Пингвин","Питомец","/Animals/Penguin.png",3000),
-            make("Акула","Питомец","/Animals/Shark.png",4000),
-            make("Хомяк","Питомец","/Animals/Hamster.png",2000),
-            make("Орел","Питомец","/Animals/Eagle.png",3500),
-            make("Сова","Питомец","/Animals/Owl.png",3000),
-            make("Фламинго","Питомец","/Animals/Flamingo.png",3000),
-            make("Суши","Еда","/Food/Sushi.png",1500),
-            make("Торт","Еда","/Food/Birthday%20Cake.png",2000),
-            make("Пончик","Еда","/Food/Doughnut.png",1200),
-            make("Мороженое","Еда","/Food/Soft%20Ice%20Cream.png",1200),
-            make("Попкорн","Еда","/Food/Popcorn.png",1500),
-            make("Шоколад","Еда","/Food/Chocolate%20Bar.png",800),
-            make("Тако","Еда","/Food/Taco.png",1100),
-            make("Хотдог","Еда","/Food/Hot%20Dog.png",1100),
-            make("Картошка","Еда","/Food/French%20Fries.png",1000),
-            make("Арбуз","Еда","/Food/Watermelon.png",800),
-            make("Клубника","Еда","/Food/Strawberry.png",800),
-            make("Коктейль","Еда","/Food/Tropical%20Drink.png",1200),
-            make("Виноград","Еда","/Food/Grapes.png",800),
-            make("Гитара","Музыка","/Objects/Guitar.png",4000),
-            make("Барабан","Музыка","/Objects/Drum.png",3000),
-            make("Микрофон","Музыка","/Objects/Microphone.png",3000),
-            make("Саксофон","Музыка","/Objects/Saxophone.png",4000),
-            make("Наушники","Техно","/Objects/Headphone.png",3500),
-            make("Телефон","Техно","/Objects/Mobile%20Phone.png",4000),
-            make("Машина","Авто","/Travel%20and%20places/Automobile.png",8000),
-            make("Полиция","Авто","/Travel%20and%20places/Police%20Car.png",7500),
-            make("Скорая","Авто","/Travel%20and%20places/Ambulance.png",7500),
-            make("Самолет","Авто","/Travel%20and%20places/Airplane.png",9000),
-            make("Вертолет","Авто","/Travel%20and%20places/Helicopter.png",8500),
-            make("НЛО","Техно","/Travel%20and%20places/Flying%20Saucer.png",10000),
-            make("Вулкан","Место","/Travel%20and%20places/Volcano.png",4000),
-            make("Замок","Место","/Travel%20and%20places/Castle.png",6000),
-            make("Остров","Место","/Travel%20and%20places/Desert%20Island.png",5000),
-            make("Стадион","Место","/Travel%20and%20places/Stadium.png",5000),
-            make("Мяч","Спорт","/Activities/Soccer%20Ball.png",2000),
-            make("Баскетбол","Спорт","/Activities/Basketball.png",2000),
-            make("Теннис","Спорт","/Activities/Tennis.png",2000),
-            make("Бейсбол","Спорт","/Activities/Baseball.png",2000),
-            make("Регби","Спорт","/Activities/Rugby%20Football.png",2000),
-            make("Медаль","Спорт","/Activities/1st%20Place%20Medal.png",3500),
-            make("Сердце","Редкое","/Smilies/Red%20Heart.png",2000),
-            make("Ниндзя","Редкое","/People/Ninja.png",5500),
-            make("Вампир","Редкое","/People/Vampire.png",4500),
-            make("Зомби","Редкое","/People/Zombie.png",4500),
-            make("Супергерой","Редкое","/People/Superhero.png",6000),
-            make("Джинн","Редкое","/People/Genie.png",7000),
-            make("Маг","Редкое","/People/Mage.png",6000),
-            make("Фея","Редкое","/People/Fairy.png",5000)
+            make("Ракета","Техно","/Travel%20and%20places/Rocket.png",2000),make("Корона","Роскошь","/Objects/Crown.png",50000),make("Алмаз","Роскошь","/Objects/Gem%20Stone.png",10000),make("Пришелец","Техно","/Smilies/Alien%20Monster.png",5000),make("Кот","Питомец","/Animals/Cat%20Face.png",3000),make("Собака","Питомец","/Animals/Dog%20Face.png",3000),make("Дракон","Питомец","/Animals/Dragon.png",20000),make("Единорог","Питомец","/Animals/Unicorn.png",15000),make("Бургер","Еда","/Food/Hamburger.png",1000),make("Пицца","Еда","/Food/Pizza.png",1000),make("Джойстик","Техно","/Activities/Video%20Game.png",4000),make("Ноутбук","Техно","/Objects/Laptop.png",6000),make("Камера","Техно","/Objects/Camera.png",5000),make("Деньги","Роскошь","/Objects/Money%20Bag.png",10000),make("Огонь","Редкое","/Travel%20and%20places/Fire.png",2500),make("Звезда","Редкое","/Travel%20and%20places/Star.png",3000),make("Призрак","Редкое","/Smilies/Ghost.png",4000),make("Панда","Питомец","/Animals/Panda.png",4000),make("Лиса","Питомец","/Animals/Fox.png",3500),make("Лев","Питомец","/Animals/Lion.png",4500),make("Коала","Питомец","/Animals/Koala.png",4000),make("Тигр","Питомец","/Animals/Tiger%20Face.png",4500),make("Лягушка","Питомец","/Animals/Frog.png",2500),make("Осьминог","Питомец","/Animals/Octopus.png",3000),make("Кит","Питомец","/Animals/Spouting%20Whale.png",5000),make("Дельфин","Питомец","/Animals/Dolphin.png",4000),make("Бабочка","Питомец","/Animals/Butterfly.png",2000),make("Курица","Питомец","/Animals/Chicken.png",1500),make("Пингвин","Питомец","/Animals/Penguin.png",3000),make("Акула","Питомец","/Animals/Shark.png",4000),make("Хомяк","Питомец","/Animals/Hamster.png",2000),make("Орел","Питомец","/Animals/Eagle.png",3500),make("Сова","Питомец","/Animals/Owl.png",3000),make("Фламинго","Питомец","/Animals/Flamingo.png",3000),make("Суши","Еда","/Food/Sushi.png",1500),make("Торт","Еда","/Food/Birthday%20Cake.png",2000),make("Пончик","Еда","/Food/Doughnut.png",1200),make("Мороженое","Еда","/Food/Soft%20Ice%20Cream.png",1200),make("Попкорн","Еда","/Food/Popcorn.png",1500),make("Шоколад","Еда","/Food/Chocolate%20Bar.png",800),make("Тако","Еда","/Food/Taco.png",1100),make("Хотдог","Еда","/Food/Hot%20Dog.png",1100),make("Картошка","Еда","/Food/French%20Fries.png",1000),make("Арбуз","Еда","/Food/Watermelon.png",800),make("Клубника","Еда","/Food/Strawberry.png",800),make("Коктейль","Еда","/Food/Tropical%20Drink.png",1200),make("Виноград","Еда","/Food/Grapes.png",800),make("Гитара","Музыка","/Objects/Guitar.png",4000),make("Барабан","Музыка","/Objects/Drum.png",3000),make("Микрофон","Музыка","/Objects/Microphone.png",3000),make("Саксофон","Музыка","/Objects/Saxophone.png",4000),make("Наушники","Техно","/Objects/Headphone.png",3500),make("Телефон","Техно","/Objects/Mobile%20Phone.png",4000),make("Машина","Авто","/Travel%20and%20places/Automobile.png",8000),make("Полиция","Авто","/Travel%20and%20places/Police%20Car.png",7500),make("Скорая","Авто","/Travel%20and%20places/Ambulance.png",7500),make("Самолет","Авто","/Travel%20and%20places/Airplane.png",9000),make("Вертолет","Авто","/Travel%20and%20places/Helicopter.png",8500),make("НЛО","Техно","/Travel%20and%20places/Flying%20Saucer.png",10000),make("Вулкан","Место","/Travel%20and%20places/Volcano.png",4000),make("Замок","Место","/Travel%20and%20places/Castle.png",6000),make("Остров","Место","/Travel%20and%20places/Desert%20Island.png",5000),make("Стадион","Место","/Travel%20and%20places/Stadium.png",5000),make("Мяч","Спорт","/Activities/Soccer%20Ball.png",2000),make("Баскетбол","Спорт","/Activities/Basketball.png",2000),make("Теннис","Спорт","/Activities/Tennis.png",2000),make("Бейсбол","Спорт","/Activities/Baseball.png",2000),make("Регби","Спорт","/Activities/Rugby%20Football.png",2000),make("Медаль","Спорт","/Activities/1st%20Place%20Medal.png",3500),make("Сердце","Редкое","/Smilies/Red%20Heart.png",2000),make("Ниндзя","Редкое","/People/Ninja.png",5500),make("Вампир","Редкое","/People/Vampire.png",4500),make("Зомби","Редкое","/People/Zombie.png",4500),make("Супергерой","Редкое","/People/Superhero.png",6000),make("Джинн","Редкое","/People/Genie.png",7000),make("Маг","Редкое","/People/Mage.png",6000),make("Фея","Редкое","/People/Fairy.png",5000)
         ];
 
-        let myNick=localStorage.getItem('nft_nick'), data, selIdx, chatUnsub, curChat, isReg=false;
+        let myNick=localStorage.getItem('nft_nick') || sessionStorage.getItem('nft_nick');
+        let data, selIdx, chatUnsub, curChat, isReg=false;
         let mines={a:false,m:[],s:0,b:0};
         let combo=0, comboTimer=null;
+        
+        // CONFIRMATION VARS
+        let pendingBuy = null; // { type: 'shop'/'p2p', id: ..., price: ... }
 
         if(myNick) checkSession(); else document.getElementById('auth-modal').style.display='flex';
 
@@ -484,21 +430,29 @@
         async function submitAuth() {
             const n=document.getElementById('auth-nick').value.trim();
             const p=document.getElementById('auth-pass').value.trim();
+            const remember = document.getElementById('remember-me').checked;
             if(n.length<3||p.length<4) return alert("Короткие данные");
             try {
                 const doc=await db.collection('users').doc(n).get();
                 if(isReg) {
                     if(doc.exists) throw "Ник занят";
-                    await db.collection('users').doc(n).set({password:p,nickname:n,balance:0,energy:1000,inventory:[],friends:[],upgrades:{},equipped:[],tapLvl:1,critLvl:1,regenLvl:1,botExp:0,createdAt:Date.now()});
-                    loginSuccess(n);
+                    await db.collection('users').doc(n).set({password:p,nickname:n,balance:0,energy:1000,inventory:[],friends:[],upgrades:{},equipped:[],tapLvl:1,critLvl:1,regenLvl:1,botExp:0,invVal:0,createdAt:Date.now()});
+                    loginSuccess(n, remember);
                 } else {
                     if(!doc.exists||doc.data().password!==p) throw "Ошибка";
-                    loginSuccess(n);
+                    loginSuccess(n, remember);
                 }
             } catch(e){ document.getElementById('auth-error').innerText=e.toString(); }
         }
-        function loginSuccess(n){ localStorage.setItem('nft_nick',n); myNick=n; document.getElementById('auth-modal').style.display='none'; checkSession(); }
-        function logout(){ localStorage.removeItem('nft_nick'); location.reload(); }
+        
+        function loginSuccess(n, remember) { 
+            if(remember) localStorage.setItem('nft_nick', n);
+            else sessionStorage.setItem('nft_nick', n);
+            myNick=n; 
+            document.getElementById('auth-modal').style.display='none'; 
+            checkSession(); 
+        }
+        function logout(){ localStorage.removeItem('nft_nick'); sessionStorage.removeItem('nft_nick'); location.reload(); }
 
         function checkSession() {
             db.collection('users').doc(myNick).onSnapshot(d=>{
@@ -510,6 +464,7 @@
                     if(!data.critLvl) data.critLvl=1;
                     if(!data.regenLvl) data.regenLvl=1;
                     if(!data.botExp) data.botExp=0;
+                    if(!data.invVal) data.invVal=0;
                     
                     updateUI(); renderInv(); renderShop(); loadP2P(); renderFriends();
                     if(myNick==='kayivi') document.getElementById('admin-btn').style.display='block';
@@ -543,12 +498,16 @@
                     const el = document.getElementById(`orb-${i+1}`);
                     el.src = BASE + item.u;
                     el.style.display = 'block';
-                    if(item.hue) el.style.filter = item.hue; // Apply Unique Hue
+                    if(item.hue) el.style.filter = item.hue;
                 }
             });
 
             document.getElementById('tap-lvl').innerText=data.tapLvl;
             document.getElementById('tap-cost').innerText=Math.floor(100*Math.pow(1.5, data.tapLvl-1));
+            document.getElementById('crit-lvl').innerText=data.critLvl;
+            document.getElementById('crit-cost').innerText=500 + (data.critLvl*200);
+            document.getElementById('regen-lvl').innerText=data.regenLvl;
+            document.getElementById('regen-cost').innerText=300 + (data.regenLvl*150);
             
             if(data.botExp>Date.now()) {
                 const diff=Math.floor((data.botExp-Date.now())/1000);
@@ -565,20 +524,44 @@
             };
         }
 
+        // --- CONFIRMATION LOGIC ---
+        function reqBuyShop(name, price) {
+            pendingBuy = { type: 'shop', name: name, price: price };
+            document.getElementById('confirm-text').innerText = `Купить "${name}" за ${price} 💎?`;
+            openModal('confirm-modal');
+        }
+        
+        function reqBuyP2P(id, price) {
+            pendingBuy = { type: 'p2p', id: id, price: price };
+            document.getElementById('confirm-text').innerText = `Купить у игрока за ${price} 💎?`;
+            openModal('confirm-modal');
+        }
+        
+        function confirmAction() {
+            if(!pendingBuy) return;
+            if(pendingBuy.type === 'shop') {
+                buyShop(pendingBuy.name, pendingBuy.price);
+            } else if(pendingBuy.type === 'p2p') {
+                buyP2P(pendingBuy.id, pendingBuy.price);
+            }
+            closeModal('confirm-modal');
+            pendingBuy = null;
+        }
+
         // --- SHOP ---
         function renderShop(){
             const l=document.getElementById('shop-list'); if(l.children.length>0)return;
             const sorted = document.getElementById('shop-sort').value === 'cheap' ? [...ASSETS].sort((a,b)=>a.p-b.p) : [...ASSETS].sort((a,b)=>b.p-a.p);
             sorted.forEach(a=>{
                 const d=document.createElement('div'); d.className='card'; d.style.background='#18181b';
-                d.innerHTML=`<div class="nft-pill">${a.t}</div><img src="${BASE+a.u}" class="nft-img" loading="lazy"><div class="nft-name">${a.n}</div><button class="btn btn-sm btn-outline" style="margin-top:5px;" onclick="buyShop('${a.n}')">${a.p} 💎</button>`;
+                d.innerHTML=`<div class="nft-pill">${a.t}</div><img src="${BASE+a.u}" class="nft-img" loading="lazy"><div class="nft-name">${a.n}</div><button class="btn btn-sm btn-outline" style="margin-top:5px;" onclick="reqBuyShop('${a.n}', ${a.p})">${a.p} 💎</button>`;
                 l.appendChild(d);
             });
         }
-        function buyShop(name){
+        function buyShop(name, price){
             const item=ASSETS.find(x=>x.n===name);
-            if(data.balance<item.p)return toast("Мало денег");
-            data.balance-=item.p;
+            if(data.balance<price)return toast("Мало денег");
+            data.balance-=price;
             const st = genUnique();
             const serial = Math.floor(Math.random()*900000)+100000;
             data.inventory.push({
@@ -639,7 +622,7 @@
         }
 
         // --- P2P ---
-        function loadP2P(){const l=document.getElementById('p2p-list');db.collection('market').orderBy('createdAt','desc').limit(20).get().then(s=>{l.innerHTML='';s.forEach(d=>{const dt=d.data();const mine=dt.seller===myNick;const el=document.createElement('div');el.className='card';el.style.background = dt.nft.bg || '#222';el.innerHTML=`<div class="nft-pill">By ${dt.seller}</div><img src="${BASE+dt.nft.u}" class="nft-img" style="filter:${dt.nft.hue}"><div class="nft-name">${dt.nft.name}</div><div style="font-size:10px;">${dt.price}💎</div><button class="btn btn-sm ${mine?'btn-outline':'btn-blue'}" style="margin-top:5px; background:rgba(0,0,0,0.5)" onclick="${mine?`delP2P('${d.id}')`:`buyP2P('${d.id}',${dt.price})`}">${mine?'Снять':'Купить'}</button>`;l.appendChild(el);});});}
+        function loadP2P(){const l=document.getElementById('p2p-list');db.collection('market').orderBy('createdAt','desc').limit(20).get().then(s=>{l.innerHTML='';s.forEach(d=>{const dt=d.data();const mine=dt.seller===myNick;const el=document.createElement('div');el.className='card';el.style.background = dt.nft.bg || '#222';el.innerHTML=`<div class="nft-pill">By ${dt.seller}</div><img src="${BASE+dt.nft.u}" class="nft-img" style="filter:${dt.nft.hue}"><div class="nft-name">${dt.nft.name}</div><div style="font-size:10px;">${dt.price}💎</div><button class="btn btn-sm ${mine?'btn-outline':'btn-blue'}" style="margin-top:5px; background:rgba(0,0,0,0.5)" onclick="${mine?`delP2P('${d.id}')`:`reqBuyP2P('${d.id}',${dt.price})`}">${mine?'Снять':'Купить'}</button>`;l.appendChild(el);});});}
         function buyP2P(id,p){if(data.balance<p)return toast("Мало денег");db.runTransaction(async t=>{const doc=await t.get(db.collection('market').doc(id));if(!doc.exists)throw "Уже куплено";const lot=doc.data();t.update(db.collection('users').doc(lot.seller),{balance:firebase.firestore.FieldValue.increment(p)});t.update(db.collection('users').doc(myNick),{balance:firebase.firestore.FieldValue.increment(-p),inventory:firebase.firestore.FieldValue.arrayUnion(lot.nft)});t.delete(db.collection('market').doc(id));}).then(()=>{toast("Куплено!");loadP2P();});}
         function delP2P(id){db.collection('market').doc(id).get().then(d=>{db.collection('users').doc(myNick).update({inventory:firebase.firestore.FieldValue.arrayUnion(d.data().nft)});d.ref.delete();loadP2P();});}
         
@@ -655,7 +638,7 @@
 
         function adminAction(){const t=document.getElementById('adm-target').value.trim();const a=parseInt(document.getElementById('adm-amount').value);db.collection('users').doc(t).update({balance:firebase.firestore.FieldValue.increment(a)});toast("Готово");}
         
-        // --- TAP LOGIC with COMBO & CRIT ---
+        // TAP LOGIC (NO DROP)
         document.getElementById('tap-btn').addEventListener('click', e=>{
             if(data.energy<1) return toast("Нет энергии");
             
@@ -692,16 +675,6 @@
             data.balance += gain;
             data.energy--;
             
-            // Drop chance
-            if(Math.random()<0.01) {
-                const item=ASSETS[Math.floor(Math.random()*ASSETS.length)];
-                const st = genUnique();
-                data.inventory.push({
-                    id:Date.now(), name:item.n, type:item.t, u:item.u, p:item.p, 
-                    serial:Math.floor(Math.random()*90000)+10000, bg:st.bg, hue:st.hue
-                });
-                toast("🎁 DROP!");
-            }
             if(data.balance%10===0) save(); 
             updateUI();
             
@@ -716,7 +689,6 @@
         });
         
         function save(){
-            // Calculate Inventory Count for Leaderboard
             const invCount = data.inventory ? data.inventory.length : 0;
             db.collection('users').doc(myNick).update({
                 balance:data.balance, energy:data.energy, inventory:data.inventory, 
@@ -736,6 +708,8 @@
         function deleteAcc(){if(confirm("Удалить?")){db.collection('users').doc(myNick).delete();logout();}}
         
         function buyTap(){const c=Math.floor(100*Math.pow(1.5,data.tapLvl-1));if(data.balance<c)return toast("Мало денег");data.balance-=c;data.tapLvl++;save();toast("LVL UP!");}
+        function buyCrit(){const c=500 + (data.critLvl*200);if(data.balance<c)return toast("Мало денег");data.balance-=c;data.critLvl++;save();toast("Luck UP!");}
+        function buyRegen(){const c=300 + (data.regenLvl*150);if(data.balance<c)return toast("Мало денег");data.balance-=c;data.regenLvl++;save();toast("Energy UP!");}
         function buyBot(){if(data.balance<500)return toast("Мало денег");data.balance-=500;data.botExp=Date.now()+1800000;save();toast("Bot active!");}
         function buyCosmetic(t,c){if(data.balance<c)return toast("Мало денег");if(data.upgrades[t])return toast("Куплено");data.balance-=c;data.upgrades[t]=true;save();toast("Куплено!");}
     </script>
