@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe</title>
+    <title>Crypto NFT Robots</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -14,11 +14,11 @@
         :root {
             --bg: #0f172a;
             --panel: #1e293b;
-            --primary: #f59e0b;
-            --accent: #3b82f6;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --text: #f1f5f9;
+            --primary: #8b5cf6; /* Violet like TON */
+            --accent: #06b6d4;
+            --danger: #f43f5e;
+            --success: #10b981;
+            --text: #f8fafc;
             --radius: 16px;
         }
 
@@ -26,7 +26,7 @@
         
         body {
             background: var(--bg); color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 0; height: 100vh;
             display: flex; flex-direction: column; overflow: hidden; user-select: none;
         }
@@ -38,109 +38,114 @@
             display: flex; justify-content: center; align-items: center; flex-direction: column;
         }
         .loader {
-            width: 40px; height: 40px; border: 4px solid #333;
-            border-top: 4px solid var(--primary); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
+            width: 50px; height: 50px; border: 5px solid #333;
+            border-top: 5px solid var(--primary); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* UI ЭЛЕМЕНТЫ */
-        button { border: none; outline: none; cursor: pointer; font-family: inherit; font-weight: 600; transition: 0.1s; }
-        button:active { transform: scale(0.97); opacity: 0.9; }
-
-        .btn { background: var(--primary); color: #000; padding: 12px; border-radius: 10px; width: 100%; font-size: 14px; }
-        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-admin { background: #ff0055; color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; margin-left: 10px; display: none; }
-
-        /* ШАПКА */
+        /* HEADER */
         .header {
             padding: 15px; padding-top: max(15px, env(safe-area-inset-top));
             background: rgba(30, 41, 59, 0.95);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex; justify-content: space-between; align-items: center; z-index: 50;
             backdrop-filter: blur(10px);
         }
-        .balance-box { font-size: 16px; color: var(--primary); font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .user-block { display: flex; flex-direction: column; }
+        .nickname { font-weight: bold; font-size: 14px; color: var(--text); }
+        .balance { font-size: 18px; color: var(--success); font-weight: 800; }
 
-        /* КОНТЕНТ */
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #ccc; padding: 6px 12px; border-radius: 8px; font-size: 12px; margin-left: 10px;
+        }
+        .btn-admin {
+            background: #f43f5e; color: white; border: none; padding: 4px 8px; 
+            border-radius: 6px; font-size: 10px; font-weight: bold; display: none; margin-bottom: 2px;
+        }
+
+        /* CONTENT */
         .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
         .screen { display: none; animation: fadeIn 0.3s ease; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* КАРТОЧКИ И СЕТКА */
+        /* NFT CARDS */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .card {
-            background: var(--panel); border-radius: var(--radius); padding: 10px;
-            display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05);
-            position: relative; overflow: hidden;
+            background: var(--panel); border-radius: var(--radius); padding: 8px;
+            display: flex; flex-direction: column; align-items: center;
+            border: 1px solid rgba(255,255,255,0.05); position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-
-        /* NFT ИЗОБРАЖЕНИЯ */
         .nft-img {
-            width: 100%; aspect-ratio: 1; border-radius: 10px; margin-bottom: 8px;
-            background: #333; object-fit: cover; display: block;
+            width: 100%; aspect-ratio: 1; border-radius: 12px; margin-bottom: 8px;
+            background: #0f172a; object-fit: contain; /* Чтобы робот влезал целиком */
         }
         .rarity-badge {
-            position: absolute; top: 8px; right: 8px; font-size: 10px;
-            padding: 4px 8px; border-radius: 6px; background: rgba(0,0,0,0.8);
-            color: white; font-weight: bold; backdrop-filter: blur(4px);
+            position: absolute; top: 12px; right: 12px; font-size: 10px;
+            padding: 3px 6px; border-radius: 6px; background: rgba(0,0,0,0.8);
+            color: white; font-weight: bold; border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* МОДАЛКИ (Адаптивные) */
+        /* BUTTONS */
+        .btn { background: var(--primary); color: white; padding: 12px; border-radius: 12px; width: 100%; font-size: 14px; font-weight: 600; border: none; cursor: pointer; }
+        .btn:active { transform: scale(0.97); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-danger { background: var(--danger); }
+        
+        /* AUTH MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000;
+            background: rgba(15, 23, 42, 0.95); z-index: 2000;
             display: none; align-items: center; justify-content: center; padding: 20px;
-            backdrop-filter: blur(5px);
         }
         .modal-box {
-            width: 100%; max-width: 400px; background: var(--bg);
+            width: 100%; max-width: 360px; background: var(--panel);
             padding: 24px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            text-align: center; max-height: 80vh; overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         input {
             background: #0f172a; border: 1px solid #334155; padding: 14px;
             border-radius: 12px; color: white; width: 100%; margin-bottom: 12px;
-            font-size: 16px; outline: none;
+            font-size: 16px; outline: none; transition: 0.2s;
         }
-        input:focus { border-color: var(--accent); }
+        input:focus { border-color: var(--primary); }
 
-        /* ТАПАЛКА */
-        .tap-circle {
-            width: 240px; height: 240px; margin: 20px auto;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fbbf24, #d97706);
-            box-shadow: 0 0 60px rgba(245, 158, 11, 0.4), inset 0 0 20px rgba(255,255,255,0.2);
+        /* TAP */
+        .tap-area { display: flex; justify-content: center; margin: 30px 0; }
+        .tap-btn {
+            width: 200px; height: 200px; border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.4);
             display: flex; justify-content: center; align-items: center;
-            font-size: 80px; cursor: pointer; transition: transform 0.05s;
-            border: 8px solid rgba(255,255,255,0.1);
+            font-size: 80px; cursor: pointer; border: 6px solid rgba(255,255,255,0.2);
+            user-select: none;
         }
-        .tap-circle:active { transform: scale(0.95); }
+        .tap-btn:active { transform: scale(0.95); }
 
-        /* МЕНЮ */
+        /* NAVBAR */
         .navbar {
-            position: fixed; bottom: 0; width: 100%; background: rgba(30, 41, 59, 0.95);
+            position: fixed; bottom: 0; width: 100%; background: var(--panel);
             display: flex; border-top: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(10px); z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom); z-index: 100;
         }
-        .nav-item { flex: 1; padding: 14px 0; text-align: center; font-size: 11px; color: #64748b; cursor: pointer; }
+        .nav-item { flex: 1; padding: 14px 0; text-align: center; font-size: 10px; color: #64748b; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
         .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
-
-        /* КАЗИНО ТАБЫ */
-        .game-tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .game-tab { white-space: nowrap; padding: 8px 16px; background: var(--panel); border-radius: 20px; font-size: 13px; color: #94a3b8; }
-        .game-tab.active { background: var(--primary); color: #000; }
 
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: #333; padding: 10px 20px; border-radius: 50px; z-index: 3000;
-            display: none; border: 1px solid #555; font-size: 14px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            display: none; border: 1px solid #555; font-size: 14px;
         }
+        
+        /* Game Tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; }
+        .tab { padding: 8px 16px; background: rgba(255,255,255,0.05); border-radius: 20px; font-size: 12px; white-space: nowrap; }
+        .tab.active { background: var(--primary); color: white; }
+
     </style>
 </head>
 <body>
@@ -148,166 +153,148 @@
     <!-- ЗАГРУЗКА -->
     <div id="loading-screen">
         <div class="loader"></div>
-        <div style="font-size: 14px; color: #888;">Загрузка профиля...</div>
+        <div>Соединение с блокчейном...</div>
     </div>
 
-    <!-- МОДАЛКА ВХОДА/РЕГИСТРАЦИИ -->
+    <!-- AUTH MODAL (СДЕЛАН ТАК ЧТОБЫ НЕЛЬЗЯ БЫЛО ЗАКРЫТЬ) -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal-box">
-            <h2 id="auth-title">Вход</h2>
-            <p style="color:#64748b; margin-bottom:20px; font-size:14px;">Сохраняем прогресс в облаке</p>
+            <h2 id="auth-title" style="margin-bottom: 5px;">Вход</h2>
+            <p style="color:#94a3b8; font-size: 13px; margin-bottom: 20px;">Введите данные аккаунта</p>
             
             <input type="text" id="auth-nick" placeholder="Никнейм">
             <input type="password" id="auth-pass" placeholder="Пароль">
             
-            <button class="btn" onclick="submitAuth()">Поехали 🚀</button>
+            <button class="btn" onclick="submitAuth()">Подтвердить</button>
             
-            <div onclick="toggleAuth()" style="margin-top:20px; font-size:13px; color:var(--primary); text-decoration:underline; cursor:pointer;">
-                Сменить на Регистрацию / Вход
-            </div>
-            <div id="auth-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></div>
+            <p onclick="toggleAuth()" style="margin-top: 15px; font-size: 12px; color: var(--primary); cursor: pointer;">
+                Нет аккаунта? <span style="text-decoration: underline;">Регистрация</span>
+            </p>
+            <p id="auth-error" style="color:var(--danger); font-size:12px; min-height:16px; margin-top:5px;"></p>
         </div>
     </div>
 
-    <!-- МОДАЛКА ПРОДАЖИ -->
+    <!-- ПРОДАЖА -->
     <div id="sell-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Управление NFT</h3>
-            <img src="" id="sell-img" class="nft-img" style="border-radius:12px;">
-            <p id="sell-info" style="color:#94a3b8; margin-bottom:15px;"></p>
+            <h3 style="margin-top:0;">NFT Item</h3>
+            <img src="" id="sell-img" class="nft-img" style="background:black;">
+            <p id="sell-info" style="color:#ccc; margin-bottom:15px;"></p>
             
-            <button class="btn btn-outline" onclick="sellToSystem()">
-                ♻️ Сдать системе (+<span id="sys-price">0</span>💰)
-            </button>
-            
-            <div style="display:flex; align-items:center; gap:10px; margin:15px 0;">
-                <div style="height:1px; background:#334155; flex:1;"></div>
-                <span style="font-size:12px; color:#64748b;">ИЛИ</span>
-                <div style="height:1px; background:#334155; flex:1;"></div>
-            </div>
-
+            <button class="btn btn-outline" onclick="sellSystem()">♻️ Сжечь (+<span id="sys-price">0</span> 💰)</button>
+            <div style="margin: 10px 0; font-size: 12px; color: #666;">--- ИЛИ ---</div>
             <input type="number" id="p2p-price" placeholder="Цена для игроков">
-            <button class="btn" onclick="sellToP2P()">📢 Продать игрокам</button>
-            <button class="btn btn-danger" onclick="closeModal('sell-modal')" style="margin-top:10px;">Закрыть</button>
+            <button class="btn" onclick="sellP2P()">📢 Выставить на рынок</button>
+            <button class="btn btn-danger" onclick="closeModal('sell-modal')" style="margin-top:10px; padding: 8px;">Отмена</button>
         </div>
     </div>
 
-    <!-- АДМИН ПАНЕЛЬ -->
+    <!-- АДМИНКА -->
     <div id="admin-modal" class="modal-overlay">
-        <div class="modal-box" style="border-color: #ff0055;">
-            <h2 style="color: #ff0055;">👑 ADMIN PANEL</h2>
-            <p>Добро пожаловать, Господин kayivi</p>
-            <div class="grid">
-                <button class="btn" onclick="adminAddMoney()">+5000 💰</button>
-                <button class="btn" onclick="adminFillEnergy()">Energy Full</button>
-                <button class="btn btn-danger" onclick="adminClearMarket()">Reset Market</button>
-            </div>
-            <button class="btn btn-outline" onclick="closeModal('admin-modal')" style="margin-top:20px;">Закрыть</button>
+        <div class="modal-box" style="border-color: #f43f5e;">
+            <h2 style="color:#f43f5e">ADMIN MENU</h2>
+            <button class="btn" onclick="admMoney()">+5000 Money</button>
+            <br><br>
+            <button class="btn" onclick="admEnergy()">Full Energy</button>
+            <br><br>
+            <button class="btn btn-outline" onclick="closeModal('admin-modal')">Close</button>
         </div>
     </div>
 
-    <div id="toast" class="toast">Уведомление</div>
+    <div id="toast" class="toast">Msg</div>
 
-    <!-- HEADER -->
+    <!-- UI -->
     <div class="header">
-        <div style="display:flex; align-items:center;">
-            <span style="font-size:20px; margin-right:5px;">👤</span>
-            <span id="my-nick" style="font-weight:600;">...</span>
+        <div class="user-block">
             <button id="admin-btn" class="btn-admin" onclick="openModal('admin-modal')">ADMIN</button>
+            <div class="nickname" id="my-nick">...</div>
+            <div class="balance"><span id="balance">0</span> 💰</div>
         </div>
-        <div class="balance-box">
-            <span id="balance">0</span> 💰
+        <div>
+            <span style="font-size:12px; color:#aaa; margin-right:5px;">⚡ <span id="energy">0</span></span>
+            <button class="btn-logout" onclick="logout()">Выйти</button>
         </div>
     </div>
 
-    <!-- КОНТЕНТ -->
+    <!-- CONTENT -->
     <div class="content">
-
-        <!-- 1. ГЛАВНАЯ -->
+        
+        <!-- HOME -->
         <div id="tab-home" class="screen active">
-            <div class="tap-circle" id="tap-btn">₿</div>
-            <div style="text-align:center; color:#94a3b8; margin-bottom:20px;">
-                ⚡ Энергия: <span id="energy">1000</span>/1000
+            <div class="tap-area">
+                <div class="tap-btn" id="tap-btn">🤖</div>
             </div>
-            <h3>Моя Коллекция</h3>
+            
+            <h3 style="border-bottom: 1px solid #333; padding-bottom: 5px;">Мои NFT</h3>
             <div class="grid" id="inventory-list"></div>
         </div>
 
-        <!-- 2. РЫНОК -->
+        <!-- MARKET -->
         <div id="tab-market" class="screen">
-            <div class="game-tabs">
-                <div class="game-tab active" onclick="switchShop('sys')" id="tab-sys">🏪 Витрина Системы</div>
-                <div class="game-tab" onclick="switchShop('p2p')" id="tab-p2p">🌍 Биржа Игроков</div>
+            <div class="tabs">
+                <div class="tab active" onclick="switchShop('sys')" id="t-sys">Магазин</div>
+                <div class="tab" onclick="switchShop('p2p')" id="t-p2p">Биржа</div>
             </div>
 
-            <!-- Системный магазин -->
             <div id="view-sys">
-                <p style="font-size:12px; color:#64748b; margin-bottom:10px;">Эксклюзивные предложения (обновляются при покупке)</p>
-                <div class="grid" id="system-shop-list"></div>
+                <div class="grid" id="sys-list"></div>
             </div>
-
-            <!-- P2P -->
             <div id="view-p2p" style="display:none;">
                 <button class="btn btn-outline" onclick="loadP2P()" style="margin-bottom:10px; padding:8px;">🔄 Обновить</button>
-                <div class="grid" id="p2p-list">
-                    <p style="width:200%; text-align:center; color:#64748b;">Загрузка...</p>
-                </div>
+                <div class="grid" id="p2p-list"></div>
             </div>
         </div>
 
-        <!-- 3. КАЗИНО -->
+        <!-- CASINO -->
         <div id="tab-casino" class="screen">
-            <div class="game-tabs">
-                <div class="game-tab active" onclick="switchGame('slots')">Slots</div>
-                <div class="game-tab" onclick="switchGame('coin')">Coin</div>
-                <div class="game-tab" onclick="switchGame('dice')">Dice</div>
+            <div class="tabs">
+                <div class="tab active" onclick="switchGame('slots')">Slots</div>
+                <div class="tab" onclick="switchGame('dice')">Dice</div>
+                <div class="tab" onclick="switchGame('coin')">Coin</div>
             </div>
 
             <!-- SLOTS -->
-            <div id="game-slots" class="card" style="text-align:center; padding:30px;">
-                <h2 style="margin:0 0 20px 0;">🎰 777</h2>
-                <div style="font-size:40px; letter-spacing:10px; margin-bottom:20px;" id="slots-display">🍒 🍒 🍒</div>
+            <div id="game-slots" class="card" style="padding: 20px; text-align: center;">
+                <h2>🎰 777</h2>
+                <div style="font-size:40px; margin: 15px 0;" id="slots-view">🍒 🍒 🍒</div>
                 <input type="number" id="slots-bet" placeholder="Ставка">
                 <button class="btn" onclick="playSlots()">Крутить (x5)</button>
             </div>
-
-            <!-- COIN FLIP -->
-            <div id="game-coin" class="card" style="text-align:center; padding:30px; display:none;">
-                <h2 style="margin:0 0 20px 0;">🪙 Орёл или Решка</h2>
-                <div style="font-size:60px; margin-bottom:20px;" id="coin-display">❓</div>
-                <input type="number" id="coin-bet" placeholder="Ставка">
-                <div class="grid">
-                    <button class="btn" style="background:#fbbf24; color:black;" onclick="playCoin('heads')">Орёл</button>
-                    <button class="btn" style="background:#94a3b8; color:white;" onclick="playCoin('tails')">Решка</button>
-                </div>
-                <p style="font-size:12px; color:#64748b; margin-top:10px;">Победа x1.9</p>
-            </div>
-
+            
             <!-- DICE -->
-            <div id="game-dice" class="card" style="text-align:center; padding:30px; display:none;">
-                <h2 style="margin:0 0 20px 0;">🎲 Кости</h2>
-                <p style="color:#94a3b8;">Выпадет больше 50?</p>
-                <div style="font-size:50px; margin-bottom:20px; color:var(--accent); font-weight:bold;" id="dice-display">50</div>
+            <div id="game-dice" class="card" style="padding: 20px; text-align: center; display:none;">
+                <h2>🎲 Кости</h2>
+                <div style="font-size:50px; margin: 15px 0; color:var(--accent);" id="dice-view">50</div>
+                <p>Больше или меньше 50?</p>
                 <input type="number" id="dice-bet" placeholder="Ставка">
                 <div class="grid">
-                    <button class="btn btn-danger" onclick="playDice('under')">Меньше 50</button>
-                    <button class="btn btn-success" onclick="playDice('over')">Больше 50</button>
+                    <button class="btn btn-danger" onclick="playDice('under')">&lt; 50</button>
+                    <button class="btn btn-success" onclick="playDice('over')">&gt; 50</button>
                 </div>
-                <p style="font-size:12px; color:#64748b; margin-top:10px;">Победа x1.9</p>
+            </div>
+
+            <!-- COIN -->
+            <div id="game-coin" class="card" style="padding: 20px; text-align: center; display:none;">
+                <h2>🪙 Монетка</h2>
+                <div style="font-size:60px; margin: 15px 0;" id="coin-view">❓</div>
+                <input type="number" id="coin-bet" placeholder="Ставка">
+                <div class="grid">
+                    <button class="btn" style="background:#fbbf24; color:black" onclick="playCoin('heads')">Орёл</button>
+                    <button class="btn" style="background:#94a3b8; color:white" onclick="playCoin('tails')">Решка</button>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <!-- МЕНЮ -->
+    <!-- NAVBAR -->
     <div class="navbar">
-        <div class="nav-item active" onclick="nav('home')"><span class="nav-icon">🏠</span>Дом</div>
-        <div class="nav-item" onclick="nav('market')"><span class="nav-icon">🛒</span>Магазин</div>
-        <div class="nav-item" onclick="nav('casino')"><span class="nav-icon">🎲</span>Игры</div>
+        <div class="nav-item active" onclick="nav('home')"><span class="nav-icon">🏠</span></div>
+        <div class="nav-item" onclick="nav('market')"><span class="nav-icon">🛒</span></div>
+        <div class="nav-item" onclick="nav('casino')"><span class="nav-icon">🎲</span></div>
     </div>
 
     <script>
-        /* === CONFIG === */
         const firebaseConfig = {
             apiKey: "AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg",
             authDomain: "nfts-dc174.firebaseapp.com",
@@ -320,26 +307,35 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        let myUid = null, myData = null;
-        let isRegMode = false;
-        let selectedIdx = null; // Для продажи
-        let shopItems = []; // Текущие товары в магазине системы
+        let uid, data, isReg=false, selIdx=null, shop=[];
 
-        // === AUTH & LOADING ===
-        auth.onAuthStateChanged(user => {
+        // === AUTH LOGIC FIX ===
+        auth.onAuthStateChanged(async (user) => {
             document.getElementById('loading-screen').style.display = 'none';
             if (user) {
-                myUid = user.uid;
-                closeModal('auth-modal');
-                initGame();
+                uid = user.uid;
+                // ПРОВЕРЯЕМ СУЩЕСТВУЕТ ЛИ АККАУНТ
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    closeModal('auth-modal');
+                    initGame();
+                } else {
+                    // Если залогинен, но данных нет - выходим
+                    auth.signOut();
+                    openModal('auth-modal');
+                }
             } else {
                 openModal('auth-modal');
             }
         });
 
+        function logout() {
+            auth.signOut().then(() => location.reload());
+        }
+
         function toggleAuth() {
-            isRegMode = !isRegMode;
-            document.getElementById('auth-title').innerText = isRegMode ? "Регистрация" : "Вход";
+            isReg = !isReg;
+            document.getElementById('auth-title').innerText = isReg ? "Регистрация" : "Вход";
             document.getElementById('auth-error').innerText = "";
         }
 
@@ -349,363 +345,242 @@
             const email = `${nick.replace(/[^a-z0-9]/gi,'')}@nfts.game`.toLowerCase();
             const err = document.getElementById('auth-error');
 
-            if(pass.length < 6) return err.innerText = "Пароль минимум 6 символов";
+            if(nick.length < 3) return err.innerText = "Ник короткий";
+            if(pass.length < 6) return err.innerText = "Пароль мин 6 символов";
+            
+            err.innerText = "Подождите...";
 
             try {
-                if(isRegMode) {
-                    const snap = await db.collection('users').where('nickname', '==', nick).get();
-                    if(!snap.empty) throw new Error("Ник занят");
+                if(isReg) {
+                    const check = await db.collection('users').where('nickname', '==', nick).get();
+                    if(!check.empty) throw "Ник занят!";
                     const cred = await auth.createUserWithEmailAndPassword(email, pass);
                     await db.collection('users').doc(cred.user.uid).set({
-                        nickname: nick, balance: 1000, energy: 1000, inventory: [], createdAt: Date.now()
+                        nickname: nick, balance: 500, energy: 1000, inventory: [], createdAt: Date.now()
                     });
                 } else {
                     await auth.signInWithEmailAndPassword(email, pass);
                 }
             } catch(e) {
-                err.innerText = "Ошибка: " + e.message;
+                console.log(e);
+                err.innerText = "Ошибка: Неверный логин/пароль или ник занят";
             }
         }
 
-        // === GAME INIT ===
+        // === GAME ===
         function initGame() {
-            db.collection('users').doc(myUid).onSnapshot(doc => {
+            db.collection('users').doc(uid).onSnapshot(doc => {
                 if(doc.exists) {
-                    myData = doc.data();
+                    data = doc.data();
                     updateUI();
-                    renderInventory();
-                    
-                    // ADMIN CHECK
-                    if(myData.nickname === 'kayivi') {
-                        document.getElementById('admin-btn').style.display = 'block';
-                    }
+                    renderInv();
+                    if(data.nickname === 'kayivi') document.getElementById('admin-btn').style.display = 'block';
                 }
             });
-            generateSystemShop();
+            genShop();
             loadP2P();
         }
 
         function updateUI() {
-            if(!myData) return;
-            document.getElementById('balance').innerText = Math.floor(myData.balance);
-            document.getElementById('energy').innerText = Math.floor(myData.energy);
-            document.getElementById('my-nick').innerText = myData.nickname;
+            document.getElementById('balance').innerText = Math.floor(data.balance);
+            document.getElementById('energy').innerText = Math.floor(data.energy);
+            document.getElementById('my-nick').innerText = data.nickname;
         }
 
-        // === NFT SYSTEM ===
-        function generateNFT(forcedRarity) {
+        // === GENERATOR (ROBOHASH) ===
+        function genNFT(forced) {
             const r = Math.random();
-            let rarity = forcedRarity || (r>0.98?"Legendary":r>0.8?"Rare":"Common");
-            const seed = Math.floor(Math.random()*1000000);
+            let rarity = forced || (r>0.98?"Legendary":r>0.8?"Rare":"Common");
+            const seed = Math.floor(Math.random()*999999);
+            // set1 = robots, set2 = monsters, set3 = cyborg heads
+            let set = 'set1';
+            if(rarity === 'Rare') set = 'set2';
+            if(rarity === 'Legendary') set = 'set3';
+
             return {
-                id: Date.now() + "_" + Math.floor(Math.random()*1000),
+                id: Date.now() + "_" + Math.floor(Math.random()*100),
                 seed: seed,
                 rarity: rarity,
-                // Генерация уникальной картинки через Picsum по seed
-                img: `https://picsum.photos/seed/${seed}/300/300`,
+                img: `https://robohash.org/${seed}?set=${set}&bgset=bg1`,
                 price: rarity==='Legendary'?2000:(rarity==='Rare'?500:50)
             };
         }
 
-        function getRarityColor(r) {
-            if(r==='Legendary') return '#fbbf24'; // Gold
-            if(r==='Rare') return '#818cf8'; // Indigo
-            return '#94a3b8'; // Gray
-        }
+        function getCol(r) { return r==='Legendary'?'#fbbf24':r==='Rare'?'#8b5cf6':'#94a3b8'; }
 
-        // === TAP ===
+        // === CLICKER ===
         document.getElementById('tap-btn').addEventListener('click', (e) => {
-            if(myData.energy < 1) return showToast("Мало энергии ⚡");
+            if(data.energy < 1) return toast("Мало энергии");
+            data.balance++; data.energy--;
             
-            myData.balance++;
-            myData.energy--;
-            
-            // Шанс дропа
-            if(Math.random() < 0.005) {
-                const nft = generateNFT();
-                myData.inventory.push(nft);
-                showToast(`🎁 Выпал NFT: ${nft.rarity}`);
+            if(Math.random()<0.01) {
+                const n = genNFT(); data.inventory.push(n); toast(`🎁 ${n.rarity}!`);
             }
-
-            if(myData.balance%20===0) saveGame();
+            if(data.balance%20===0) save();
             updateUI();
             
-            // Эффект
-            const f = document.createElement('div');
-            f.innerText = "+1"; f.style.position='absolute'; 
-            f.style.left=e.clientX+'px'; f.style.top=e.clientY+'px';
+            const f = document.createElement('div'); f.innerText='+1'; 
+            f.style.position='absolute'; f.style.left=e.clientX+'px'; f.style.top=e.clientY+'px';
             f.style.color='white'; f.style.pointerEvents='none';
-            document.body.appendChild(f);
-            setTimeout(()=>f.remove(), 500);
+            document.body.appendChild(f); setTimeout(()=>f.remove(), 500);
         });
+        setInterval(() => { if(data && data.energy < 1000) { data.energy += 5; updateUI(); } }, 1000);
+        function save() { db.collection('users').doc(uid).update({ balance: data.balance, energy: data.energy, inventory: data.inventory }); }
 
-        setInterval(() => {
-            if(myData && myData.energy < 1000) {
-                myData.energy = Math.min(1000, myData.energy + 5);
-                updateUI();
-            }
-        }, 1000);
-
-        function saveGame() {
-            db.collection('users').doc(myUid).update({
-                balance: myData.balance, energy: myData.energy, inventory: myData.inventory
-            });
-        }
-
-        // === INVENTORY & SELL ===
-        function renderInventory() {
-            const list = document.getElementById('inventory-list');
-            list.innerHTML = '';
-            myData.inventory.forEach((nft, i) => {
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `
-                    <span class="rarity-badge" style="background:${getRarityColor(nft.rarity)}">${nft.rarity}</span>
-                    <img src="${nft.img}" class="nft-img" loading="lazy">
-                    <button class="btn btn-outline" style="font-size:12px; padding:8px;" onclick="openSellModal(${i})">Управление</button>
+        // === INVENTORY ===
+        function renderInv() {
+            const l = document.getElementById('inventory-list'); l.innerHTML='';
+            data.inventory.forEach((n, i) => {
+                const d = document.createElement('div'); d.className='card';
+                d.innerHTML = `
+                    <span class="rarity-badge" style="background:${getCol(n.rarity)}">${n.rarity}</span>
+                    <img src="${n.img}" class="nft-img">
+                    <button class="btn btn-outline" style="font-size:10px; padding:6px;" onclick="openSell(${i})">Меню</button>
                 `;
-                list.appendChild(div);
+                l.appendChild(d);
             });
         }
-
-        function openSellModal(i) {
-            selectedIdx = i;
-            const nft = myData.inventory[i];
-            document.getElementById('sell-img').src = nft.img;
-            document.getElementById('sell-info').innerText = `${nft.rarity} | Базовая цена: ${nft.price}`;
-            document.getElementById('sys-price').innerText = Math.floor(nft.price * 0.5);
+        function openSell(i) {
+            selIdx=i; const n=data.inventory[i];
+            document.getElementById('sell-img').src = n.img;
+            document.getElementById('sell-info').innerText = `${n.rarity} | Цена: ${n.price}`;
+            document.getElementById('sys-price').innerText = Math.floor(n.price*0.5);
             openModal('sell-modal');
         }
-
-        function sellToSystem() {
-            const nft = myData.inventory[selectedIdx];
-            const price = Math.floor(nft.price * 0.5);
-            myData.balance += price;
-            myData.inventory.splice(selectedIdx, 1);
-            saveGame();
-            closeModal('sell-modal');
-            showToast(`Продано за ${price}`);
+        function sellSystem() {
+            const p = Math.floor(data.inventory[selIdx].price*0.5);
+            data.balance+=p; data.inventory.splice(selIdx,1); save(); closeModal('sell-modal'); toast(`Продано +${p}`);
+        }
+        function sellP2P() {
+            const p = parseInt(document.getElementById('p2p-price').value);
+            if(!p || p<1) return toast("Цена?");
+            const n = data.inventory[selIdx];
+            db.runTransaction(async t => {
+                const doc = await t.get(db.collection('users').doc(uid));
+                const inv = doc.data().inventory; inv.splice(selIdx,1);
+                t.update(db.collection('users').doc(uid), {inventory: inv});
+                t.set(db.collection('market').doc(), { seller: uid, sellerName: data.nickname, price: p, nft: n, createdAt: Date.now() });
+            }).then(() => { closeModal('sell-modal'); toast("На рынке!"); loadP2P(); });
         }
 
-        function sellToP2P() {
-            const price = parseInt(document.getElementById('p2p-price').value);
-            if(!price || price < 1) return showToast("Неверная цена");
-            
-            const nft = myData.inventory[selectedIdx];
-            
-            db.runTransaction(async (t) => {
-                const ref = db.collection('users').doc(myUid);
-                const doc = await t.get(ref);
-                const inv = doc.data().inventory;
-                inv.splice(selectedIdx, 1);
-                
-                t.update(ref, {inventory: inv});
-                const mRef = db.collection('market').doc();
-                t.set(mRef, {
-                    seller: myUid, sellerName: myData.nickname,
-                    price: price, nft: nft, createdAt: Date.now()
-                });
-            }).then(() => {
-                closeModal('sell-modal');
-                showToast("Выставлено на рынок");
-                loadP2P();
-            });
+        // === SHOP ===
+        function genShop() {
+            shop=[]; for(let i=0; i<4; i++) shop.push(genNFT());
+            renderShop();
         }
-
-        // === SHOP SYSTEM ===
-        function generateSystemShop() {
-            // Генерируем 4 случайных товара для витрины
-            shopItems = [];
-            for(let i=0; i<4; i++) {
-                shopItems.push(generateNFT());
-            }
-            renderSystemShop();
-        }
-
-        function renderSystemShop() {
-            const list = document.getElementById('system-shop-list');
-            list.innerHTML = '';
-            shopItems.forEach((nft, i) => {
-                // Цена покупки = базовая * 1.5 (наценка магазина)
-                const buyPrice = Math.floor(nft.price * 1.5);
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `
-                    <span class="rarity-badge" style="background:${getRarityColor(nft.rarity)}">${nft.rarity}</span>
-                    <img src="${nft.img}" class="nft-img" loading="lazy">
-                    <button class="btn" onclick="buySystemItem(${i}, ${buyPrice})">${buyPrice} 💰</button>
+        function renderShop() {
+            const l = document.getElementById('sys-list'); l.innerHTML='';
+            shop.forEach((n, i) => {
+                const p = Math.floor(n.price*1.5);
+                const d = document.createElement('div'); d.className='card';
+                d.innerHTML = `
+                    <span class="rarity-badge" style="background:${getCol(n.rarity)}">${n.rarity}</span>
+                    <img src="${n.img}" class="nft-img">
+                    <button class="btn" onclick="buySys(${i}, ${p})">${p} 💰</button>
                 `;
-                list.appendChild(div);
+                l.appendChild(d);
             });
         }
-
-        function buySystemItem(i, price) {
-            if(myData.balance < price) return showToast("Не хватает денег");
-            
-            myData.balance -= price;
-            myData.inventory.push(shopItems[i]);
-            saveGame();
-            showToast("Куплено!");
-            
-            // Заменяем купленный товар новым
-            shopItems[i] = generateNFT();
-            renderSystemShop();
+        function buySys(i, p) {
+            if(data.balance < p) return toast("Нет денег");
+            data.balance-=p; data.inventory.push(shop[i]);
+            shop[i] = genNFT(); save(); renderShop(); toast("Куплено!");
         }
-
-        function switchShop(type) {
-            document.getElementById('view-sys').style.display = type==='sys'?'block':'none';
-            document.getElementById('view-p2p').style.display = type==='p2p'?'block':'none';
-            document.getElementById('tab-sys').classList.toggle('active', type==='sys');
-            document.getElementById('tab-p2p').classList.toggle('active', type==='p2p');
-            if(type==='p2p') loadP2P();
+        function switchShop(t) {
+            document.getElementById('view-sys').style.display = t==='sys'?'block':'none';
+            document.getElementById('view-p2p').style.display = t==='p2p'?'block':'none';
+            document.getElementById('t-sys').classList.toggle('active', t==='sys');
+            document.getElementById('t-p2p').classList.toggle('active', t==='p2p');
+            if(t==='p2p') loadP2P();
         }
-
         function loadP2P() {
-            const list = document.getElementById('p2p-list');
-            db.collection('market').orderBy('createdAt', 'desc').limit(20).get().then(snap => {
-                list.innerHTML = '';
-                if(snap.empty) { list.innerHTML = '<p style="text-align:center; width:200%; color:#64748b;">Пусто</p>'; return; }
-                
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const isMine = d.seller === myUid;
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerHTML = `
-                        <span class="rarity-badge" style="background:${getRarityColor(d.nft.rarity)}">${d.nft.rarity}</span>
-                        <img src="${d.nft.img}" class="nft-img" loading="lazy">
-                        <div style="font-size:11px; margin-bottom:5px;">Продавец: ${d.sellerName}</div>
-                        <button class="btn ${isMine?'btn-danger':'btn-success'}" onclick="${isMine?`cancelP2P('${doc.id}')`:`buyP2P('${doc.id}', ${d.price})`}">
-                            ${isMine ? 'Снять' : `Купить ${d.price}`}
+            const l = document.getElementById('p2p-list');
+            db.collection('market').orderBy('createdAt', 'desc').limit(20).get().then(s => {
+                l.innerHTML = '';
+                if(s.empty) return l.innerHTML='<p style="width:200%; text-align:center;">Пусто</p>';
+                s.forEach(d => {
+                    const dt = d.data(); const mine = dt.seller===uid;
+                    const el = document.createElement('div'); el.className='card';
+                    el.innerHTML = `
+                        <span class="rarity-badge" style="background:${getCol(dt.nft.rarity)}">${dt.nft.rarity}</span>
+                        <img src="${dt.nft.img}" class="nft-img">
+                        <div style="font-size:10px;">@${dt.sellerName}</div>
+                        <button class="btn ${mine?'btn-danger':''}" onclick="${mine?`cancel('${d.id}')`:`buy('${d.id}',${dt.price})`}">
+                            ${mine ? 'Отмена' : `Купить ${dt.price}`}
                         </button>
                     `;
-                    list.appendChild(div);
+                    l.appendChild(el);
                 });
             });
         }
-
-        function buyP2P(id, price) {
-            if(myData.balance < price) return showToast("Мало денег");
-            db.runTransaction(async (t) => {
-                const mRef = db.collection('market').doc(id);
-                const mDoc = await t.get(mRef);
-                if(!mDoc.exists) throw "Уже купили";
+        function buy(id, p) {
+            if(data.balance<p) return toast("Нет денег");
+            db.runTransaction(async t => {
+                const mDoc = await t.get(db.collection('market').doc(id));
+                if(!mDoc.exists) throw "Купили уже";
                 const lot = mDoc.data();
-                
-                t.update(db.collection('users').doc(lot.seller), { balance: firebase.firestore.FieldValue.increment(price) });
-                t.update(db.collection('users').doc(myUid), { 
-                    balance: firebase.firestore.FieldValue.increment(-price),
-                    inventory: firebase.firestore.FieldValue.arrayUnion(lot.nft)
-                });
-                t.delete(mRef);
-            }).then(() => { showToast("Куплено!"); loadP2P(); }).catch(e => showToast(e));
+                t.update(db.collection('users').doc(lot.seller), {balance: firebase.firestore.FieldValue.increment(p)});
+                t.update(db.collection('users').doc(uid), {balance: firebase.firestore.FieldValue.increment(-p), inventory: firebase.firestore.FieldValue.arrayUnion(lot.nft)});
+                t.delete(mDoc.ref);
+            }).then(() => { toast("Куплено!"); loadP2P(); }).catch(e=>toast("Ошибка"));
         }
-
-        function cancelP2P(id) {
-            db.collection('market').doc(id).get().then(doc => {
-                db.collection('users').doc(myUid).update({
-                    inventory: firebase.firestore.FieldValue.arrayUnion(doc.data().nft)
-                });
-                doc.ref.delete();
-                loadP2P();
+        function cancel(id) {
+            db.collection('market').doc(id).get().then(d => {
+                db.collection('users').doc(uid).update({inventory: firebase.firestore.FieldValue.arrayUnion(d.data().nft)});
+                d.ref.delete(); loadP2P();
             });
         }
 
         // === CASINO ===
         function switchGame(g) {
-            ['slots','coin','dice'].forEach(x => document.getElementById('game-'+x).style.display = 'none');
-            document.getElementById('game-'+g).style.display = 'block';
+            ['slots','dice','coin'].forEach(x=>document.getElementById('game-'+x).style.display='none');
+            document.getElementById('game-'+g).style.display='block';
         }
-
         function playSlots() {
-            const bet = parseInt(document.getElementById('slots-bet').value);
-            if(!bet || bet > myData.balance) return showToast("Ставка?");
-            myData.balance -= bet;
-            updateUI();
-            
-            const em = ['🍒','🍋','🍇','7️⃣'];
-            const res = [0,0,0].map(()=>em[Math.floor(Math.random()*em.length)]);
-            document.getElementById('slots-display').innerText = res.join(' ');
-            
-            if(res[0]===res[1] && res[1]===res[2]) {
-                const w = bet*5; myData.balance+=w; showToast(`x5 WIN! +${w}`);
-            } else if(res[0]===res[1] || res[1]===res[2] || res[0]===res[2]) {
-                const w = Math.floor(bet*1.5); myData.balance+=w; showToast(`x1.5 WIN! +${w}`);
-            }
-            saveGame();
+            const b = parseInt(document.getElementById('slots-bet').value);
+            if(!b || b>data.balance) return toast("Ставка?");
+            data.balance-=b; updateUI();
+            const em=['🍒','🍋','🍇','7️⃣'], r=[0,0,0].map(()=>em[Math.floor(Math.random()*4)]);
+            document.getElementById('slots-view').innerText = r.join(' ');
+            if(r[0]===r[1]&&r[1]===r[2]) { data.balance+=b*5; toast("JACKPOT x5"); }
+            else if(r[0]===r[1]||r[1]===r[2]||r[0]===r[2]) { data.balance+=Math.floor(b*1.5); toast("Win x1.5"); }
+            save();
+        }
+        function playDice(pick) {
+            const b = parseInt(document.getElementById('dice-bet').value);
+            if(!b || b>data.balance) return toast("Ставка?");
+            data.balance-=b;
+            const res = Math.floor(Math.random()*100)+1;
+            document.getElementById('dice-view').innerText=res;
+            if((pick==='over'&&res>50)||(pick==='under'&&res<50)) { data.balance+=Math.floor(b*1.9); toast("Win!"); }
+            updateUI(); save();
+        }
+        function playCoin(pick) {
+            const b = parseInt(document.getElementById('coin-bet').value);
+            if(!b || b>data.balance) return toast("Ставка?");
+            data.balance-=b;
+            const res = Math.random()<0.5?'heads':'tails';
+            document.getElementById('coin-view').innerText=res==='heads'?'🦅':'🪙';
+            if(pick===res) { data.balance+=Math.floor(b*1.9); toast("Win!"); }
+            updateUI(); save();
         }
 
-        function playCoin(choice) {
-            const bet = parseInt(document.getElementById('coin-bet').value);
-            if(!bet || bet > myData.balance) return showToast("Ставка?");
-            myData.balance -= bet;
-            
-            const res = Math.random()<0.5 ? 'heads' : 'tails';
-            const display = res==='heads'?'🦅':'🪙';
-            document.getElementById('coin-display').innerText = display;
-            
-            if(res === choice) {
-                const w = Math.floor(bet * 1.9);
-                myData.balance += w;
-                showToast(`Победа! +${w}`);
-            } else {
-                showToast("Проигрыш");
-            }
-            updateUI(); saveGame();
-        }
+        // === ADMIN ===
+        function admMoney() { data.balance+=5000; save(); updateUI(); toast("Rich!"); }
+        function admEnergy() { data.energy=1000; save(); updateUI(); toast("Energy!"); }
 
-        function playDice(choice) {
-            const bet = parseInt(document.getElementById('dice-bet').value);
-            if(!bet || bet > myData.balance) return showToast("Ставка?");
-            myData.balance -= bet;
-            
-            const roll = Math.floor(Math.random() * 100) + 1; // 1-100
-            document.getElementById('dice-display').innerText = roll;
-            
-            let win = false;
-            if(choice === 'over' && roll > 50) win = true;
-            if(choice === 'under' && roll < 50) win = true;
-            
-            if(win) {
-                const w = Math.floor(bet * 1.9);
-                myData.balance += w;
-                showToast(`Победа! +${w}`);
-            } else {
-                showToast("Проигрыш");
-            }
-            updateUI(); saveGame();
-        }
-
-        // === ADMIN (kayivi) ===
-        function adminAddMoney() {
-            myData.balance += 5000;
-            updateUI(); saveGame(); showToast("Admin: Money Added");
-        }
-        function adminFillEnergy() {
-            myData.energy = 1000;
-            updateUI(); saveGame(); showToast("Admin: Energy Full");
-        }
-        function adminClearMarket() {
-            // Опасно, только демо. В реальности нужно удалять батчами.
-            // Здесь просто скроем кнопку для безопасности
-            alert("Функция очистки выключена для безопасности");
-        }
-
-        // === UTILS ===
+        // === UTIL ===
         function nav(t) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             document.getElementById('tab-'+t).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const map = {'home':0, 'market':1, 'casino':2};
-            document.querySelectorAll('.nav-item')[map[t]].classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+            const m={'home':0,'market':1,'casino':2};
+            document.querySelectorAll('.nav-item')[m[t]].classList.add('active');
         }
+        function openModal(id) { document.getElementById(id).style.display='flex'; }
+        function closeModal(id) { document.getElementById(id).style.display='none'; }
+        function toast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
 
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function showToast(m) {
-            const t = document.getElementById('toast'); t.innerText=m; t.style.display='block';
-            setTimeout(()=>t.style.display='none', 2000);
-        }
     </script>
 </body>
 </html>
