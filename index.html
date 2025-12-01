@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe: FULL UNLEASHED</title>
+    <title>NFT UNIVERSE: FIXED MAX</title>
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
     <style>
         :root {
-            --bg: #000000;
+            --bg: #050505;
             --surface: #111;
             --primary: #6366f1;
             --accent: #d946ef;
@@ -28,24 +26,23 @@
         
         body {
             background: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0; padding: 0; height: 100vh;
             display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* --- ANIMATIONS --- */
+        /* ANIMATIONS */
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
         @keyframes orbit1 { from { transform: rotate(0deg) translateX(45px) rotate(0deg); } to { transform: rotate(360deg) translateX(45px) rotate(-360deg); } }
         @keyframes orbit2 { from { transform: rotate(120deg) translateX(45px) rotate(-120deg); } to { transform: rotate(480deg) translateX(45px) rotate(-480deg); } }
         @keyframes orbit3 { from { transform: rotate(240deg) translateX(45px) rotate(-240deg); } to { transform: rotate(600deg) translateX(45px) rotate(-600deg); } }
-        @keyframes critPop { 0% { transform: scale(1); } 50% { transform: scale(1.5) rotate(10deg); } 100% { transform: scale(1); } }
         @keyframes spinReel { 0% { transform: translateY(0); filter: blur(0); } 50% { filter: blur(5px); } 100% { transform: translateY(-800px); filter: blur(0); } }
-        @keyframes feverPulse { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(251, 191, 36, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        .fever-active { animation: feverPulse 1s infinite; border-color: var(--gold) !important; }
         .spin-anim { animation: spinReel 0.5s linear infinite; }
+        .tap-anim { animation: pulse 0.1s; }
 
-        /* --- UI --- */
+        /* UI */
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: #fff; border: none; padding: 14px; border-radius: 12px;
@@ -53,31 +50,20 @@
             display: flex; justify-content: center; align-items: center; gap: 8px;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); transition: 0.1s;
         }
-        .btn:active { transform: scale(0.97); }
+        .btn:active { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.5; filter: grayscale(1); }
         .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; color:white; }
         .btn-danger { background: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
         .btn-gold { background: var(--gold); color: black; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); }
         .btn-sm { padding: 6px 12px; font-size: 11px; width: auto; border-radius: 8px; }
 
-        input {
-            background: #222; border: 1px solid #333;
-            padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; font-size: 16px;
-        }
+        input { background: #222; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; font-size: 16px; }
         input:focus { border-color: var(--primary); }
 
         /* HEADER */
-        .header {
-            padding: 10px 15px; padding-top: max(10px, env(safe-area-inset-top));
-            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 50;
-        }
+        .header { padding: 10px 15px; padding-top: max(10px, env(safe-area-inset-top)); background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 50; }
         .avatar-container { width: 50px; height: 50px; position: relative; }
-        .avatar-frame {
-            width: 45px; height: 45px; border-radius: 50%; background: #222;
-            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;
-            border: 2px solid transparent; position: relative; z-index: 2;
-        }
+        .avatar-frame { width: 45px; height: 45px; border-radius: 50%; background: #222; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; border: 2px solid transparent; position: relative; z-index: 2; }
         .orbiter { position: absolute; width: 22px; height: 22px; z-index: 1; top: 12px; left: 12px; pointer-events: none; filter: drop-shadow(0 0 5px black); }
         .orb-1 { animation: orbit1 6s linear infinite; }
         .orb-2 { animation: orbit2 6s linear infinite; }
@@ -90,47 +76,22 @@
 
         /* TAP ZONE */
         .tap-zone { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
-        #tap-btn { 
-            width: 240px; height: 240px; border-radius: 50%; 
-            background: radial-gradient(circle at 30%, #333, #000); 
-            box-shadow: 0 0 60px rgba(255,255,255,0.05); 
-            display: flex; justify-content: center; align-items: center; 
-            cursor: pointer; position: relative; border: 4px solid rgba(255,255,255,0.1); 
-            transition: transform 0.05s;
-        }
+        #tap-btn { width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle at 30%, #333, #000); box-shadow: 0 0 60px rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; border: 4px solid rgba(255,255,255,0.1); transition: transform 0.05s; }
         #tap-btn:active { transform: scale(0.95); }
-
-        /* FEVER BAR */
-        .fever-container { width: 240px; height: 8px; background: #222; border-radius: 10px; margin-top: 15px; overflow: hidden; border: 1px solid #333; }
-        .fever-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff8800, #ffcc00); transition: width 0.1s linear; }
 
         /* CARDS */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding-bottom: 20px; }
-        .card {
-            border-radius: var(--radius); padding: 10px; position: relative;
-            display: flex; flex-direction: column; align-items: center;
-            border: 1px solid rgba(255,255,255,0.05); overflow: hidden;
-            background: #18181b; transition: 0.2s;
-        }
-        .card:active { transform: scale(0.95); }
+        .card { border-radius: var(--radius); padding: 10px; position: relative; display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; background: #18181b; transition: 0.2s; }
         .nft-img { width: 80px; height: 80px; object-fit: contain; margin: 10px 0; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
         .nft-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); color: #ccc; margin-bottom: 2px; text-transform: uppercase; font-weight: bold; }
         .supply-tag { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; font-size: 9px; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
 
         /* 3D INSPECT CARD */
         .inspect-perspective { perspective: 1000px; display: flex; justify-content: center; margin: 20px 0; }
-        .nft-3d-card {
-            width: 200px; height: 300px;
-            background: linear-gradient(135deg, #222, #111);
-            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transform-style: preserve-3d; transition: transform 0.1s;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            position: relative; overflow: hidden;
-        }
+        .nft-3d-card { width: 200px; height: 300px; background: linear-gradient(135deg, #222, #111); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; transform-style: preserve-3d; transition: transform 0.1s; box-shadow: 0 20px 60px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
         .nft-holo { position: absolute; bottom: 15px; font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
 
-        /* GAME ELEMENTS */
+        /* CASINO */
         .slot-machine { display: flex; gap: 5px; justify-content: center; background: #222; padding: 10px; border-radius: 12px; margin-bottom: 10px; border: 2px solid #333; }
         .slot-reel { width: 60px; height: 80px; background: #000; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid #444; }
         .slot-content { font-size: 40px; display: flex; justify-content: center; align-items: center; height: 100%; }
@@ -138,22 +99,22 @@
         .mines-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 10px auto; max-width: 220px; }
         .mine-cell { aspect-ratio: 1; background: #333; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; border: 1px solid #444; }
 
-        /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
+        /* MODALS & NAV */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
         .modal-box { width: 100%; max-width: 380px; background: #18181b; padding: 24px; border-radius: 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
-
+        
         .tabs { display: flex; background: #27272a; padding: 4px; border-radius: 12px; margin-bottom: 20px; }
         .tab { flex: 1; text-align: center; padding: 10px; border-radius: 10px; font-size: 12px; color: #aaa; cursor: pointer; font-weight: 600; }
         .tab.active { background: #3f3f46; color: white; }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(30,30,30,0.95); padding: 12px 24px; border-radius: 30px; z-index: 3000; display: none; border: 1px solid rgba(255,255,255,0.15); font-size: 14px; font-weight: bold; box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: white; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(30,30,30,0.95); padding: 12px 24px; border-radius: 30px; z-index: 3000; display: none; border: 1px solid rgba(255,255,255,0.15); font-size: 14px; font-weight: bold; color: white; }
 
         .navbar { position: fixed; bottom: 0; width: 100%; background: rgba(24, 24, 27, 0.95); display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); z-index: 100; }
         .nav-item { color: #71717a; font-size: 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .nav-item.active { color: var(--primary); transform: translateY(-2px); }
         .nav-item i { font-size: 22px; }
         
-        #ban-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #200; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #ban-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     </style>
 </head>
 <body>
@@ -162,7 +123,7 @@
     <div id="auth-modal" class="modal-overlay" style="display:flex; z-index:9000; background:#000;">
         <div class="modal-box" style="border:none; background:transparent;">
             <h1 style="font-size: 40px; margin-bottom: 10px;">NFT UNIVERSE</h1>
-            <p style="color:#666; margin-bottom: 30px; letter-spacing: 2px;">FULL VERSION</p>
+            <p style="color:#666; margin-bottom: 30px; letter-spacing: 2px;">ULTIMATE</p>
             <div style="background: #18181b; padding: 24px; border-radius: 24px; border:1px solid #333;">
                 <input type="text" id="auth-nick" placeholder="Никнейм">
                 <input type="password" id="auth-pass" placeholder="Пароль">
@@ -174,7 +135,7 @@
     <!-- BAN -->
     <div id="ban-screen">
         <h1 style="font-size: 50px; color: var(--danger);">BANNED</h1>
-        <p style="color: #faa;">Обнаружен скрипт-кликер.</p>
+        <p style="color: #faa;">Использование скриптов.</p>
     </div>
 
     <!-- HEADER -->
@@ -203,12 +164,8 @@
         <!-- 1. HOME -->
         <div id="screen-home" class="screen active">
             <div class="tap-zone">
-                <div id="combo-display" style="height:20px; font-weight:bold; color:var(--gold); opacity:0; transition:0.2s;">FEVER x2!</div>
                 <div id="tap-btn">
                     <img src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis/Objects/Money%20Bag.png" width="160" style="pointer-events: none;">
-                </div>
-                <div class="fever-container">
-                    <div class="fever-fill" id="fever-bar"></div>
                 </div>
             </div>
             <h3 style="margin: 15px 0; color:white;">Инвентарь (<span id="inv-count">0</span>)</h3>
@@ -222,7 +179,7 @@
                 <div class="tab" onclick="switchMarket('p2p', this)">Биржа</div>
             </div>
             <div id="view-shop">
-                <div style="margin-bottom:10px; font-size:11px; color:#888; text-align:center;">Цены растут на 1% с каждой покупкой!</div>
+                <div style="margin-bottom:10px; font-size:11px; color:#888; text-align:center;">Цены растут с каждой покупкой</div>
                 <div class="grid" id="shop-list"></div>
             </div>
             <div id="view-p2p" style="display:none;">
@@ -239,7 +196,6 @@
                 <div class="tab" onclick="switchGame('dice', this)">Кости</div>
             </div>
             
-            <!-- SLOTS -->
             <div id="game-slots" style="text-align:center; padding:20px; background:#18181b; border-radius:16px;">
                 <div class="slot-machine">
                     <div class="slot-reel"><div class="slot-content" id="reel-1">🍒</div></div>
@@ -250,14 +206,12 @@
                 <button class="btn" id="btn-spin" onclick="playSlots()">КРУТИТЬ</button>
             </div>
 
-            <!-- MINES -->
             <div id="game-mines" style="display:none; text-align:center;">
                 <div class="mines-grid" id="mines-field"></div>
                 <input type="number" id="mines-bet" placeholder="Ставка" style="margin-top:10px;">
                 <button class="btn btn-success" id="mines-btn" onclick="startMines()" style="margin-top:5px;">Играть</button>
             </div>
 
-            <!-- DICE -->
             <div id="game-dice" style="display:none; text-align:center; padding:20px; background:#18181b; border-radius:16px;">
                 <div id="dice-result" style="font-size:50px; margin:20px;">🎲</div>
                 <input type="number" id="dice-bet" placeholder="Ставка">
@@ -389,69 +343,66 @@
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
         const BASE = "https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis";
-        const make = (n,t,u,p,l) => ({n,t,u,p,l}); 
+        const make = (id,n,t,u,p,l) => ({id,n,t,u,p,l}); 
         
-        // --- 60+ ASSETS RESTORED ---
+        // --- 60+ ASSETS (Prices 100k+) ---
         const ASSETS = [
-            make("Корона","GOD","/Objects/Crown.png",1000000, 3),
-            make("НЛО","GOD","/Travel%20and%20places/Flying%20Saucer.png",800000, 5),
-            make("Дракон","Legend","/Animals/Dragon.png",500000, 10),
-            make("Единорог","Legend","/Animals/Unicorn.png",450000, 15),
-            make("Замок","Legend","/Travel%20and%20places/Castle.png",600000, 5),
-            make("Ракета","Epic","/Travel%20and%20places/Rocket.png",100000, 30),
-            make("Алмаз","Epic","/Objects/Gem%20Stone.png",150000, 30),
-            make("Деньги","Epic","/Objects/Money%20Bag.png",200000, 30),
-            make("Маг","Rare","/People/Mage.png",50000, 100),
-            make("Призрак","Rare","/Smilies/Ghost.png",40000, 100),
-            make("Машина","Rare","/Travel%20and%20places/Automobile.png",60000, 100),
-            make("Самолет","Rare","/Travel%20and%20places/Airplane.png",70000, 100),
-            make("Ноутбук","Uncommon","/Objects/Laptop.png",10000, 500),
-            make("Камера","Uncommon","/Objects/Camera.png",8000, 500),
-            make("Бургер","Common","/Food/Hamburger.png",1000, 2000),
-            make("Пицца","Common","/Food/Pizza.png",1000, 2000),
-            make("Кот","Common","/Animals/Cat%20Face.png",2000, 1000),
-            make("Собака","Common","/Animals/Dog%20Face.png",2000, 1000),
-            make("Лиса","Common","/Animals/Fox.png",3000, 1000),
-            make("Панда","Common","/Animals/Panda.png",3500, 1000),
-            make("Тигр","Rare","/Animals/Tiger%20Face.png",15000, 200),
-            make("Лев","Rare","/Animals/Lion.png",16000, 200),
-            make("Акула","Rare","/Animals/Shark.png",18000, 150),
-            make("Орел","Rare","/Animals/Eagle.png",14000, 200),
-            make("Джойстик","Uncommon","/Activities/Video%20Game.png",5000, 800),
-            make("Телефон","Uncommon","/Objects/Mobile%20Phone.png",6000, 800),
-            make("Гитара","Uncommon","/Objects/Guitar.png",7000, 600),
-            make("Барабан","Uncommon","/Objects/Drum.png",6500, 600),
-            make("Саксофон","Uncommon","/Objects/Saxophone.png",7500, 500),
-            make("Микрофон","Uncommon","/Objects/Microphone.png",4000, 900),
-            make("Полиция","Rare","/Travel%20and%20places/Police%20Car.png",55000, 120),
-            make("Скорая","Rare","/Travel%20and%20places/Ambulance.png",52000, 120),
-            make("Поезд","Rare","/Travel%20and%20places/Locomotive.png",65000, 100),
-            make("Вертолет","Epic","/Travel%20and%20places/Helicopter.png",120000, 40),
-            make("Яхта","Epic","/Travel%20and%20places/Motor%20Boat.png",150000, 30),
-            make("Вулкан","Epic","/Travel%20and%20places/Volcano.png",200000, 20),
-            make("Остров","Epic","/Travel%20and%20places/Desert%20Island.png",250000, 20),
-            make("Стадион","Epic","/Travel%20and%20places/Stadium.png",300000, 10),
-            make("Мяч","Common","/Activities/Soccer%20Ball.png",1500, 3000),
-            make("Баскетбол","Common","/Activities/Basketball.png",1500, 3000),
-            make("Теннис","Common","/Activities/Tennis.png",1500, 3000),
-            make("Суши","Common","/Food/Sushi.png",1200, 2500),
-            make("Торт","Common","/Food/Birthday%20Cake.png",2500, 2000),
-            make("Пончик","Common","/Food/Doughnut.png",800, 4000),
-            make("Мороженое","Common","/Food/Soft%20Ice%20Cream.png",900, 4000),
-            make("Попкорн","Common","/Food/Popcorn.png",1100, 3000),
-            make("Шоколад","Common","/Food/Chocolate%20Bar.png",700, 5000),
-            make("Хотдог","Common","/Food/Hot%20Dog.png",1300, 2500),
-            make("Тако","Common","/Food/Taco.png",1400, 2500),
-            make("Арбуз","Common","/Food/Watermelon.png",500, 6000),
-            make("Клубника","Common","/Food/Strawberry.png",600, 6000),
-            make("Виноград","Common","/Food/Grapes.png",600, 6000),
-            make("Ниндзя","Rare","/People/Ninja.png",30000, 150),
-            make("Вампир","Rare","/People/Vampire.png",32000, 150),
-            make("Зомби","Rare","/People/Zombie.png",28000, 150),
-            make("Джинн","Legend","/People/Genie.png",420000, 12),
-            make("Фея","Legend","/People/Fairy.png",410000, 12),
-            make("Русалка","Legend","/People/Merperson.png",430000, 12),
-            make("Эльф","Legend","/People/Elf.png",400000, 15)
+            make("crown","Корона","GOD","/Objects/Crown.png",100000000, 3),
+            make("ufo","НЛО","GOD","/Travel%20and%20places/Flying%20Saucer.png",80000000, 5),
+            make("dragon","Дракон","Legend","/Animals/Dragon.png",50000000, 10),
+            make("unicorn","Единорог","Legend","/Animals/Unicorn.png",45000000, 15),
+            make("castle","Замок","Legend","/Travel%20and%20places/Castle.png",60000000, 5),
+            make("rocket","Ракета","Epic","/Travel%20and%20places/Rocket.png",10000000, 30),
+            make("diamond","Алмаз","Epic","/Objects/Gem%20Stone.png",15000000, 30),
+            make("money","Деньги","Epic","/Objects/Money%20Bag.png",20000000, 30),
+            make("mage","Маг","Rare","/People/Mage.png",5000000, 100),
+            make("ghost","Призрак","Rare","/Smilies/Ghost.png",4000000, 100),
+            make("car","Машина","Rare","/Travel%20and%20places/Automobile.png",6000000, 100),
+            make("plane","Самолет","Rare","/Travel%20and%20places/Airplane.png",7000000, 100),
+            make("laptop","Ноутбук","Uncommon","/Objects/Laptop.png",1000000, 500),
+            make("cam","Камера","Uncommon","/Objects/Camera.png",800000, 500),
+            make("burger","Бургер","Common","/Food/Hamburger.png",100000, 1000),
+            make("pizza","Пицца","Common","/Food/Pizza.png",100000, 1000),
+            make("cat","Кот","Common","/Animals/Cat%20Face.png",200000, 1000),
+            make("dog","Собака","Common","/Animals/Dog%20Face.png",200000, 1000),
+            make("fox","Лиса","Common","/Animals/Fox.png",300000, 1000),
+            make("panda","Панда","Common","/Animals/Panda.png",350000, 1000),
+            make("tiger","Тигр","Rare","/Animals/Tiger%20Face.png",1500000, 200),
+            make("lion","Лев","Rare","/Animals/Lion.png",1600000, 200),
+            make("shark","Акула","Rare","/Animals/Shark.png",1800000, 150),
+            make("eagle","Орел","Rare","/Animals/Eagle.png",1400000, 200),
+            make("game","Джойстик","Uncommon","/Activities/Video%20Game.png",500000, 800),
+            make("phone","Телефон","Uncommon","/Objects/Mobile%20Phone.png",600000, 800),
+            make("guitar","Гитара","Uncommon","/Objects/Guitar.png",700000, 600),
+            make("drum","Барабан","Uncommon","/Objects/Drum.png",650000, 600),
+            make("sax","Саксофон","Uncommon","/Objects/Saxophone.png",750000, 500),
+            make("mic","Микрофон","Uncommon","/Objects/Microphone.png",400000, 900),
+            make("police","Полиция","Rare","/Travel%20and%20places/Police%20Car.png",5500000, 120),
+            make("amb","Скорая","Rare","/Travel%20and%20places/Ambulance.png",5200000, 120),
+            make("train","Поезд","Rare","/Travel%20and%20places/Locomotive.png",6500000, 100),
+            make("heli","Вертолет","Epic","/Travel%20and%20places/Helicopter.png",12000000, 40),
+            make("boat","Яхта","Epic","/Travel%20and%20places/Motor%20Boat.png",15000000, 30),
+            make("volc","Вулкан","Epic","/Travel%20and%20places/Volcano.png",20000000, 20),
+            make("isle","Остров","Epic","/Travel%20and%20places/Desert%20Island.png",25000000, 20),
+            make("stad","Стадион","Epic","/Travel%20and%20places/Stadium.png",30000000, 10),
+            make("ball","Мяч","Common","/Activities/Soccer%20Ball.png",150000, 1000),
+            make("bball","Баскетбол","Common","/Activities/Basketball.png",150000, 1000),
+            make("tenn","Теннис","Common","/Activities/Tennis.png",150000, 1000),
+            make("sushi","Суши","Common","/Food/Sushi.png",120000, 1000),
+            make("cake","Торт","Common","/Food/Birthday%20Cake.png",250000, 1000),
+            make("donut","Пончик","Common","/Food/Doughnut.png",80000, 1000),
+            make("ice","Мороженое","Common","/Food/Soft%20Ice%20Cream.png",90000, 1000),
+            make("pop","Попкорн","Common","/Food/Popcorn.png",110000, 1000),
+            make("choc","Шоколад","Common","/Food/Chocolate%20Bar.png",70000, 1000),
+            make("hotdog","Хотдог","Common","/Food/Hot%20Dog.png",130000, 1000),
+            make("taco","Тако","Common","/Food/Taco.png",140000, 1000),
+            make("ninja","Ниндзя","Rare","/People/Ninja.png",3000000, 150),
+            make("vamp","Вампир","Rare","/People/Vampire.png",3200000, 150),
+            make("zom","Зомби","Rare","/People/Zombie.png",2800000, 150),
+            make("genie","Джинн","Legend","/People/Genie.png",42000000, 12),
+            make("fairy","Фея","Legend","/People/Fairy.png",41000000, 12),
+            make("mer","Русалка","Legend","/People/Merperson.png",43000000, 12),
+            make("elf","Эльф","Legend","/People/Elf.png",40000000, 15)
         ];
 
         const COSMETICS = {
@@ -460,7 +411,7 @@
         };
 
         let myNick=localStorage.getItem('nft_nick'), data, globalStats, selIdx, chatUnsub;
-        let fever=0, feverMode=false, lastClick=0, pendingBuy=null, mines={a:false,m:[],b:0,s:0};
+        let lastClick=0, pendingBuy=null, mines={a:false,m:[],b:0,s:0};
 
         // --- AUTH ---
         if(myNick) { document.getElementById('auth-modal').style.display='none'; checkSession(); }
@@ -485,8 +436,6 @@
                 if(d.exists) {
                     data = d.data();
                     if(data.isBanned) { document.getElementById('ban-screen').style.display='flex'; return; }
-                    
-                    // Initialization Fixes
                     if(!data.cosmetics) data.cosmetics={color:'def',frame:'def',owned_c:['def'],owned_f:['def']};
                     if(!data.equipped) data.equipped=[];
                     if(!data.friends) data.friends=[];
@@ -499,18 +448,11 @@
                 globalStats = s.exists ? s.data().items : {};
                 renderShop();
             });
-            
-            // Loop
             setInterval(() => {
-                if(data && !data.isBanned) {
-                    if(data.energy < 100) {
-                        data.energy = Math.min(100, data.energy + (data.regenLvl*0.5));
-                        updateUI();
-                        if(data.energy%10===0) save(); 
-                    }
-                    if(fever > 0 && !feverMode) {
-                        fever -= 2; document.getElementById('fever-bar').style.width = fever+'%';
-                    }
+                if(data && !data.isBanned && data.energy < 100) {
+                    data.energy = Math.min(100, data.energy + (data.regenLvl*0.5));
+                    updateUI();
+                    if(data.energy%10===0) save(); 
                 }
             }, 1000);
         }
@@ -522,13 +464,11 @@
             document.getElementById('my-nick').innerText = myNick;
             document.getElementById('my-frame').innerText = myNick[0].toUpperCase();
             
-            // Cosmetics
             const col = COSMETICS.colors.find(c=>c.id===data.cosmetics.color);
             if(col) document.getElementById('my-nick').style.color = col.hex;
             const fr = COSMETICS.frames.find(f=>f.id===data.cosmetics.frame);
             if(fr) document.getElementById('my-frame').style.cssText = fr.s;
 
-            // Orbiters
             ['orb-1','orb-2','orb-3'].forEach(id=>document.getElementById(id).style.display='none');
             data.equipped.forEach((item, i) => {
                 if(i<3) {
@@ -552,37 +492,19 @@
             if(e.type==='touchstart') e.preventDefault();
             if(data.energy < 1) return toast("Мало энергии");
             
-            // Anti-Cheat (Relaxed)
             const now = Date.now();
-            if(now - lastClick < 40) return; // 25 clicks/sec limit
+            if(now - lastClick < 40) return; 
             lastClick = now;
 
-            if(!feverMode) { fever += 4; if(fever >= 100) startFever(); }
-            document.getElementById('fever-bar').style.width = fever+'%';
-
-            let mult = feverMode ? 2 : 1;
-            let val = data.tapLvl * mult;
+            let val = data.tapLvl;
             let crit = Math.random() < (data.critLvl*0.01);
             if(crit) { val *= 5; visualCrit(e); }
 
             data.balance += val; data.energy--;
             
-            // Save Buffer
             clickBuffer++;
             if(clickBuffer >= 10) { save(); clickBuffer=0; }
-            
             updateUI();
-        }
-
-        function startFever() {
-            feverMode = true; fever = 100;
-            document.getElementById('tap-btn').classList.add('fever-active');
-            document.getElementById('combo-display').style.opacity = 1;
-            setTimeout(() => {
-                feverMode = false; fever = 0;
-                document.getElementById('tap-btn').classList.remove('fever-active');
-                document.getElementById('combo-display').style.opacity = 0;
-            }, 10000);
         }
         
         function visualCrit(e) {
@@ -602,30 +524,31 @@
         function renderShop() {
             const l = document.getElementById('shop-list'); if(!globalStats) return; l.innerHTML = '';
             ASSETS.forEach(a => {
-                const sold = globalStats[a.n] || 0;
+                const sold = globalStats[a.id] || 0; // Use ID as key
                 const price = Math.floor(a.p * (1 + (sold*0.01)));
                 const left = a.l - sold;
                 const d = document.createElement('div'); d.className = 'card';
                 if(left<=0) d.style.opacity = 0.5;
-                d.innerHTML = `<div class="supply-tag">${left}/${a.l}</div><div class="nft-pill">${a.t}</div><img src="${BASE+a.u}" class="nft-img"><div class="nft-name" style="color:white;font-weight:bold;">${a.n}</div><button class="btn btn-sm ${left>0?'btn-success':'btn-outline'}" onclick="${left>0?`reqBuy('${a.n}',${price})`:''}">${left>0?price.toLocaleString():'SOLD'}</button>`;
+                d.innerHTML = `<div class="supply-tag">${left}/${a.l}</div><div class="nft-pill">${a.t}</div><img src="${BASE+a.u}" class="nft-img"><div class="nft-name" style="color:white;font-weight:bold;">${a.n}</div><button class="btn btn-sm ${left>0?'btn-success':'btn-outline'}" onclick="${left>0?`reqBuy('${a.id}',${price})`:''}">${left>0?price.toLocaleString():'SOLD'}</button>`;
                 l.appendChild(d);
             });
         }
 
-        function reqBuy(n,p) { pendingBuy={n,p}; document.getElementById('confirm-text').innerText=`Купить за ${p.toLocaleString()}?`; openModal('confirm-modal'); }
+        function reqBuy(id,p) { pendingBuy={id,p}; document.getElementById('confirm-text').innerText=`Купить за ${p.toLocaleString()}?`; openModal('confirm-modal'); }
         function confirmAction() {
             if(!pendingBuy) return;
-            const item = ASSETS.find(x => x.n === pendingBuy.n);
+            const item = ASSETS.find(x => x.id === pendingBuy.id);
+            if(!item) { toast("Ошибка предмета"); closeModal('confirm-modal'); return; }
             const st = genUnique();
             db.runTransaction(async t => {
                 const ref = db.collection('game').doc('stats');
                 const uref = db.collection('users').doc(myNick);
                 const s = await t.get(ref);
                 let stats = s.exists ? s.data().items : {};
-                let sold = stats[item.n] || 0;
+                let sold = stats[item.id] || 0;
                 if(sold >= item.l) throw "Раскуплено";
                 t.update(uref, { balance: firebase.firestore.FieldValue.increment(-pendingBuy.p), inventory: firebase.firestore.FieldValue.arrayUnion({id:Date.now(), n:item.n, u:item.u, t:item.t, p:item.p, s:sold+1, max:item.l, bg:st.bg, hue:st.hue}) });
-                t.set(ref, { items: { ...stats, [item.n]: sold+1 } }, {merge:true});
+                t.set(ref, { items: { ...stats, [item.id]: sold+1 } }, {merge:true});
             }).then(() => { toast("Куплено!"); closeModal('confirm-modal'); }).catch(e => toast(e));
             pendingBuy=null;
         }
@@ -633,7 +556,6 @@
         function renderInv() {
             const l = document.getElementById('inventory-list'); l.innerHTML = '';
             data.inventory.forEach((i, idx) => {
-                // Auto-fix for old NFTs
                 const bg = i.bg || '#222'; const hue = i.hue || '';
                 l.innerHTML += `<div class="card" style="background:${bg}"><div class="nft-pill">${i.t}</div><img src="${BASE+i.u}" class="nft-img" style="filter:${hue}"><div class="nft-name" style="color:white;">${i.n}</div><div style="font-size:9px;color:white;">#${i.s}</div><button class="btn btn-sm" style="background:rgba(0,0,0,0.5);color:white;margin-top:5px;" onclick="openInspect(${idx})">Меню</button></div>`;
             });
@@ -641,11 +563,13 @@
 
         function openInspect(idx) {
             selIdx = idx; const item = data.inventory[idx];
-            // 3D Card Setup
+            // Auto-fix background
+            if(!item.bg) { item.bg = genUnique().bg; item.hue = genUnique().hue; }
+            
             const card = document.getElementById('inspect-card');
-            card.style.background = item.bg || '#222';
+            card.style.background = item.bg;
             document.getElementById('inspect-img').src = BASE + item.u;
-            document.getElementById('inspect-img').style.filter = item.hue || '';
+            document.getElementById('inspect-img').style.filter = item.hue;
             document.getElementById('inspect-name').innerText = item.n;
             document.getElementById('inspect-supply').innerText = item.t;
             
@@ -655,7 +579,6 @@
             
             openModal('nft-modal');
             
-            // Mouse Move Effect
             document.addEventListener('mousemove', (e) => {
                 if(document.getElementById('nft-modal').style.display === 'none') return;
                 let xAxis = (window.innerWidth / 2 - e.pageX) / 15;
@@ -708,15 +631,22 @@
         async function playSlots() {
             const b = parseInt(document.getElementById('slots-bet').value);
             if(!b || b > data.balance) return toast("Ставка?");
+            const btn = document.getElementById('btn-spin');
+            btn.disabled = true;
             data.balance -= b; updateUI();
+            
             const reels = [1,2,3].map(i => document.getElementById('reel-'+i));
             reels.forEach(r => r.parentElement.classList.add('spin-anim'));
+            
             await new Promise(r => setTimeout(r, 1000));
+            
             reels.forEach(r => r.parentElement.classList.remove('spin-anim'));
             const icons = ['🍒','💎','7️⃣'];
             const res = [0,0,0].map(() => icons[Math.floor(Math.random()*icons.length)]);
             reels.forEach((r, i) => r.innerText = res[i]);
             if(res[0]===res[1] && res[1]===res[2]) { const w = b * 10; data.balance += w; toast("JACKPOT "+w); }
+            
+            btn.disabled = false;
             save();
         }
         function startMines() {
@@ -774,7 +704,6 @@
                 });
                 b.scrollTop = b.scrollHeight;
             });
-            // Keep target for sending
             document.getElementById('chat-msg').setAttribute('data-target', f);
         }
         function sendMsg() {
@@ -812,7 +741,7 @@
 
         // --- UTILS ---
         function save() { db.collection('users').doc(myNick).update({balance:data.balance, energy:data.energy, inventory:data.inventory, cosmetics:data.cosmetics, tapLvl:data.tapLvl, critLvl:data.critLvl, regenLvl:data.regenLvl}); }
-        function toast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
+        function toast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none', 2000); }
         function closeModal(id) { document.getElementById(id).style.display='none'; }
         function openModal(id) { document.getElementById(id).style.display='flex'; }
         function nav(s,el) { document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); document.getElementById('screen-'+s).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); el.classList.add('active'); if(s==='shop') switchMarket('shop'); }
