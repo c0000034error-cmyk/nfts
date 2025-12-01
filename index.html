@@ -15,14 +15,6 @@
 document.querySelectorAll("#ban-screen").forEach(el => el.remove());
 window.showBanScreen = function(id){ return; };
 
-// Удалить абсолютно любые элементы, содержащие текст BANNED
-setInterval(()=>{
-  document.querySelectorAll("*").forEach(el=>{
-    if(el.innerText && el.innerText.includes("BANNED")) el.remove();
-    if(el.innerText && el.innerText.includes("автокликера")) el.remove();
-    if(el.innerText && el.innerText.includes("заблокирован")) el.remove();
-  });
-}, 50);
 <style>
 :root{
   --bg:#050505; --card:#151517; --muted:#8b8b91; --primary:#6366f1; --accent:#d946ef;
@@ -1109,6 +1101,7 @@ setInterval(()=>{
 </script>
 </body>
 </html>
+
 
 
 
