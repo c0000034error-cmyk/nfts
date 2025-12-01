@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe: ABSOLUTE</title>
+    <title>NFT Universe: FINAL BUTTONS</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -23,106 +23,97 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
-
-        /* ANIMATIONS */
-        @keyframes crit { 0% { transform: scale(1); } 50% { transform: scale(1.3) rotate(10deg); } 100% { transform: scale(1); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        @keyframes orbit1 { from { transform: rotate(0deg) translateX(45px) rotate(0deg); } to { transform: rotate(360deg) translateX(45px) rotate(-360deg); } }
-        @keyframes orbit2 { from { transform: rotate(120deg) translateX(45px) rotate(-120deg); } to { transform: rotate(480deg) translateX(45px) rotate(-480deg); } }
-        @keyframes orbit3 { from { transform: rotate(240deg) translateX(45px) rotate(-240deg); } to { transform: rotate(600deg) translateX(45px) rotate(-600deg); } }
-        @keyframes spin { 0% { transform: translateY(0); } 100% { transform: translateY(-1000px); } }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
 
         /* UI */
-        .btn { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.2s; }
+        .btn {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: #fff; border: none; padding: 12px; border-radius: 12px;
+            font-weight: 700; font-size: 14px; width: 100%; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            transition: 0.1s;
+        }
         .btn:active { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.5; cursor: wait; filter: grayscale(1); }
+        .btn-green { background: linear-gradient(135deg, var(--success), #059669); }
         .btn-outline { background: rgba(255,255,255,0.1); border: 1px solid #333; }
         .btn-danger { background: var(--danger); }
-        .btn-gold { background: var(--gold); color:black; }
+        .btn-gold { background: var(--gold); color: black; }
         .btn-sm { padding: 6px 12px; font-size: 11px; width: auto; }
+        .btn:disabled { opacity: 0.7; cursor: wait; }
 
-        input, select { background: #222; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; }
+        input { background: #222; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; color: #888; font-size: 13px; margin-bottom: 15px; justify-content: center; cursor: pointer; }
 
+        /* MODALS */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9000; display: none; align-items: center; justify-content: center; }
+        .modal-box { width: 90%; max-width: 350px; background: #1a1a1a; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #333; }
+
+        /* MAIN LAYOUT */
         .header { padding: 10px 15px; background: rgba(10,10,10,0.9); border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
-        
-        /* AVATAR */
+        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .navbar { position: fixed; bottom: 0; width: 100%; background: rgba(20,20,20,0.95); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #222; z-index: 100; }
+        .nav-item { color: #666; font-size: 10px; text-align: center; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 22px; display: block; }
+
+        /* ELEMENTS */
         .av-box { position: relative; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; margin-right: 10px; }
         .av-frame { width: 100%; height: 100%; border-radius: 50%; background: #27272a; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid transparent; z-index: 2; font-size: 20px; }
         .orb { position: absolute; width: 22px; height: 22px; z-index: 1; pointer-events: none; filter: drop-shadow(0 0 5px black); object-fit: contain; }
+        @keyframes orbit1 { from { transform: rotate(0deg) translateX(45px) rotate(0deg); } to { transform: rotate(360deg) translateX(45px) rotate(-360deg); } }
+        @keyframes orbit2 { from { transform: rotate(120deg) translateX(45px) rotate(-120deg); } to { transform: rotate(480deg) translateX(45px) rotate(-480deg); } }
+        @keyframes orbit3 { from { transform: rotate(240deg) translateX(45px) rotate(-240deg); } to { transform: rotate(600deg) translateX(45px) rotate(-600deg); } }
         .orb-1 { animation: orbit1 6s linear infinite; }
         .orb-2 { animation: orbit2 6s linear infinite; }
         .orb-3 { animation: orbit3 6s linear infinite; }
 
-        /* COSMETICS */
+        /* Cosmetics */
         .frame-gold { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); }
         .frame-neon { border-color: #00f2ff; box-shadow: 0 0 10px #00f2ff; }
         .nick-gold { color: var(--gold); text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
         .nick-neon { color: #00f2ff; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
         .nick-red { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
 
-        /* GAMEPLAY */
+        /* TAP & COMBO */
+        #tap-btn { transition: transform 0.05s; position: relative; }
+        #tap-btn:active { transform: scale(0.95); }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 50% { transform: translate(-1px, -2px) rotate(-1deg); } 100% { transform: translate(1px, -1px) rotate(1deg); } }
+        .crit-shake { animation: shake 0.5s; }
         .combo-bar { height: 5px; background: #333; width: 80%; margin: 10px auto; border-radius: 5px; overflow: hidden; }
         .combo-fill { height: 100%; width: 0%; background: var(--gold); transition: width 0.1s linear; }
-        .crit-text { position: absolute; font-weight: bold; font-size: 20px; color: var(--gold); pointer-events: none; animation: crit 0.3s ease-out; }
-        .bot-timer { font-size: 10px; color: var(--success); margin-left: 5px; font-weight: bold; display: none; }
+        @keyframes crit { 0% { transform: scale(1); } 50% { transform: scale(1.3) rotate(10deg); } 100% { transform: scale(1); } }
 
         /* CARDS */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding-bottom: 100px; }
         .card { border-radius: var(--radius); padding: 10px; display: flex; flex-direction: column; align-items: center; border: 1px solid #222; position: relative; overflow: hidden; }
-        
-        /* BASIC RARITY BACKGROUNDS (For Shop) */
         .bg-Common { background: radial-gradient(circle at top, #333, #000); }
         .bg-Rare { background: radial-gradient(circle at top, #1e3a8a, #000); }
         .bg-Epic { background: radial-gradient(circle at top, #581c87, #000); }
         .bg-Legendary { background: radial-gradient(circle at top, #ca8a04, #000); }
         .bg-Exclusive { background: radial-gradient(circle at top, #b91c1c, #000); border: 1px solid red; }
-
         .nft-img { width: 80px; height: 80px; object-fit: contain; margin: 10px 0; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
-        .nft-info { font-size: 10px; color: #888; margin-bottom: 5px; }
         .nft-name { font-size: 12px; font-weight: bold; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .eq-dot { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
+        .nft-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); color: #ccc; margin-bottom: 2px; }
+        .equipped-marker { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
 
-        /* SCREENS */
-        .screen { display: none; padding: 15px; height: 100%; overflow-y: auto; }
-        .screen.active { display: block; }
-
-        .navbar { position: fixed; bottom: 0; width: 100%; background: rgba(20,20,20,0.95); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #222; z-index: 100; }
-        .nav-item { color: #666; font-size: 10px; text-align: center; cursor: pointer; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 22px; display: block; }
-
-        /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .modal-box { width: 90%; max-width: 350px; background: #1a1a1a; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #333; }
-
-        /* TOAST & BAN */
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid #444; padding: 10px 20px; border-radius: 20px; z-index: 3000; display: none; color: white; }
+        /* EXTRAS */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid #444; padding: 10px 20px; border-radius: 20px; z-index: 9999; display: none; color:white; }
         .banned { position: fixed; top:0; left:0; width:100%; height:100%; background:black; color:red; z-index:9999; display:none; justify-content:center; align-items:center; flex-direction:column; font-size: 20px; font-weight:bold; }
-
-        /* LEADERBOARD */
         .lb-row { display: flex; justify-content: space-between; padding: 10px; background: #1a1a1a; margin-bottom: 5px; border-radius: 10px; }
         .lb-rank { color: var(--gold); font-weight: bold; width: 30px; }
-        
-        /* TABS */
         .tabs { display: flex; background: #27272a; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
         .tab { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 12px; color: #8e8e93; cursor: pointer; }
         .tab.active { background: #3f3f46; color: white; font-weight: bold; }
-
-        /* SLOTS */
         .slot-win { height: 80px; overflow: hidden; background: #000; border-radius: 10px; margin: 10px 0; display: flex; justify-content: center; align-items: center; font-size: 40px; border: 1px solid #333; }
         .spin { animation: spin 0.5s linear infinite; }
-        
-        /* MINES */
+        @keyframes spin { 0% { transform: translateY(0); } 100% { transform: translateY(-1000px); } }
         .mines-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px auto; max-width: 220px; }
         .mine { aspect-ratio: 1; background: #27272a; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .mine.boom { background: var(--danger); }
-        .mine.safe { background: var(--success); color: #000; }
-        
-        .checkbox-container { display: flex; align-items: center; gap: 10px; color: #888; font-size: 13px; margin-top: 10px; justify-content: center; cursor: pointer; }
-        
-        /* CHAT */
-        .friend-item { display: flex; justify-content: space-between; align-items: center; background: #27272a; padding: 10px; border-radius: 10px; margin-bottom: 5px; }
+        .mine.boom { background: var(--danger); } .mine.safe { background: var(--success); color: #000; }
+        .settings-row { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 12px; border-radius: 12px; margin-bottom: 8px; }
+        .bot-timer { font-size: 10px; color: var(--success); margin-left: 5px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
@@ -132,20 +123,23 @@
         <div style="font-size:12px; color:white; margin-top:10px;">Auto-Clicker Detected</div>
     </div>
 
+    <!-- FIXED AUTH SCREEN -->
     <div id="auth-screen" class="modal" style="display:flex;">
         <div class="modal-box">
             <h1>NFT UNIVERSE</h1>
             <input id="auth-nick" placeholder="Никнейм">
             <input id="auth-pass" type="password" placeholder="Пароль">
             <label class="checkbox-container">
-                <input type="checkbox" id="remember-me" checked>
+                <input type="checkbox" id="remember-me" checked style="width:auto; margin:0;">
                 Запомнить меня
             </label>
-            <button class="btn" onclick="auth()" style="margin-top: 15px;">Войти</button>
-            <div onclick="toggleAuth()" style="margin-top:20px; font-size:13px; color: #a1a1aa; cursor:pointer;">
-                Нет аккаунта? <span style="text-decoration: underline; color:var(--primary);">Регистрация</span>
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="btn-login" class="btn" onclick="doLogin()">ВОЙТИ</button>
+                <button id="btn-reg" class="btn btn-green" onclick="doReg()">РЕГИСТРАЦИЯ</button>
             </div>
-            <div id="auth-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></div>
+            
+            <p id="auth-msg" style="color:red; font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
 
@@ -264,12 +258,12 @@
             </div>
             
             <div class="settings-row">
-                <span>Цвет Ника</span>
+                <span>Цвет</span>
                 <select id="sel-nick" onchange="setStyle()" style="width:100px; padding:5px; background:#222; color:white; border:1px solid #333;">
                     <option value="">Def</option>
                 </select>
             </div>
-            <div class="settings-row">
+             <div class="settings-row">
                 <span>Рамка</span>
                 <select id="sel-frame" onchange="setStyle()" style="width:100px; padding:5px; background:#222; color:white; border:1px solid #333;">
                     <option value="">Def</option>
@@ -304,7 +298,7 @@
         <div class="modal-box">
             <h2 id="m-name">Name</h2>
             <div style="font-size:12px; color:#888; margin-bottom:10px;" id="m-serial">#000</div>
-            <div id="m-bg" style="border-radius:15px; padding:20px; margin-bottom:10px; transition:0.3s;">
+            <div id="m-bg" style="border-radius:15px; padding:20px; margin-bottom:10px;">
                 <img id="m-img" width="100">
             </div>
             <div class="tabs">
@@ -371,7 +365,6 @@
         const fbc={apiKey:"AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg",authDomain:"nfts-dc174.firebaseapp.com",projectId:"nfts-dc174",storageBucket:"nfts-dc174.firebasestorage.app",messagingSenderId:"327365720624",appId:"1:327365720624:web:eb42c9d671566b5d118bf5"};
         firebase.initializeApp(fbc); const db=firebase.firestore();
 
-        // MASSIVE ASSET LIST (120+ ITEMS)
         const BASE="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis";
         const mk=(n,t,u,p,s)=>({n,t,u,p,s:s||1000});
         const ITEMS = [
@@ -385,113 +378,7 @@
             mk("Car","Epic","/Travel and places/Automobile.png",30000), mk("Plane","Epic","/Travel and places/Airplane.png",40000),
             mk("Soccer","Common","/Activities/Soccer Ball.png",1500), mk("Trophy","Legendary","/Objects/Trophy.png",60000, 30),
             mk("Fire","Rare","/Travel and places/Fire.png",5000), mk("Star","Rare","/Travel and places/Star.png",5000),
-            mk("Panda","Rare","/Animals/Panda.png",6000), mk("Fox","Rare","/Animals/Fox.png",6000),
-            mk("Koala","Rare","/Animals/Koala.png",6000), mk("Lion","Epic","/Animals/Lion.png",12000),
-            mk("Tiger","Epic","/Animals/Tiger Face.png",12000), mk("Chicken","Common","/Animals/Chicken.png",1500),
-            mk("Penguin","Rare","/Animals/Penguin.png",5000), mk("Frog","Common","/Animals/Frog.png",2000),
-            mk("Octopus","Epic","/Animals/Octopus.png",15000), mk("Whale","Legendary","/Animals/Spouting Whale.png",90000),
-            mk("Donut","Common","/Food/Doughnut.png",1200), mk("Ice Cream","Common","/Food/Soft Ice Cream.png",1200),
-            mk("Popcorn","Common","/Food/Popcorn.png",1500), mk("Cookie","Common","/Food/Cookie.png",1000),
-            mk("Cake","Rare","/Food/Birthday Cake.png",4000), mk("Taco","Common","/Food/Taco.png",1200),
-            mk("Fries","Common","/Food/French Fries.png",1200), mk("Hot Dog","Common","/Food/Hot Dog.png",1200),
-            mk("Sushi","Rare","/Food/Sushi.png",4000), mk("Chocolate","Common","/Food/Chocolate Bar.png",1000),
-            mk("Guitar","Rare","/Objects/Guitar.png",7000), mk("Drum","Rare","/Objects/Drum.png",6000),
-            mk("Mic","Rare","/Objects/Microphone.png",6000), mk("Headphone","Rare","/Objects/Headphone.png",5000),
-            mk("Camera","Rare","/Objects/Camera.png",8000), mk("Money","Legendary","/Objects/Money Bag.png",100000),
-            mk("Key","Common","/Objects/Key.png",2000), mk("Lock","Common","/Objects/Locked.png",2000),
-            mk("Bomb","Epic","/Objects/Bomb.png",10000), mk("Balloon","Common","/Objects/Balloon.png",1000),
-            mk("Gift","Rare","/Objects/Wrapped Gift.png",3000), mk("Heart","Rare","/Smilies/Red Heart.png",3000),
-            mk("Skull","Epic","/Body/Skull.png",15000), mk("Poop","Common","/Smilies/Pile of Poo.png",5000),
-            // More Items
-            mk("Avocado","Common","/Food/Avocado.png",1200), mk("Bacon","Common","/Food/Bacon.png",1200),
-            mk("Beer","Common","/Food/Beer Mug.png",1500), mk("Bread","Common","/Food/Bread.png",1000),
-            mk("Cheese","Common","/Food/Cheese Wedge.png",1200), mk("Egg","Common","/Food/Egg.png",800),
-            mk("Pancakes","Rare","/Food/Pancakes.png",3000), mk("Sandwich","Common","/Food/Sandwich.png",1500),
-            mk("Bat","Rare","/Animals/Bat.png",4000), mk("Bear","Rare","/Animals/Bear.png",5000),
-            mk("Bee","Common","/Animals/Honeybee.png",1000), mk("Butterfly","Common","/Animals/Butterfly.png",1000),
-            mk("Camel","Rare","/Animals/Camel.png",4000), mk("Cow","Common","/Animals/Cow Face.png",2000),
-            mk("Crab","Rare","/Animals/Crab.png",3000), mk("Crocodile","Epic","/Animals/Crocodile.png",8000),
-            mk("Elephant","Epic","/Animals/Elephant.png",10000), mk("Fish","Common","/Animals/Fish.png",1500),
-            mk("Gorilla","Epic","/Animals/Gorilla.png",9000), mk("Hamster","Common","/Animals/Hamster.png",2000),
-            mk("Horse","Rare","/Animals/Horse Face.png",5000), mk("Lizard","Common","/Animals/Lizard.png",2000),
-            mk("Monkey","Rare","/Animals/Monkey Face.png",4000), mk("Mouse","Common","/Animals/Mouse Face.png",1500),
-            mk("Owl","Rare","/Animals/Owl.png",5000), mk("Pig","Common","/Animals/Pig Face.png",2000),
-            mk("Rabbit","Common","/Animals/Rabbit Face.png",2000), mk("Shark","Epic","/Animals/Shark.png",12000),
-            mk("Snake","Rare","/Animals/Snake.png",4000), mk("Spider","Common","/Animals/Spider.png",1000),
-            mk("Turtle","Rare","/Animals/Turtle.png",4000), mk("Wolf","Epic","/Animals/Wolf.png",8000),
-            mk("Axe","Rare","/Objects/Axe.png",3000), mk("Bell","Common","/Objects/Bell.png",1500),
-            mk("Book","Common","/Objects/Blue Book.png",1000), mk("Candle","Common","/Objects/Candle.png",1000),
-            mk("Cigarette","Common","/Objects/Cigarette.png",1000), mk("Coin","Rare","/Objects/Coin.png",5000),
-            mk("Compass","Rare","/Objects/Compass.png",3000), mk("Dice","Common","/Activities/Game Die.png",1500),
-            mk("Drill","Rare","/Objects/Electric Drill.png",4000), mk("Envelope","Common","/Objects/Envelope.png",800),
-            mk("Flashlight","Common","/Objects/Flashlight.png",1500), mk("Gear","Common","/Objects/Gear.png",1000),
-            mk("Hammer","Common","/Objects/Hammer.png",1500), mk("Hourglass","Rare","/Objects/Hourglass Done.png",3000),
-            mk("Magnet","Rare","/Objects/Magnet.png",3000), mk("Microscope","Epic","/Objects/Microscope.png",8000),
-            mk("Pill","Common","/Objects/Pill.png",1000), mk("Radio","Rare","/Objects/Radio.png",4000),
-            mk("Satellite","Epic","/Objects/Satellite Antenna.png",10000), mk("Scissors","Common","/Objects/Scissors.png",1000),
-            mk("Shield","Rare","/Objects/Shield.png",4000), mk("Sword","Epic","/Objects/Dagger.png",8000),
-            mk("Syringe","Common","/Objects/Syringe.png",1500), mk("Telescope","Epic","/Objects/Telescope.png",9000),
-            mk("Toilet","Common","/Objects/Toilet.png",2000), mk("Toolbox","Rare","/Objects/Toolbox.png",4000),
-            mk("Trash","Common","/Objects/Wastebasket.png",800), mk("Umbrella","Common","/Objects/Umbrella.png",1500),
-            mk("Violin","Rare","/Objects/Violin.png",6000), mk("Wrench","Common","/Objects/Wrench.png",1500),
-            mk("Yarn","Common","/Activities/Yarn.png",1000), mk("Anchor","Rare","/Travel and places/Anchor.png",3000),
-            mk("Ambulance","Rare","/Travel and places/Ambulance.png",6000), mk("Bicycle","Common","/Travel and places/Bicycle.png",2500),
-            mk("Boat","Rare","/Travel and places/Speedboat.png",5000), mk("Bus","Common","/Travel and places/Bus.png",3000),
-            mk("Canoe","Common","/Travel and places/Canoe.png",2000), mk("Helicopter","Epic","/Travel and places/Helicopter.png",25000),
-            mk("Locomotive","Rare","/Travel and places/Locomotive.png",6000), mk("Motorcycle","Rare","/Travel and places/Motorcycle.png",5000),
-            mk("Police Car","Rare","/Travel and places/Police Car.png",6000), mk("Scooter","Common","/Travel and places/Kick Scooter.png",2000),
-            mk("Ship","Epic","/Travel and places/Ship.png",20000), mk("Tractor","Rare","/Travel and places/Tractor.png",5000),
-            mk("Truck","Rare","/Travel and places/Delivery Truck.png",5000), mk("Beach","Rare","/Travel and places/Beach With Umbrella.png",4000),
-            mk("Camping","Rare","/Travel and places/Camping.png",4000), mk("Castle","Epic","/Travel and places/Castle.png",15000),
-            mk("City","Epic","/Travel and places/Cityscape.png",12000), mk("Desert","Rare","/Travel and places/Desert.png",4000),
-            mk("Factory","Rare","/Travel and places/Factory.png",5000), mk("Ferris Wheel","Epic","/Travel and places/Ferris Wheel.png",10000),
-            mk("Fountain","Rare","/Travel and places/Fountain.png",4000), mk("House","Common","/Travel and places/House.png",3000),
-            mk("Island","Rare","/Travel and places/Desert Island.png",5000), mk("Mountain","Rare","/Travel and places/Mountain.png",4000),
-            mk("Park","Common","/Travel and places/National Park.png",3000), mk("Stadium","Epic","/Travel and places/Stadium.png",15000),
-            mk("Statue","Epic","/Travel and places/Statue of Liberty.png",20000), mk("Tent","Common","/Travel and places/Tent.png",2000),
-            mk("Tokyo Tower","Epic","/Travel and places/Tokyo Tower.png",15000), mk("Volcano","Rare","/Travel and places/Volcano.png",5000),
-            mk("Badminton","Common","/Activities/Badminton.png",1500), mk("Bowling","Common","/Activities/Bowling.png",1500),
-            mk("Boxing","Rare","/Activities/Boxing Glove.png",3000), mk("Chess","Rare","/Activities/Chess Pawn.png",3000),
-            mk("Cricket","Common","/Activities/Cricket Game.png",1500), mk("Darts","Common","/Activities/Direct Hit.png",1500),
-            mk("Fishing","Common","/Activities/Fishing Pole.png",1500), mk("Golf","Common","/Activities/Flag in Hole.png",1500),
-            mk("Ice Hockey","Rare","/Activities/Ice Hockey.png",3000), mk("Ping Pong","Common","/Activities/Ping Pong.png",1500),
-            mk("Pool","Common","/Activities/Pool 8 Ball.png",1500), mk("Skateboard","Common","/Activities/Skateboard.png",2000),
-            mk("Ski","Rare","/Activities/Skis.png",3000), mk("Sled","Common","/Activities/Sled.png",2000),
-            mk("Snowboard","Rare","/Activities/Snowboarder.png",3000), mk("Surfing","Rare","/Activities/Surfing.png",3000),
-            mk("Volleyball","Common","/Activities/Volleyball.png",1500), mk("Weightlifting","Rare","/Activities/Person Lifting Weights.png",3000),
-            mk("Artist","Rare","/People/Artist.png",4000), mk("Astronaut","Epic","/People/Astronaut.png",15000),
-            mk("Baby","Common","/People/Baby.png",2000), mk("Clown","Rare","/Smilies/Clown Face.png",3000),
-            mk("Cook","Rare","/People/Cook.png",4000), mk("Detective","Epic","/People/Detective.png",8000),
-            mk("Doctor","Rare","/People/Health Worker.png",5000), mk("Farmer","Rare","/People/Farmer.png",4000),
-            mk("Firefighter","Rare","/People/Firefighter.png",5000), mk("Judge","Epic","/People/Judge.png",8000),
-            mk("Mechanic","Rare","/People/Mechanic.png",4000), mk("Ninja","Epic","/People/Ninja.png",10000),
-            mk("Pilot","Epic","/People/Pilot.png",8000), mk("Police","Rare","/People/Police Officer.png",5000),
-            mk("Prince","Epic","/People/Prince.png",10000), mk("Princess","Epic","/People/Princess.png",10000),
-            mk("Santa","Epic","/People/Santa Claus.png",12000), mk("Scientist","Epic","/People/Scientist.png",8000),
-            mk("Singer","Epic","/People/Singer.png",8000), mk("Spy","Epic","/People/Detective.png",9000),
-            mk("Superhero","Legendary","/People/Superhero.png",25000), mk("Supervillain","Legendary","/People/Supervillain.png",25000),
-            mk("Teacher","Rare","/People/Teacher.png",4000), mk("Vampire","Epic","/People/Vampire.png",10000),
-            mk("Wizard","Epic","/People/Mage.png",10000), mk("Zombie","Epic","/People/Zombie.png",9000),
-            mk("Clover","Rare","/Animals/Four Leaf Clover.png",5000), mk("Mushroom","Common","/Food/Mushroom.png",1500),
-            mk("Rose","Rare","/Animals/Rose.png",3000), mk("Sunflower","Common","/Animals/Sunflower.png",2000),
-            mk("Tree","Common","/Travel and places/Deciduous Tree.png",2000), mk("Tulip","Common","/Animals/Tulip.png",2000),
-            mk("Cloud","Common","/Travel and places/Cloud.png",1000), mk("Comet","Epic","/Travel and places/Comet.png",8000),
-            mk("Lightning","Rare","/Travel and places/High Voltage.png",4000), mk("Rain","Common","/Travel and places/Cloud with Rain.png",1500),
-            mk("Rainbow","Rare","/Travel and places/Rainbow.png",5000), mk("Snow","Common","/Travel and places/Snowflake.png",1500),
-            mk("Sun","Rare","/Travel and places/Sun.png",5000), mk("Tornado","Epic","/Travel and places/Tornado.png",8000),
-            mk("Umbrella","Common","/Objects/Umbrella with Rain Drops.png",1500), mk("Wave","Common","/Travel and places/Water Wave.png",2000),
-            mk("Canada","Common","/Flags/Canada.png",2000), mk("China","Common","/Flags/China.png",2000),
-            mk("France","Common","/Flags/France.png",2000), mk("Germany","Common","/Flags/Germany.png",2000),
-            mk("India","Common","/Flags/India.png",2000), mk("Italy","Common","/Flags/Italy.png",2000),
-            mk("Japan","Common","/Flags/Japan.png",2000), mk("Korea","Common","/Flags/South Korea.png",2000),
-            mk("Russia","Common","/Flags/Russia.png",2000), mk("Spain","Common","/Flags/Spain.png",2000),
-            mk("UK","Common","/Flags/United Kingdom.png",2000), mk("USA","Common","/Flags/United States.png",2000),
-            mk("Aquarius","Rare","/Symbols/Aquarius.png",3000), mk("Aries","Rare","/Symbols/Aries.png",3000),
-            mk("Cancer","Rare","/Symbols/Cancer.png",3000), mk("Capricorn","Rare","/Symbols/Capricorn.png",3000),
-            mk("Gemini","Rare","/Symbols/Gemini.png",3000), mk("Leo","Rare","/Symbols/Leo.png",3000),
-            mk("Libra","Rare","/Symbols/Libra.png",3000), mk("Pisces","Rare","/Symbols/Pisces.png",3000),
-            mk("Sagittarius","Rare","/Symbols/Sagittarius.png",3000), mk("Scorpio","Rare","/Symbols/Scorpio.png",3000),
-            mk("Taurus","Rare","/Symbols/Taurus.png",3000), mk("Virgo","Rare","/Symbols/Virgo.png",3000)
+            mk("Skull","Epic","/Body/Skull.png",10000), mk("Money","Legendary","/Objects/Money Bag.png",100000)
         ];
         const STALKER_GIF = "https://media1.tenor.com/m/Y-vA_c2vOZwAAAAC/stalker-dance.gif";
 
@@ -501,32 +388,52 @@
 
         if(myNick) login(myNick);
 
-        async function auth(){
-            const n=document.getElementById('auth-nick').value.trim();
-            const p=document.getElementById('auth-pass').value.trim();
-            const rem=document.getElementById('remember-me').checked;
-            if(n.length<3) return alert("Короткий ник");
+        // --- AUTH FUNCTIONS (FIXED) ---
+        async function doLogin() {
+            const n = document.getElementById('auth-nick').value.trim();
+            const p = document.getElementById('auth-pass').value.trim();
+            const r = document.getElementById('remember-me').checked;
+            const msg = document.getElementById('auth-msg');
+            const btn = document.getElementById('btn-login');
             
-            if(n === 'kayivi') {
-                 await db.collection('users').doc(n).update({password: p});
-                 finishAuth(n, rem);
-                 return;
-            }
+            if(n.length < 3) return msg.innerText = "Короткий ник";
+            
+            btn.innerText = "Загрузка...";
+            try {
+                const doc = await db.collection('users').doc(n).get();
+                if(doc.exists && doc.data().password === p) {
+                    finishAuth(n, r);
+                } else {
+                    msg.innerText = "Неверный логин или пароль";
+                }
+            } catch(e) { msg.innerText = "Ошибка сети"; }
+            btn.innerText = "ВОЙТИ";
+        }
 
-            const ref = db.collection('users').doc(n);
-            const doc = await ref.get();
-            
-            if(!doc.exists) {
-                await ref.set({
-                    pass:p, nick:n, bal:0, en:1000, inv:[], fr:[], 
-                    eq:[], tap:1, reg:1, ban:false, upg:{}, style:{n:'',f:''},
-                    ts:Date.now(), invVal:0, botExp:0
-                });
-                finishAuth(n,rem);
-            } else {
-                if(doc.data().pass === p) finishAuth(n,rem);
-                else document.getElementById('auth-msg').innerText="Неверный пароль";
-            }
+        async function doReg() {
+            const n = document.getElementById('auth-nick').value.trim();
+            const p = document.getElementById('auth-pass').value.trim();
+            const r = document.getElementById('remember-me').checked;
+            const msg = document.getElementById('auth-msg');
+            const btn = document.getElementById('btn-reg');
+
+            if(n.length < 3 || p.length < 4) return msg.innerText = "Ник 3+, Пароль 4+";
+
+            btn.innerText = "Создаем...";
+            try {
+                const doc = await db.collection('users').doc(n).get();
+                if(doc.exists) {
+                    msg.innerText = "Ник уже занят!";
+                } else {
+                    await db.collection('users').doc(n).set({
+                        password:p, nickname:n, balance:0, energy:1000, inv:[], fr:[], 
+                        eq:[], tap:1, reg:1, ban:false, upg:{}, style:{n:'',f:''},
+                        ts:Date.now(), invVal:0, botExp:0
+                    });
+                    finishAuth(n, r);
+                }
+            } catch(e) { msg.innerText = "Ошибка сети"; }
+            btn.innerText = "РЕГИСТРАЦИЯ";
         }
 
         function finishAuth(n,r){
@@ -535,7 +442,7 @@
         }
 
         function login(n){
-            document.getElementById('auth-modal').style.display='none';
+            document.getElementById('auth-screen').style.display='none';
             db.collection('users').doc(n).onSnapshot(d=>{
                 if(d.exists){
                     data = d.data();
@@ -544,7 +451,6 @@
                     if(!data.upg) data.upg={}; if(!data.style) data.style={n:'',f:''}; if(!data.botExp) data.botExp=0;
                     if(!data.fr) data.fr=[];
                     
-                    // EXCLUSIVE DROP
                     if(n==='kayivi' && !data.inv.find(x=>x.n==='Zone Dancer')) {
                         data.inv.push({id:Date.now(), n:'Zone Dancer', u:STALKER_GIF, r:'Exclusive', s:1, p:999999, gif:true});
                         save(); toast("EXCLUSIVE DROP!");
@@ -587,9 +493,9 @@
             hFrame.className = "av-frame " + data.style.f;
 
             document.getElementById('b-tap').innerText=data.tap;
-            document.getElementById('c-tap').innerText=Math.floor(100*Math.pow(1.5,data.tap-1));
+            document.getElementById('c-tap').innerText=Math.floor(100*Math.pow(2,data.tap-1));
             document.getElementById('b-reg').innerText=data.reg;
-            document.getElementById('c-reg').innerText=Math.floor(100*Math.pow(1.5,data.reg-1));
+            document.getElementById('c-reg').innerText=Math.floor(100*Math.pow(2,data.reg-1));
 
             [1,2,3].forEach(i=>document.getElementById(`orb-${i}`).style.display='none');
             data.eq.forEach((it,i)=>{
@@ -607,12 +513,14 @@
         // --- TAP ---
         document.getElementById('tap-btn').addEventListener('mousedown', e=>{
             if(data.en<1) return toast("Нет энергии");
+            
             clicks++;
             if(clicks > 15) {
                 warn++; toast(`WARNING ${warn}/3`);
                 if(warn>=3) db.collection('users').doc(myNick).update({ban:true});
                 return;
             }
+
             clearTimeout(comboT);
             combo++; if(combo>20)combo=20;
             document.getElementById('combo-fill').style.width = (combo*5)+'%';
@@ -656,14 +564,8 @@
         function buyConfirm(){
             if(data.bal<buyTarget.p) return toast("Мало денег");
             data.bal-=buyTarget.p;
-            
-            // UNIQUE GEN
-            const h = Math.floor(Math.random()*360);
-            const hue = `hue-rotate(${Math.floor(Math.random()*360)}deg)`;
-            const bg = `linear-gradient(135deg, hsl(${h},60%,20%), hsl(${h+40},60%,10%))`;
-            
             const ser = Math.floor(Math.random()*9000)+1000;
-            data.inv.push({id:Date.now(), n:buyTarget.n, t:buyTarget.t, u:buyTarget.u, p:buyTarget.p, r:getRare(buyTarget.p), s:ser, hue:hue, bg:bg});
+            data.inv.push({id:Date.now(), n:buyTarget.n, t:buyTarget.t, u:buyTarget.u, p:buyTarget.p, r:getRare(buyTarget.p), s:ser});
             save(); toast("Куплено!"); closeModal('modal-confirm');
         }
 
@@ -672,18 +574,9 @@
             const l=document.getElementById('inv-grid'); l.innerHTML='';
             data.inv.forEach((it, i)=>{
                 const isEq = data.eq.find(x=>x.id===it.id);
-                const d=document.createElement('div'); d.className='card';
-                // Use stored BG or default rare BG
-                d.style.background = it.bg || 'radial-gradient(circle at top, #333, #000)';
+                const d=document.createElement('div'); d.className=`card bg-${it.r}`;
                 const src = it.gif ? it.u : BASE+it.u;
-                
-                d.innerHTML=`
-                    ${isEq?'<div style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:#10b981;border-radius:50%"></div>':''}
-                    <img src="${src}" class="nft-img" style="${it.gif?'':'filter:'+it.hue}">
-                    <div class="nft-name">${it.n}</div>
-                    <div style="font-size:10px;color:#aaa">#${it.s}</div>
-                    <button class="btn-sm btn-outline" style="width:100%;margin-top:5px;" onclick="openItem(${i})">Menu</button>
-                `;
+                d.innerHTML=`${isEq?'<div style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:#10b981;border-radius:50%"></div>':''}<img src="${src}" class="nft-img"><div class="nft-name">${it.n}</div><div style="font-size:10px;color:#aaa">#${it.s}</div><button class="btn-sm btn-outline" style="width:100%;margin-top:5px;" onclick="openItem(${i})">Menu</button>`;
                 l.appendChild(d);
             });
         }
@@ -692,11 +585,7 @@
             document.getElementById('m-name').innerText = curItem.n;
             document.getElementById('m-serial').innerText = "#"+curItem.s;
             document.getElementById('m-img').src = curItem.gif ? curItem.u : BASE+curItem.u;
-            
-            if(!curItem.gif) document.getElementById('m-img').style.filter = curItem.hue;
-            else document.getElementById('m-img').style.filter = 'none';
-            document.getElementById('m-bg').style.background = curItem.bg || '#222';
-            
+            document.getElementById('m-bg').className = `bg-${curItem.r}`;
             document.getElementById('m-price').innerText = Math.floor(curItem.p*0.5);
             document.getElementById('modal-item').style.display='flex';
             setModalTab('equip');
@@ -708,8 +597,20 @@
             else { if(data.eq.length>=3)return toast("Максимум 3"); data.eq.push(curItem); toast("Надето"); }
             save(); closeModal('modal-item');
         }
-        function sellItem(){ const p = Math.floor(curItem.p * 0.5); data.bal += p; data.inv = data.inv.filter(x=>x.id!==curItem.id); data.eq = data.eq.filter(x=>x.id!==curItem.id); save(); closeModal('modal-item'); toast("Продано +"+p); }
-        function sellP2P(){ const p=parseInt(document.getElementById('p2p-p').value); if(!p)return; data.inv = data.inv.filter(x=>x.id!==curItem.id); data.eq = data.eq.filter(x=>x.id!==curItem.id); db.runTransaction(async t=>{ const d=await t.get(db.collection('users').doc(myNick)); t.update(db.collection('users').doc(myNick), {inv:d.data().inv.filter(x=>x.id!==curItem.id), eq:d.data().eq.filter(x=>x.id!==curItem.id)}); t.set(db.collection('market').doc(), {seller:myNick, p:p, nft:curItem, ts:Date.now()}); }).then(()=>{ closeModal('modal-item'); toast("На рынке!"); loadP2P(); }); }
+        function sellItem(){
+            const p = Math.floor(curItem.p * 0.5); data.bal += p;
+            data.inv = data.inv.filter(x=>x.id!==curItem.id); data.eq = data.eq.filter(x=>x.id!==curItem.id);
+            save(); closeModal('modal-item'); toast("Продано +"+p);
+        }
+        function sellP2P(){
+            const p=parseInt(document.getElementById('p2p-p').value); if(!p)return;
+            data.inv = data.inv.filter(x=>x.id!==curItem.id); data.eq = data.eq.filter(x=>x.id!==curItem.id);
+            db.runTransaction(async t=>{
+                const d=await t.get(db.collection('users').doc(myNick));
+                t.update(db.collection('users').doc(myNick), {inv:d.data().inv.filter(x=>x.id!==curItem.id), eq:d.data().eq.filter(x=>x.id!==curItem.id)});
+                t.set(db.collection('market').doc(), {seller:myNick, p:p, nft:curItem, ts:Date.now()});
+            }).then(()=>{ closeModal('modal-item'); toast("На рынке!"); loadP2P(); });
+        }
 
         // --- P2P ---
         function loadP2P(){
@@ -717,10 +618,9 @@
             db.collection('market').orderBy('ts','desc').limit(20).get().then(s=>{
                 l.innerHTML=''; s.forEach(d=>{
                     const dt=d.data(); const mine=dt.seller===myNick;
-                    const el=document.createElement('div'); el.className='card';
-                    el.style.background = dt.nft.bg || '#222';
+                    const el=document.createElement('div'); el.className=`card bg-${dt.nft.r}`;
                     const src=dt.nft.gif ? dt.nft.u : BASE+dt.nft.u;
-                    el.innerHTML=`<div class="nft-pill">By ${dt.seller}</div><img src="${src}" class="nft-img" style="${dt.nft.gif?'':'filter:'+dt.nft.hue}"><div class="nft-name">${dt.nft.n}</div><div>${dt.p}</div><button class="btn-sm ${mine?'btn-outline':'btn-gold'}" onclick="${mine?`delP2P('${d.id}')`:`buyP2P('${d.id}',${dt.p})`}">${mine?'Снять':'Купить'}</button>`;
+                    el.innerHTML=`<div class="nft-pill">By ${dt.seller}</div><img src="${src}" class="nft-img"><div class="nft-name">${dt.nft.n}</div><div>${dt.p}</div><button class="btn-sm ${mine?'btn-outline':'btn-gold'}" onclick="${mine?`delP2P('${d.id}')`:`buyP2P('${d.id}',${dt.p})`}">${mine?'Снять':'Купить'}</button>`;
                     l.appendChild(el);
                 });
             });
@@ -792,27 +692,11 @@
                 res.innerText = r.join(' ');
                 if(r[0]==r[1]&&r[1]==r[2]){data.bal+=b*10;toast("JACKPOT!");}
                 else if(r[0]==r[1]||r[1]==r[2]||r[0]==r[2]){data.bal+=Math.floor(b*2);toast("WIN");}
-                else toast("Lose");
                 save();
-            }, 1000);
+            },1000);
         }
 
-        // --- UTILS ---
-        function save(){
-            let v=0; data.inv.forEach(i=>v+=i.p);
-            db.collection('users').doc(myNick).update({bal:data.bal,en:data.en,inv:data.inv,eq:data.eq,upg:data.upg,style:data.style,tap:data.tap,reg:data.reg,botExp:data.botExp,invVal:v});
-        }
-        function nav(t,e){ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); e.classList.add('active'); if(t==='shop')renderShop('cheap'); if(t==='top')loadTop('balance'); if(t==='social') renderFriends(); }
-        function switchShop(t){ document.getElementById('view-shop').style.display=t==='shop'?'block':'none'; document.getElementById('view-p2p').style.display=t==='p2p'?'block':'none'; if(t==='p2p')loadP2P(); }
-        function switchGame(t){ ['mines','coin','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none'); document.getElementById('game-'+t).style.display='block'; }
-        function openModal(id){document.getElementById(id).style.display='flex'}
-        function closeModal(id){document.getElementById(id).style.display='none'}
-        function openBoost(){openModal('modal-boost')}
-        function toast(m){const t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
-        function adminGive(){const u=document.getElementById('adm-u').value;const a=parseInt(document.getElementById('adm-a').value);db.collection('users').doc(u).update({bal:firebase.firestore.FieldValue.increment(a)});toast("Gave");}
-        function adminUnban(){const u=document.getElementById('adm-u').value;db.collection('users').doc(u).update({ban:false});toast("Unbanned");}
-        function deleteAcc(){if(confirm("Удалить?")){db.collection('users').doc(myNick).delete();logout();}}
-        function changePass(){const p=prompt("Pass");if(p)db.collection('users').doc(myNick).update({pass:p});}
+        // --- SETTINGS & SOCIAL ---
         function buyCosm(t,c){ if(data.bal<c)return toast("$$"); if(data.upg[t])return toast("Есть"); data.bal-=c; data.upg[t]=true; save(); updateSettingsUI(); }
         function updateSettingsUI(){
             const ns=document.getElementById('sel-nick'); const fs=document.getElementById('sel-frame');
@@ -829,9 +713,28 @@
         function renderFriends(){const l=document.getElementById('friends-list');l.innerHTML='';data.fr.forEach(f=>{l.innerHTML+=`<div style="padding:10px;background:#222;margin-bottom:5px;border-radius:10px;display:flex;justify-content:space-between"><span>${f}</span><button class="btn-sm" onclick="openChat('${f}')">Chat</button></div>`});}
         function openChat(f){curChat=f;document.getElementById('chat-title').innerText=f;const c=myNick<f?myNick+f:f+myNick;if(chatUnsub)chatUnsub();chatUnsub=db.collection('chats').doc(c).collection('m').orderBy('t').limit(20).onSnapshot(s=>{const b=document.getElementById('chat-box');b.innerHTML='';s.forEach(d=>{const m=d.data();b.innerHTML+=`<div style="background:${m.u===myNick?'#444':'#222'};padding:5px;margin:5px;">${m.m}</div>`});});document.getElementById('modal-chat').style.display='flex';}
         function sendMsg(){const m=document.getElementById('chat-in').value;if(!m)return;const c=myNick<curChat?myNick+curChat:curChat+myNick;db.collection('chats').doc(c).collection('m').add({u:myNick,m:m,t:Date.now()});document.getElementById('chat-in').value='';}
+
+        // --- UPGRADES ---
         function upTap(){ const c=Math.floor(100*Math.pow(2,data.tap-1)); if(data.bal>=c){data.bal-=c;data.tap++;save();toast("UP!");} }
         function upReg(){ const c=Math.floor(100*Math.pow(2,data.reg-1)); if(data.bal>=c){data.bal-=c;data.reg++;save();toast("UP!");} }
         function buyBot(){ if(data.bal>=25000){data.bal-=25000;data.botExp=Date.now()+1800000;save();toast("Bot!");} }
+
+        // --- UTIL ---
+        function save(){
+            let v=0; data.inv.forEach(i=>v+=i.p);
+            db.collection('users').doc(myNick).update({bal:data.bal,en:data.en,inv:data.inv,eq:data.eq,upg:data.upg,style:data.style,tap:data.tap,reg:data.reg,botExp:data.botExp,invVal:v});
+        }
+        function nav(t,e){ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); e.classList.add('active'); if(t==='shop')renderShop('cheap'); if(t==='top')loadTop('balance'); if(t==='social') renderFriends(); }
+        function switchShop(t){ document.getElementById('view-shop').style.display=t==='shop'?'block':'none'; document.getElementById('view-p2p').style.display=t==='p2p'?'block':'none'; if(t==='p2p')loadP2P(); }
+        function switchGame(t){ ['mines','coin','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none'); document.getElementById('game-'+t).style.display='block'; }
+        function openModal(id){document.getElementById(id).style.display='flex'}
+        function closeModal(id){document.getElementById(id).style.display='none'}
+        function openBoost(){openModal('modal-boost')}
+        function toast(m){const t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
+        function adminGive(){const u=document.getElementById('adm-u').value;const a=parseInt(document.getElementById('adm-a').value);db.collection('users').doc(u).update({bal:firebase.firestore.FieldValue.increment(a)});toast("Gave");}
+        function adminUnban(){const u=document.getElementById('adm-u').value;db.collection('users').doc(u).update({ban:false});toast("Unbanned");}
+        function deleteAcc(){if(confirm("Удалить?")){db.collection('users').doc(myNick).delete();logout();}}
+        function changePass(){const p=prompt("Pass");if(p)db.collection('users').doc(myNick).update({pass:p});}
     </script>
 </body>
 </html>
