@@ -575,10 +575,37 @@
                     updateUI(); renderInv(); renderShop(); renderFriends(); renderCosmetics();
                     if(myNick==='kayivi') document.getElementById('admin-btn').style.display='block';
                     
-                    // Check notifications (simple check)
                     checkNotifications();
                 } else logout();
             });
+            
+            // Listen to Global Stats (For dynamic pricing)
+            db.collection('game').doc('stats').onSnapshot(s => {
+                if(s.exists) globalStats = s.data().items || {};
+                else globalStats = {};
+                renderShop(); // Update prices real-time
+            });
+
+            // Energy Loop (ИСПРАВЛЕННЫЙ)
+            let saveTick = 0;
+            setInterval(()=>{
+                if(data && !data.isBanned){
+                    // Slower Regen in Hardcore
+                    if(data.energy < 100) {
+                        let regen = (data.regenLvl || 1) * 0.2; 
+                        data.energy = Math.min(100, data.energy + regen);
+                        updateUI();
+                        
+                        // Сохраняем энергию в базу каждые 3 секунды
+                        saveTick++;
+                        if(saveTick >= 3) {
+                            save();
+                            saveTick = 0;
+                        }
+                    }
+                }
+            }, 1000);
+        }
             
             // Listen to Global Stats (For dynamic pricing)
             db.collection('game').doc('stats').onSnapshot(s => {
@@ -1158,4 +1185,5 @@
     </script>
 </body>
 </html>
+
 
