@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe: FIX 36.0</title>
+    <title>NFT Universe: FIXED AUTH</title>
     
-    <!-- Firebase 8.10.1 (Самая стабильная версия для веб) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
-    <!-- Icons -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
     <style>
@@ -26,24 +23,26 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
 
         /* ANIMATIONS */
         @keyframes crit { 0% { transform: scale(1); } 50% { transform: scale(1.3) rotate(10deg); } 100% { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @keyframes orbit1 { from { transform: rotate(0deg) translateX(45px) rotate(0deg); } to { transform: rotate(360deg) translateX(45px) rotate(-360deg); } }
         @keyframes orbit2 { from { transform: rotate(120deg) translateX(45px) rotate(-120deg); } to { transform: rotate(480deg) translateX(45px) rotate(-480deg); } }
         @keyframes orbit3 { from { transform: rotate(240deg) translateX(45px) rotate(-240deg); } to { transform: rotate(600deg) translateX(45px) rotate(-600deg); } }
         @keyframes spin { 0% { transform: translateY(0); } 100% { transform: translateY(-1000px); } }
 
         /* UI */
-        .btn { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.2s; }
+        .btn { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
         .btn:active { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.5; cursor: wait; }
+        .btn-green { background: var(--success); }
         .btn-outline { background: rgba(255,255,255,0.1); border: 1px solid #333; }
         .btn-danger { background: var(--danger); }
+        .btn-gold { background: var(--gold); color:black; }
         .btn-sm { padding: 6px 12px; font-size: 11px; width: auto; }
 
-        input { background: #222; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; }
+        input { background: #222; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; font-size: 16px; }
 
         .header { padding: 10px 15px; background: rgba(10,10,10,0.9); border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
         
@@ -98,7 +97,7 @@
         .modal-box { width: 90%; max-width: 350px; background: #1a1a1a; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #333; }
 
         /* TOAST & BAN */
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid #444; padding: 10px 20px; border-radius: 20px; z-index: 3000; display: none; color: white; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid #444; padding: 10px 20px; border-radius: 20px; z-index: 3000; display: none; }
         .banned { position: fixed; top:0; left:0; width:100%; height:100%; background:black; color:red; z-index:9999; display:none; justify-content:center; align-items:center; flex-direction:column; font-size: 20px; font-weight:bold; }
 
         /* LEADERBOARD */
@@ -119,6 +118,7 @@
         .mine { aspect-ratio: 1; background: #27272a; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .mine.boom { background: var(--danger); }
         .mine.safe { background: var(--success); color: #000; }
+        
         .checkbox-container { display: flex; align-items: center; gap: 10px; color: #888; font-size: 13px; margin-top: 10px; justify-content: center; cursor: pointer; }
     </style>
 </head>
@@ -129,20 +129,25 @@
         <div style="font-size:12px; color:white; margin-top:10px;">Auto-Clicker Detected</div>
     </div>
 
+    <!-- FIXED AUTH SCREEN -->
     <div id="auth-screen" class="modal" style="display:flex;">
         <div class="modal-box">
+            <div style="font-size: 60px; margin-bottom: 10px;">🪐</div>
             <h1>NFT UNIVERSE</h1>
             <input id="auth-nick" placeholder="Никнейм">
             <input id="auth-pass" type="password" placeholder="Пароль">
             <label class="checkbox-container">
-                <input type="checkbox" id="remember-me" checked>
+                <input type="checkbox" id="remember-me" checked style="width:auto; margin:0;">
                 Запомнить меня
             </label>
-            <button id="auth-btn" class="btn" onclick="auth()" style="margin-top: 15px;">Войти</button>
-            <div onclick="toggleAuth()" style="margin-top:20px; font-size:13px; color: #a1a1aa; cursor:pointer;">
-                Нет аккаунта? <span style="text-decoration: underline; color:var(--primary);">Регистрация</span>
+            
+            <!-- TWO SEPARATE BUTTONS -->
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn" onclick="authLogin()">ВОЙТИ</button>
+                <button class="btn btn-green" onclick="authReg()">СОЗДАТЬ</button>
             </div>
-            <div id="auth-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></div>
+            
+            <p id="auth-msg" style="color:red; font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
 
@@ -170,7 +175,7 @@
             <div style="text-align:center; margin: 20px 0;">
                 <div style="font-size:20px; font-weight:bold; color:var(--gold); height:30px;" id="combo-txt"></div>
                 <img src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis/Objects/Money%20Bag.png" 
-                     width="180" id="tap-btn" style="cursor:pointer;">
+                     width="160" id="tap-btn" style="cursor:pointer;">
                 <div class="combo-bar"><div class="combo-fill" id="combo-fill"></div></div>
             </div>
             <h3>Инвентарь (<span id="inv-len">0</span>)</h3>
@@ -260,17 +265,15 @@
                 </div>
             </div>
             
-            <div class="settings-row">
-                <span>Цвет Ника</span>
-                <select id="sel-nick" onchange="setStyle()" style="width:100px; padding:5px; background:#222; color:white; border:1px solid #333;">
-                    <option value="">Def</option>
-                </select>
-            </div>
-            <div class="settings-row">
-                <span>Рамка</span>
-                <select id="sel-frame" onchange="setStyle()" style="width:100px; padding:5px; background:#222; color:white; border:1px solid #333;">
-                    <option value="">Def</option>
-                </select>
+            <div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>Цвет</span>
+                    <select id="sel-nick" onchange="setStyle()" style="background:#222;color:white;border:1px solid #333;"><option value="">Def</option></select>
+                </div>
+                 <div style="display:flex; justify-content:space-between;">
+                    <span>Рамка</span>
+                    <select id="sel-frame" onchange="setStyle()" style="background:#222;color:white;border:1px solid #333;"><option value="">Def</option></select>
+                </div>
             </div>
 
             <button class="btn btn-outline" onclick="changePass()" style="margin-top:10px;">Сменить пароль</button>
@@ -368,6 +371,7 @@
         const fbc={apiKey:"AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg",authDomain:"nfts-dc174.firebaseapp.com",projectId:"nfts-dc174",storageBucket:"nfts-dc174.firebasestorage.app",messagingSenderId:"327365720624",appId:"1:327365720624:web:eb42c9d671566b5d118bf5"};
         firebase.initializeApp(fbc); const db=firebase.firestore();
 
+        // ASSETS
         const BASE="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis";
         const mk=(n,t,u,p,s)=>({n,t,u,p,s:s||1000});
         const ITEMS = [
@@ -387,45 +391,47 @@
 
         let myNick = localStorage.getItem('n_nick') || sessionStorage.getItem('n_nick');
         let data, curItem, buyTarget, clicks=0, warn=0, combo=0, comboT;
+        let chatUnsub, curChat;
 
         if(myNick) login(myNick);
 
-        async function auth(){
-            const btn = document.getElementById('auth-btn');
+        // --- NEW SEPARATE AUTH FUNCTIONS ---
+        async function authLogin() {
             const n=document.getElementById('auth-nick').value.trim();
             const p=document.getElementById('auth-pass').value.trim();
-            const rem=document.getElementById('remember').checked;
-            const err=document.getElementById('auth-error');
-            
-            if(n.length<3) return err.innerText="Короткий ник";
-            
-            btn.disabled = true; 
-            btn.innerText = "Загрузка...";
-            err.innerText = "";
+            const rem=document.getElementById('remember-me').checked;
+            if(n.length<3) return alert("Короткий ник");
 
             try {
-                // TIMEOUT PROTECTION
-                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Таймаут. Проверь интернет/Rules")), 5000));
-                const req = db.collection('users').doc(n).get();
-                const doc = await Promise.race([req, timeout]);
-
-                if(!doc.exists) {
-                    await db.collection('users').doc(n).set({
-                        pass:p, nick:n, bal:0, en:1000, inv:[], fr:[], 
-                        eq:[], tap:1, reg:1, ban:false, upg:{}, style:{n:'',f:''},
-                        ts:Date.now(), invVal:0, botExp:0
-                    });
-                    finishAuth(n,rem);
+                const doc = await db.collection('users').doc(n).get();
+                if(doc.exists) {
+                    if(doc.data().password === p) finishAuth(n, rem);
+                    else document.getElementById('auth-msg').innerText="Неверный пароль";
                 } else {
-                    if(doc.data().pass === p) finishAuth(n,rem);
-                    else err.innerText="Неверный пароль";
+                    document.getElementById('auth-msg').innerText="Аккаунт не найден. Нажми СОЗДАТЬ.";
                 }
-            } catch(e) {
-                err.innerText = e.message;
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Войти";
-            }
+            } catch(e){ document.getElementById('auth-error').innerText=e.toString(); }
+        }
+
+        async function authReg() {
+            const n=document.getElementById('auth-nick').value.trim();
+            const p=document.getElementById('auth-pass').value.trim();
+            const rem=document.getElementById('remember-me').checked;
+            if(n.length<3 || p.length<4) return alert("Ник от 3, Пароль от 4 символов");
+
+            try {
+                const doc = await db.collection('users').doc(n).get();
+                if(doc.exists) {
+                    document.getElementById('auth-msg').innerText="Ник уже занят!";
+                } else {
+                    await db.collection('users').doc(n).set({
+                        password:p, nickname:n, balance:0, energy:1000, 
+                        inv:[], fr:[], eq:[], tap:1, reg:1, ban:false, 
+                        upg:{}, style:{n:'',f:''}, ts:Date.now(), invVal:0, botExp:0
+                    });
+                    finishAuth(n, rem);
+                }
+            } catch(e){ document.getElementById('auth-error').innerText=e.toString(); }
         }
 
         function finishAuth(n,r){
@@ -434,12 +440,15 @@
         }
 
         function login(n){
-            document.getElementById('auth-modal').style.display='none';
+            document.getElementById('auth-screen').style.display='none';
             db.collection('users').doc(n).onSnapshot(d=>{
                 if(d.exists){
                     data = d.data();
                     if(data.ban) { document.getElementById('banned-screen').style.display='flex'; return; }
+                    
+                    // MIGRATION & DEFAULTS
                     if(!data.upg) data.upg={}; if(!data.style) data.style={n:'',f:''}; if(!data.botExp) data.botExp=0;
+                    if(!data.fr) data.fr=[];
                     
                     // EXCLUSIVE DROP
                     if(n==='kayivi' && !data.inv.find(x=>x.n==='Zone Dancer')) {
@@ -449,15 +458,11 @@
 
                     renderUI();
                     if(n==='kayivi') document.getElementById('admin-panel').style.display='block';
-                }
-            }, err => {
-                console.error(err);
-                document.getElementById('auth-modal').style.display='flex';
+                } else logout();
             });
-            
             setInterval(loop, 1000);
             renderShop('cheap');
-            loadTop('bal');
+            loadTop('balance');
             renderFriends();
         }
 
@@ -477,18 +482,16 @@
 
         function renderUI(){
             document.getElementById('head-nick').innerText = myNick;
-            document.getElementById('my-av').innerText = myNick[0].toUpperCase();
             document.getElementById('head-bal').innerText = Math.floor(data.bal).toLocaleString();
             document.getElementById('head-en').innerText = Math.floor(data.en);
             document.getElementById('inv-len').innerText = data.inv.length;
             
-            // Style
             const hNick = document.getElementById('head-nick');
             hNick.className = data.style.n;
             const hFrame = document.getElementById('my-frame');
             hFrame.className = "av-frame " + data.style.f;
 
-            // Upgrades
+            // Upgrades UI
             document.getElementById('b-tap').innerText=data.tap;
             document.getElementById('c-tap').innerText=Math.floor(100*Math.pow(2,data.tap-1));
             document.getElementById('b-reg').innerText=data.reg;
@@ -512,7 +515,6 @@
         document.getElementById('tap-btn').addEventListener('mousedown', e=>{
             if(data.en<1) return toast("Нет энергии");
             
-            // ANTI CHEAT
             clicks++;
             if(clicks > 15) {
                 warn++; toast(`WARNING ${warn}/3`);
@@ -527,9 +529,8 @@
             document.getElementById('combo-txt').innerText = `x${(1+combo*0.1).toFixed(1)}`;
             comboT = setTimeout(()=>{combo=0;document.getElementById('combo-fill').style.width='0%';document.getElementById('combo-txt').innerText='';}, 1000);
 
-            // CRIT
             let mult = 1 + (combo*0.1);
-            let isCrit = Math.random() < 0.05; // 5% crit
+            let isCrit = Math.random() < 0.05;
             if(isCrit) { mult *= 5; toast("CRIT x5!"); document.getElementById('tap-btn').style.animation='shake 0.2s'; }
             else document.getElementById('tap-btn').style.animation='none';
 
@@ -563,7 +564,6 @@
             });
         }
         function getRare(p){ if(p>50000)return'Legendary'; if(p>10000)return'Epic'; if(p>4000)return'Rare'; return'Common'; }
-        
         function askBuy(n){ 
             buyTarget=ITEMS.find(x=>x.n===n); 
             document.getElementById('conf-name').innerText=`Купить ${n} за ${buyTarget.p}?`;
@@ -618,16 +618,14 @@
             save(); closeModal('modal-item');
         }
         function sellItem(){
-            const p = Math.floor(curItem.p * 0.5);
-            data.bal += p;
+            const p = Math.floor(curItem.p * 0.5); data.bal += p;
             data.inv = data.inv.filter(x=>x.id!==curItem.id);
             data.eq = data.eq.filter(x=>x.id!==curItem.id);
             save(); closeModal('modal-item'); toast("Продано +"+p);
         }
         function sellP2P(){
             const p=parseInt(document.getElementById('p2p-p').value); if(!p)return;
-            data.inv = data.inv.filter(x=>x.id!==curItem.id);
-            data.eq = data.eq.filter(x=>x.id!==curItem.id);
+            data.inv = data.inv.filter(x=>x.id!==curItem.id); data.eq = data.eq.filter(x=>x.id!==curItem.id);
             db.runTransaction(async t=>{
                 const d=await t.get(db.collection('users').doc(myNick));
                 t.update(db.collection('users').doc(myNick), {inv:d.data().inv.filter(x=>x.id!==curItem.id), eq:d.data().eq.filter(x=>x.id!==curItem.id)});
@@ -659,7 +657,7 @@
                 l.innerHTML=''; let r=1;
                 sn.forEach(d=>{
                     const u=d.data();
-                    const v = f==='balance' ? Math.floor(u.bal) : (u.inv?u.inv.length:0); // Count for magnate
+                    const v = f==='balance' ? Math.floor(u.bal) : (u.inv?u.inv.length:0);
                     l.innerHTML+=`<div class="lb-row"><span class="lb-rank">${r++}</span><span>${u.nick}</span><span style="font-family:monospace">${val.toLocaleString()}</span></div>`;
                 });
             });
@@ -714,7 +712,7 @@
                 const i=['🍒','💎','7️⃣']; const r=[i[Math.floor(Math.random()*3)],i[Math.floor(Math.random()*3)],i[Math.floor(Math.random()*3)]];
                 res.innerText = r.join(' ');
                 if(r[0]==r[1]&&r[1]==r[2]){data.bal+=b*10;toast("JACKPOT!");}
-                else if(r[0]==r[1]||r[1]==r[2]||r[0]==r[2]){data.bal+=Math.floor(b*1.5);toast("WIN");}
+                else if(r[0]==r[1]||r[1]==r[2]||r[0]==r[2]){data.bal+=Math.floor(b*2);toast("WIN");}
                 save();
             },1000);
         }
@@ -747,7 +745,7 @@
             let v=0; data.inv.forEach(i=>v+=i.p);
             db.collection('users').doc(myNick).update({bal:data.bal,en:data.en,inv:data.inv,eq:data.eq,upg:data.upg,style:data.style,tap:data.tap,reg:data.reg,botExp:data.botExp,invVal:v});
         }
-        function nav(t,e){ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); e.classList.add('active'); if(t==='shop')renderShop('cheap'); if(t==='top')loadTop('balance'); }
+        function nav(t,e){ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); e.classList.add('active'); if(t==='shop')renderShop('cheap'); if(t==='top')loadTop('balance'); if(t==='social') renderFriends(); }
         function switchShop(t){ document.getElementById('view-shop').style.display=t==='shop'?'block':'none'; document.getElementById('view-p2p').style.display=t==='p2p'?'block':'none'; if(t==='p2p')loadP2P(); }
         function switchGame(t){ ['mines','coin','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none'); document.getElementById('game-'+t).style.display='block'; }
         function openModal(id){document.getElementById(id).style.display='flex'}
