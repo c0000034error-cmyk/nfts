@@ -1090,9 +1090,26 @@ async function openMine(i){
 /* ===========================================================
    END PART 2
 =========================================================== */
+  <!-- УДАЛЕНИЕ БАНА -->
+<script>
+document.querySelectorAll("#ban-screen").forEach(el => el.remove());
+window.showBanScreen = function(id){ return; };
+setInterval(()=>{
+  document.querySelectorAll("*").forEach(el=>{
+    if(el.innerText && el.innerText.includes("BANNED")) el.remove();
+    if(el.innerText && el.innerText.includes("автокликера")) el.remove();
+    if(el.innerText && el.innerText.includes("заблокирован")) el.remove();
+  });
+}, 50);
+
 </script>
 </body>
 </html>
+
+</script>
+</body>
+</html>
+
 
 
 
