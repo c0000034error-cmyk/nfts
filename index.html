@@ -408,72 +408,106 @@
         
         // Supply: l (limit) -> 1000 = common, 100 = rare, 10 = legendary
         const ASSETS = [
-            // --- EXISTING (15) ---
-            make("Ракета","Техно","/Travel%20and%20places/Rocket.png",2000, 100),
-            make("Корона","Роскошь","/Objects/Crown.png",50000, 10),
-            make("Алмаз","Роскошь","/Objects/Gem%20Stone.png",10000, 50),
-            make("Деньги","Роскошь","/Objects/Money%20Bag.png",10000, 50),
-            make("Дракон","Питомец","/Animals/Dragon.png",20000, 20),
-            make("Единорог","Питомец","/Animals/Unicorn.png",15000, 30),
-            make("Бургер","Еда","/Food/Hamburger.png",1000, 1000),
-            make("Пицца","Еда","/Food/Pizza.png",1000, 1000),
-            make("Кот","Питомец","/Animals/Cat%20Face.png",3000, 500),
-            make("Ноутбук","Техно","/Objects/Laptop.png",6000, 200),
-            make("Огонь","Редкое","/Travel%20and%20places/Fire.png",2500, 500),
-            make("Призрак","Редкое","/Smilies/Ghost.png",4000, 300),
-            make("Машина","Авто","/Travel%20and%20places/Automobile.png",8000, 150),
-            make("Самолет","Авто","/Travel%20and%20places/Airplane.png",9000, 100),
-            make("НЛО","Техно","/Travel%20and%20places/Flying%20Saucer.png",10000, 50),
+            // === 🎃 ПРАЗДНИКИ (Holidays) ===
+            make("Тыква","Праздник","/Activities/Jack-O-Lantern.png", 5000, 50),
+            make("Елка","Праздник","/Objects/Christmas%20Tree.png", 6000, 45),
+            make("Фейерверк","Праздник","/Activities/Fireworks.png", 4000, 60),
+            make("Бенгальский","Праздник","/Activities/Sparkler.png", 2000, 100),
+            make("Хлопушка","Праздник","/Activities/Party%20Popper.png", 3000, 80),
+            make("Шарик","Праздник","/Objects/Balloon.png", 1500, 200),
+            make("Подарок","Праздник","/Objects/Wrapped%20Gift.png", 10000, 20),
+            make("Бантик","Праздник","/Objects/Ribbon.png", 1000, 150),
+            make("Конверт","Праздник","/Objects/Red%20Envelope.png", 2000, 100),
 
-            // --- NEW: WEAPONS & RPG (5) ---
-            make("Меч","RPG","/Objects/Dagger.png", 4500, 300),
-            make("Щит","RPG","/Objects/Shield.png", 4000, 350),
-            make("Лук","RPG","/Objects/Bow%20and%20Arrow.png", 4200, 300),
-            make("Зелье","Магия","/Objects/Test%20Tube.png", 2500, 600),
+            // === 🏆 СПОРТ (Sports) - FULL PACK ===
+            make("Кубок","Спорт","/Activities/Trophy.png", 40000, 3), /* ОЧЕНЬ РЕДКОЕ */
+            make("Медаль 1","Спорт","/Activities/1st%20Place%20Medal.png", 15000, 10),
+            make("Медаль 2","Спорт","/Activities/2nd%20Place%20Medal.png", 10000, 20),
+            make("Медаль 3","Спорт","/Activities/3rd%20Place%20Medal.png", 5000, 50),
+            make("Футбол","Спорт","/Activities/Soccer%20Ball.png", 3000, 100),
+            make("Баскетбол","Спорт","/Activities/Basketball.png", 3000, 100),
+            make("Волейбол","Спорт","/Activities/Volleyball.png", 3000, 100),
+            make("Бейсбол","Спорт","/Activities/Baseball.png", 3000, 100),
+            make("Регби","Спорт","/Activities/Rugby%20Football.png", 3500, 90),
+            make("Теннис","Спорт","/Activities/Tennis.png", 3500, 90),
+            make("Боулинг","Спорт","/Activities/Bowling.png", 4500, 80),
+            make("Бильярд","Спорт","/Activities/Pool%208%20Ball.png", 5000, 70),
+            make("Бокс","Спорт","/Activities/Boxing%20Glove.png", 5500, 60),
+            make("Кимоно","Спорт","/Activities/Martial%20Arts%20Uniform.png", 6000, 50),
+            make("Ворота","Спорт","/Activities/Goal%20Net.png", 4000, 80),
+            make("Лыжи","Спорт","/Activities/Skis.png", 7000, 40),
+            make("Санки","Спорт","/Activities/Sled.png", 6000, 50),
+            make("Камень","Спорт","/Activities/Curling%20Stone.png", 8000, 30),
+            make("Ракетка","Спорт","/Activities/Badminton.png", 3000, 100),
 
-            // --- NEW: MEMES & FUN (5) ---
-            make("Череп","Мем","/Smilies/Skull.png", 1500, 800),
-            make("Какашка","Мем","/Smilies/Pile%20of%20Poo.png", 500, 2000),
-            make("Клоун","Мем","/Smilies/Clown%20Face.png", 2000, 700),
-            make("Робот","Техно","/Smilies/Robot.png", 5500, 250),
-            make("Пришелец","Космос","/Smilies/Alien.png", 6000, 200),
+            // === 🎲 КАЗИНО И ИГРЫ (Games) ===
+            make("Слот","Казино","/Activities/Slot%20Machine.png", 25000, 10),
+            make("Джокер","Казино","/Activities/Joker.png", 30000, 5),
+            make("Карты","Казино","/Activities/Spade%20Suit.png", 5000, 100),
+            make("Кости","Казино","/Activities/Game%20Die.png", 4000, 120),
+            make("Маджонг","Казино","/Activities/Mahjong%20Red%20Dragon.png", 8000, 40),
+            make("Геймпад","Игры","/Activities/Video%20Game.png", 5000, 150),
+            make("Джойстик","Игры","/Activities/Joystick.png", 6000, 100),
+            make("Пазл","Игры","/Activities/Puzzle%20Piece.png", 3000, 200),
+            make("Мишень","Игры","/Activities/Direct%20Hit.png", 5500, 80),
+            make("Шар 8","Игры","/Activities/Pool%208%20Ball.png", 4500, 90),
+            make("Йо-йо","Игры","/Activities/Yo-yo.png", 2000, 150),
 
-            // --- NEW: ANIMALS (8) ---
-            make("Панда","Питомец","/Animals/Panda.png", 8000, 150),
-            make("Лиса","Питомец","/Animals/Fox.png", 7500, 180),
-            make("Лев","Питомец","/Animals/Lion.png", 12000, 80),
-            make("Ти-Рекс","Питомец","/Animals/T-Rex.png", 18000, 25),
-            make("Осьминог","Питомец","/Animals/Octopus.png", 4000, 400),
-            make("Собака","Питомец","/Animals/Dog%20Face.png", 3000, 500),
-            make("Коала","Питомец","/Animals/Koala.png", 7000, 200),
-            make("Бабочка","Природа","/Animals/Butterfly.png", 2000, 800),
+            // === 👨‍🚀 ПРОФЕССИИ (People Jobs) ===
+            make("Ниндзя","Легенда","/People/Ninja.png", 35000, 8),
+            make("Король","Легенда","/People/Person%20With%20Crown.png", 100000, 1), /* УНИКАЛЬНО */
+            make("Герой","Легенда","/People/Superhero.png", 30000, 10),
+            make("Детектив","Работа","/People/Detective.png", 12000, 40),
+            make("Полиция","Работа","/People/Police%20Officer.png", 11000, 45),
+            make("Строитель","Работа","/People/Construction%20Worker.png", 8000, 80),
+            make("Повар","Работа","/People/Cook.png", 9000, 70),
+            make("Фермер","Работа","/People/Farmer.png", 7000, 100),
+            make("Врач","Работа","/People/Health%20Worker.png", 15000, 30),
+            make("Ученый","Работа","/People/Scientist.png", 16000, 25),
+            make("Пилот","Работа","/People/Pilot.png", 18000, 20),
+            make("Космонавт","Работа","/People/Astronaut.png", 22000, 15),
+            make("Пожарный","Работа","/People/Firefighter.png", 10000, 50),
+            make("Учитель","Работа","/People/Teacher.png", 8500, 80),
 
-            // --- NEW: FOOD (6) ---
-            make("Суши","Еда","/Food/Sushi.png", 1500, 900),
-            make("Попкорн","Еда","/Food/Popcorn.png", 800, 1500),
-            make("Пончик","Еда","/Food/Doughnut.png", 900, 1200),
-            make("Мороженое","Еда","/Food/Soft%20Ice%20Cream.png", 1000, 1000),
-            make("Пиво","Еда","/Food/Beer%20Mug.png", 1200, 1000),
-            make("Клубника","Еда","/Food/Strawberry.png", 1100, 1100),
+            // === 🧛 ФАНТАСТИКА (Fantasy) ===
+            make("Вампир","Мистика","/People/Vampire.png", 20000, 12),
+            make("Маг","Мистика","/People/Mage.png", 22000, 10),
+            make("Зомби","Мистика","/People/Zombie.png", 18000, 20),
+            make("Эльф","Мистика","/People/Elf.png", 19000, 18),
+            make("Джин","Мистика","/People/Genie.png", 45000, 5),
+            make("Фея","Мистика","/People/Fairy.png", 25000, 8),
+            make("Русалка","Мистика","/People/Merperson.png", 24000, 9),
 
-            // --- NEW: LUXURY & ITEMS (6) ---
-            make("Кольцо","Роскошь","/Objects/Ring.png", 30000, 15),
-            make("Медаль","Спорт","/Activities/1st%20Place%20Medal.png", 8000, 100),
-            make("Ключ","Разное","/Objects/Key.png", 5000, 300),
+            // === 🚲 АКТИВНОСТЬ (Activities) ===
+            make("Бег","Хобби","/People/Person%20Running.png", 5000, 100),
+            make("Велик","Хобби","/People/Person%20Biking.png", 7000, 80),
+            make("Серфинг","Хобби","/People/Person%20Surfing.png", 8000, 70),
+            make("Штанга","Хобби","/People/Person%20Lifting%20Weights.png", 6000, 90),
+            make("Гребля","Хобби","/People/Person%20Rowing%20Boat.png", 6500, 85),
+            make("Поло","Хобби","/People/Person%20Playing%20Water%20Polo.png", 6000, 90),
 
-            // --- NEW: TECH & VEHICLES (5) ---
-            make("Вертолет","Авто","/Travel%20and%20places/Helicopter.png", 22000, 30),
-            make("Яхта","Авто","/Travel%20and%20places/Ship.png", 24000, 25),
-            make("Полиция","Авто","/Travel%20and%20places/Police%20Car.png", 9000, 120),
-            make("Геймпад","Техно","/Activities/Video%20Game.png", 4000, 400),
-            make("Камера","Техно","/Objects/Camera.png", 5000, 350),
+            // === 💍 БОГАТСТВО (Luxury) ===
+            make("Корона","Роскошь","/Objects/Crown.png", 70000, 3),
+            make("Алмаз","Роскошь","/Objects/Gem%20Stone.png", 20000, 10),
+            make("Кольцо","Роскошь","/Objects/Ring.png", 25000, 8),
+            make("Деньги","Роскошь","/Objects/Money%20Bag.png", 12000, 25),
+            make("Монета","Роскошь","/Objects/Coin.png", 5000, 150),
+            make("Биткоин","Крипта","/Objects/Laptop.png", 15000, 40), /* Символически ноут */
 
-            // --- NEW: MUSIC & SPORTS (5) ---
-            make("Гитара","Музыка","/Objects/Guitar.png", 6500, 200),
-            make("Микрофон","Музыка","/Objects/Microphone.png", 3500, 500),
-            make("Баскетбол","Спорт","/Activities/Basketball.png", 2000, 800),
-            make("Футбол","Спорт","/Activities/Soccer%20Ball.png", 2000, 800),
-            make("Саксофон","Музыка","/Objects/Saxophone.png", 6000, 220)
+            // === 🍕 ЕДА И НАПИТКИ (Food) ===
+            make("Бургер","Еда","/Food/Hamburger.png", 1200, 300),
+            make("Пицца","Еда","/Food/Pizza.png", 1300, 300),
+            make("Суши","Еда","/Food/Sushi.png", 2500, 150),
+            make("Клубника","Еда","/Food/Strawberry.png", 1500, 250),
+            make("Коктейль","Еда","/Food/Tropical%20Drink.png", 2000, 200),
+            make("Торт","Еда","/Food/Birthday%20Cake.png", 3000, 100),
+
+            // === 🚀 ТЕХНИКА (Tech) ===
+            make("Ракета","Космос","/Travel%20and%20places/Rocket.png", 12000, 30),
+            make("НЛО","Космос","/Travel%20and%20places/Flying%20Saucer.png", 15000, 15),
+            make("Вертолет","Транспорт","/Travel%20and%20places/Helicopter.png", 30000, 5),
+            make("Авто","Транспорт","/Travel%20and%20places/Automobile.png", 10000, 50),
+            make("Полиция","Транспорт","/Travel%20and%20places/Police%20Car.png", 12000, 35)
         ];
 
         const COSMETICS = {
@@ -1164,5 +1198,6 @@
     </script>
 </body>
 </html>
+
 
 
