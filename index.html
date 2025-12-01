@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT UNIVERSE: FIXED FINAL</title>
+    <title>NFT Universe: HARDCORE</title>
     
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
     <style>
         :root {
-            --bg: #000000;
+            --bg: #050505;
             --surface: #121212;
             --primary: #6366f1;
             --accent: #d946ef;
@@ -19,108 +21,158 @@
             --danger: #ef4444;
             --success: #10b981;
             --text: #ffffff;
-            --radius: 14px;
+            --radius: 16px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         body {
             background: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 0; height: 100vh;
             display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* --- FX --- */
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
-        @keyframes pulseGold { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(251, 191, 36, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
-        @keyframes reelBlur { 0% { filter: blur(0); transform:translateY(0); } 50% { filter: blur(4px); transform:translateY(-10px); } 100% { filter: blur(0); transform:translateY(0); } }
-        
-        .spin-active { animation: reelBlur 0.2s infinite; opacity: 0.7; }
+        /* --- ANIMATIONS --- */
+        @keyframes critPop { 0% { transform: scale(1); } 50% { transform: scale(1.5) rotate(10deg); } 100% { transform: scale(1); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        @keyframes orbit1 { from { transform: rotate(0deg) translateX(45px) rotate(0deg); } to { transform: rotate(360deg) translateX(45px) rotate(-360deg); } }
+        @keyframes orbit2 { from { transform: rotate(120deg) translateX(45px) rotate(-120deg); } to { transform: rotate(480deg) translateX(45px) rotate(-480deg); } }
+        @keyframes orbit3 { from { transform: rotate(240deg) translateX(45px) rotate(-240deg); } to { transform: rotate(600deg) translateX(45px) rotate(-600deg); } }
+        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        @keyframes slotSpin { 0% { transform: translateY(0); filter: blur(0); } 50% { transform: translateY(-20px); filter: blur(2px); } 100% { transform: translateY(20px); filter: blur(2px); } }
 
-        /* --- UI --- */
+        /* --- UI COMPONENTS --- */
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: #fff; border: none; padding: 14px; border-radius: 12px;
-            font-weight: 800; font-size: 14px; width: 100%; cursor: pointer;
+            font-weight: 700; font-size: 14px; width: 100%; cursor: pointer;
             display: flex; justify-content: center; align-items: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); transition: 0.1s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); transition: 0.1s;
         }
         .btn:active { transform: scale(0.96); }
-        .btn:disabled { opacity: 0.5; filter: grayscale(1); }
-        .btn-outline { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; color:white; }
+        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; color:white; }
         .btn-danger { background: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
-        .btn-success { background: var(--success); color: #000; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
-        .btn-gold { background: var(--gold); color: #000; }
-        .btn-sm { padding: 8px 12px; font-size: 11px; width: auto; border-radius: 8px; }
+        .btn-gold { background: var(--gold); color: black; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); }
+        .btn-sm { padding: 6px 12px; font-size: 11px; width: auto; border-radius: 8px; }
+        .btn:disabled { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
 
-        input { background: #1a1a1a; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; font-size: 16px; }
+        input, select {
+            background: #222; border: 1px solid #333;
+            padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; font-size: 16px;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .header {
+            padding: 10px 15px; padding-top: max(10px, env(safe-area-inset-top));
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 50;
+        }
+
+        .avatar-frame {
+            width: 45px; height: 45px; border-radius: 50%; background: #222;
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;
+            border: 2px solid transparent; margin-right: 10px; position: relative;
+        }
+        .orbiter { position: absolute; width: 22px; height: 22px; z-index: 1; pointer-events: none; filter: drop-shadow(0 0 5px black); }
+        .orb-1 { animation: orbit1 6s linear infinite; }
+        .orb-2 { animation: orbit2 6s linear infinite; }
+        .orb-3 { animation: orbit3 6s linear infinite; }
+
+        /* Cosmetics Styles */
+        .frame-default { border: 2px solid #333; }
+        .frame-gold { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .frame-neon { border-color: #00f2ff; box-shadow: 0 0 10px #00f2ff; }
+        .frame-red { border-color: var(--danger); box-shadow: 0 0 10px var(--danger); }
+        .frame-purple { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
         
-        .header { padding: 15px; padding-top: max(15px, env(safe-area-inset-top)); background: rgba(10,10,10,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; z-index: 50; }
-        .avatar-container { width: 45px; height: 45px; position: relative; }
-        .avatar-frame { width: 100%; height: 100%; border-radius: 50%; background: #222; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; border: 2px solid transparent; }
-        
-        .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
-        .screen { display: none; }
-        .screen.active { display: block; animation: float 0.3s ease-out; }
+        .nick-gold { color: var(--gold); text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+        .nick-neon { color: #00f2ff; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+        .nick-red { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+        .nick-purple { color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.5); }
 
-        /* GRID */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding-bottom: 20px; }
-        .card { border-radius: 14px; padding: 10px; position: relative; display: flex; flex-direction: column; align-items: center; border: 1px solid #222; background: #181818; transition: 0.2s; overflow: hidden; }
-        .card:active { transform: scale(0.98); }
-        .nft-img { width: 75px; height: 75px; object-fit: contain; margin: 5px 0; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
-        .supply-tag { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; font-size: 8px; padding: 2px 4px; border-radius: 4px; font-weight: 800; z-index: 2; }
+        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .screen { display: none; animation: float 0.3s ease-out; }
+        .screen.active { display: block; }
 
-        /* TAP */
-        #tap-btn { width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle at 30%, #333, #000); box-shadow: 0 0 50px rgba(99,102,241,0.2); display: flex; justify-content: center; align-items: center; margin: 20px auto; border: 4px solid #222; position: relative; z-index: 10; transition: transform 0.05s; }
+        /* TAP AREA */
+        #tap-btn { transition: transform 0.05s; position: relative; }
         #tap-btn:active { transform: scale(0.95); }
-        .fever-active { border-color: var(--gold) !important; box-shadow: 0 0 50px var(--gold) !important; animation: pulseGold 1s infinite; }
+        .crit-shake { animation: shake 0.5s; }
 
-        /* 3D */
-        .inspect-box { perspective: 800px; display: flex; justify-content: center; margin: 20px 0; }
-        .nft-3d { width: 180px; height: 250px; background: #222; border-radius: 16px; transform-style: preserve-3d; transition: transform 0.1s; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-
-        /* GAMES */
-        .slot-row { display: flex; gap: 5px; justify-content: center; background: #222; padding: 10px; border-radius: 12px; margin-bottom: 15px; }
-        .slot-reel { width: 60px; height: 70px; background: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 32px; overflow: hidden; border: 1px solid #333; }
+        /* CARDS */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding-bottom: 20px; }
+        .card {
+            border-radius: var(--radius); padding: 10px; position: relative;
+            display: flex; flex-direction: column; align-items: center;
+            border: 1px solid rgba(255,255,255,0.05); overflow: hidden;
+            background: #18181b;
+        }
         
-        .mines-field { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 240px; margin: 0 auto; }
-        .mine { aspect-ratio: 1; background: #222; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid #333; }
+        .nft-img { width: 80px; height: 80px; object-fit: contain; margin: 10px 0; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); transition: 0.2s; }
+        .nft-name { font-size: 12px; font-weight: 700; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
+        .nft-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); color: #ccc; margin-bottom: 2px; }
+        .equipped-marker { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 5px var(--success); }
 
+        .navbar { position: fixed; bottom: 0; width: 100%; background: rgba(24, 24, 27, 0.95); display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); z-index: 100; }
+        .nav-item { color: #71717a; font-size: 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
+        .nav-item i { font-size: 22px; }
+        .nav-item.active { color: var(--primary); transform: translateY(-3px); }
+
+        /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-        .modal-box { width: 100%; max-width: 360px; background: #141414; padding: 24px; border-radius: 20px; text-align: center; border: 1px solid #333; max-height: 80vh; overflow-y: auto; }
+        .modal-box { width: 100%; max-width: 380px; background: #18181b; padding: 24px; border-radius: 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
 
-        .tabs { display: flex; background: #1a1a1a; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
-        .tab { flex: 1; text-align: center; padding: 10px; border-radius: 10px; font-size: 12px; color: #888; cursor: pointer; }
-        .tab.active { background: #333; color: white; font-weight: bold; }
+        .tabs { display: flex; background: #27272a; padding: 4px; border-radius: 12px; margin-bottom: 20px; overflow-x: auto; }
+        .tab { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 12px; color: #a1a1aa; cursor: pointer; white-space: nowrap; }
+        .tab.active { background: #3f3f46; color: white; font-weight: bold; }
 
-        .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: #222; padding: 10px 20px; border-radius: 20px; border: 1px solid #333; z-index: 9999; display: none; color: white; font-size: 13px; font-weight: bold; pointer-events: none; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); padding: 12px 24px; border-radius: 30px; z-index: 3000; display: none; border: 1px solid rgba(255,255,255,0.15); font-size: 14px; font-weight: 500; box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: white; display: flex; align-items: center; gap: 10px; }
 
-        .navbar { position: fixed; bottom: 0; width: 100%; background: #0f0f0f; display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); border-top: 1px solid #222; z-index: 100; }
-        .nav-item { color: #555; font-size: 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 20px; }
+        /* BAN SCREEN */
+        #ban-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #220000; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        #ban-screen h1 { font-size: 40px; color: var(--danger); text-transform: uppercase; animation: pulseRed 1s infinite; }
+
+        /* GAME SPECIFICS */
+        .slot-row { font-size: 50px; margin: 20px 0; letter-spacing: 15px; background: #000; padding: 10px; border-radius: 10px; border: 2px solid #333; overflow: hidden; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .spinning span { display: inline-block; animation: slotSpin 0.1s linear infinite; }
+        
+        .settings-row { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 12px; border-radius: 12px; margin-bottom: 8px; }
+        
+        .supply-tag { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; font-size: 9px; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- AUTH -->
-    <div id="auth-modal" class="modal-overlay" style="display:flex; z-index: 9000;">
-        <div class="modal-box" style="border: none; background: transparent;">
-            <h1>NFT UNIVERSE</h1>
-            <p style="color:#666;">Версия: FINAL FIXED</p>
-            <div style="background:#111; padding:20px; border-radius:20px; border:1px solid #222;">
+    <!-- AUTH SCREEN -->
+    <div id="auth-modal" class="modal-overlay" style="display:flex; z-index:9000; background:#000;">
+        <div class="modal-box" style="border:none; background:transparent;">
+            <div style="font-size: 70px; margin-bottom: 20px; animation: float 3s infinite;">🏆</div>
+            <h1 style="margin-bottom: 10px; font-weight:900; letter-spacing: 1px; color: white;">NFT UNIVERSE</h1>
+            <div style="color:var(--danger); font-size:12px; letter-spacing:2px; margin-bottom:30px;">HARDCORE EDITION</div>
+            <div style="background: #18181b; padding: 24px; border-radius: 24px; border:1px solid #333;">
+                <h3 id="auth-title" style="margin-top:0; color:white;">Вход</h3>
                 <input type="text" id="auth-nick" placeholder="Никнейм">
                 <input type="password" id="auth-pass" placeholder="Пароль">
-                <button class="btn" onclick="submitAuth()">ВОЙТИ / СОЗДАТЬ</button>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; font-size:13px; color:#888;">
+                    <input type="checkbox" id="remember-me" checked style="width:auto; margin:0;"> Запомнить
+                </div>
+                <button class="btn" onclick="submitAuth()">Войти</button>
+                <div onclick="toggleAuth()" style="margin-top:20px; font-size:13px; color: #a1a1aa; cursor:pointer;">
+                    Нет аккаунта? <span style="text-decoration: underline; color:var(--primary);">Регистрация</span>
+                </div>
+                <div id="auth-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></div>
             </div>
         </div>
     </div>
 
     <!-- BAN SCREEN -->
-    <div id="ban-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
-        <h1 style="color:red; font-size:40px;">ЗАБАНЕН</h1>
-        <p style="color:#666;">Использование авто-кликера.</p>
+    <div id="ban-screen">
+        <h1>BANNED</h1>
+        <p style="color:#faa; margin-bottom:30px;">Обнаружено использование автокликера.<br>Аккаунт заблокирован навсегда.</p>
+        <div style="font-size:12px; color:#555;">ID: <span id="ban-id">...</span></div>
     </div>
 
     <!-- HEADER -->
@@ -128,507 +180,929 @@
         <div style="display:flex; gap:10px; align-items:center;">
             <div class="avatar-container">
                 <div id="my-frame" class="avatar-frame">U</div>
+                <img src="" class="orbiter orb-1" id="orb-1" style="display:none;">
+                <img src="" class="orbiter orb-2" id="orb-2" style="display:none;">
+                <img src="" class="orbiter orb-3" id="orb-3" style="display:none;">
             </div>
             <div>
-                <div id="my-nick" style="font-weight:bold; font-size:14px;">User</div>
-                <div style="font-size:12px; color:var(--success); font-weight:bold;"><span id="balance">0</span> 💎</div>
+                <div id="my-nick" style="font-weight:700; font-size:14px; color:white;">User</div>
+                <div style="font-size:12px; color:var(--text-sec); display:flex; gap:5px;">
+                    <span id="balance" style="color:var(--gold); font-weight:bold;">0</span> 💎
+                </div>
             </div>
         </div>
-        <div style="display:flex; gap:5px;">
+        <div style="display:flex; gap:8px;">
             <button class="btn-sm btn-outline" onclick="openModal('boost-modal')">⚡ <span id="energy">0</span></button>
             <button id="admin-btn" class="btn-sm btn-danger" style="display:none;" onclick="openModal('admin-modal')">ADM</button>
         </div>
     </div>
 
-    <!-- 1. HOME -->
-    <div id="screen-home" class="screen active">
-        <div class="tap-zone">
-            <div id="tap-btn">
-                <img src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis/Objects/Money%20Bag.png" width="160" style="pointer-events: none;">
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- 1. HOME -->
+        <div id="screen-home" class="screen active">
+            <div style="text-align:center; height:30px; font-weight:bold; color:var(--gold);" id="combo-text"></div>
+            <div style="display:flex; justify-content:center; padding:20px 0;">
+                <div id="tap-btn" style="width:240px; height:240px; border-radius:50%; background:radial-gradient(circle at 30%, #6366f1, #000); box-shadow:0 0 60px rgba(99, 102, 241, 0.3); display:flex; justify-content:center; align-items:center; cursor:pointer; position:relative; border:4px solid rgba(255,255,255,0.1);">
+                    <img src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis/Objects/Money%20Bag.png" width="160" style="pointer-events: none;">
+                </div>
+            </div>
+            <div style="text-align:center; font-size:12px; color:#666; margin-bottom:20px;">Нажимай, чтобы заработать</div>
+            <h3 style="margin-bottom: 15px; color:white;">Коллекция (<span id="inv-count">0</span>)</h3>
+            <div class="grid" id="inventory-list"></div>
+        </div>
+
+        <!-- 2. MARKET -->
+        <div id="screen-market" class="screen">
+            <div class="tabs">
+                <div class="tab active" onclick="switchMarket('shop', this)">Официальный Шоп</div>
+                <div class="tab" onclick="switchMarket('p2p', this)">Биржа Игроков</div>
+            </div>
+            <div id="view-shop">
+                <div style="margin-bottom:10px; font-size:11px; color:#aaa; text-align:center;">
+                    ⚠️ Цены растут на 1% с каждой покупкой в мире!<br>Спеши, пока не разобрали!
+                </div>
+                <div class="grid" id="shop-list"></div>
+            </div>
+            <div id="view-p2p" style="display:none;">
+                <button class="btn btn-outline" onclick="loadP2P()" style="margin-bottom:15px; width:100%;">🔄 Обновить</button>
+                <div class="grid" id="p2p-list"></div>
             </div>
         </div>
-        <h3 style="margin-bottom: 10px;">Инвентарь (<span id="inv-count">0</span>)</h3>
-        <div class="grid" id="inventory-list"></div>
-    </div>
 
-    <!-- 2. SHOP -->
-    <div id="screen-market" class="screen">
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('shop', 'official')">Магазин</div>
-            <div class="tab" onclick="switchTab('shop', 'p2p')">Биржа</div>
-        </div>
-        <div id="shop-official">
-            <div style="margin-bottom:10px; color:#666; font-size:11px; text-align:center;">Динамические цены</div>
-            <div class="grid" id="shop-list"></div>
-        </div>
-        <div id="shop-p2p" style="display:none;">
-            <button class="btn btn-outline" onclick="loadP2P()" style="width:100%; margin-bottom:15px;">Обновить</button>
-            <div class="grid" id="p2p-list"></div>
-        </div>
-    </div>
-
-    <!-- 3. CASINO -->
-    <div id="screen-casino" class="screen">
-        <div class="tabs">
-            <div class="tab active" onclick="switchGame('slots')">Слоты</div>
-            <div class="tab" onclick="switchGame('mines')">Мины</div>
-            <div class="tab" onclick="switchGame('dice')">Кости</div>
-        </div>
-
-        <div id="game-slots" style="text-align:center; padding:20px; background:#181818; border-radius:16px;">
-            <div class="slot-row">
-                <div class="slot-reel" id="reel-1">🍒</div>
-                <div class="slot-reel" id="reel-2">🍒</div>
-                <div class="slot-reel" id="reel-3">🍒</div>
+        <!-- 3. TOP -->
+        <div id="screen-top" class="screen">
+            <div class="tabs">
+                <div class="tab active" onclick="loadTop('balance', this)">Богачи</div>
+                <div class="tab" onclick="loadTop('count', this)">Коллекционеры</div>
             </div>
-            <input type="number" id="slots-bet" placeholder="Ставка">
-            <button class="btn" id="btn-spin" onclick="playSlots()">КРУТИТЬ</button>
+            <div id="top-list"></div>
         </div>
 
-        <div id="game-mines" style="display:none; text-align:center;">
-            <div class="mines-field" id="mines-field"></div>
-            <input type="number" id="mines-bet" placeholder="Ставка" style="margin-top:10px;">
-            <button class="btn btn-success" id="btn-mines" onclick="startMines()" style="margin-top:5px;">Играть</button>
+        <!-- 4. SOCIAL -->
+        <div id="screen-social" class="screen">
+            <div style="background:#27272a; padding:15px; border-radius:16px; margin-bottom:20px; display:flex; gap:10px;">
+                <input type="text" id="search-nick" placeholder="Ник друга..." style="margin:0;">
+                <button class="btn-sm btn-outline" onclick="addFriend()">+</button>
+            </div>
+            <div id="friends-list"></div>
         </div>
 
-        <div id="game-dice" style="display:none; text-align:center; padding:20px; background:#181818; border-radius:16px;">
-            <div id="dice-res" style="font-size:50px; margin-bottom:20px;">🎲</div>
-            <input type="number" id="dice-bet" placeholder="Ставка">
-            <div style="display:flex; gap:5px; margin-top:10px;">
-                <button class="btn btn-outline" onclick="playDice('low')">< 7</button>
-                <button class="btn btn-gold" onclick="playDice('7')">7</button>
-                <button class="btn btn-outline" onclick="playDice('high')">> 7</button>
+        <!-- 5. CASINO -->
+        <div id="screen-casino" class="screen">
+            <div class="tabs">
+                <div class="tab active" onclick="switchGame('mines', this)">Мины</div>
+                <div class="tab" onclick="switchGame('slots', this)">Слоты</div>
+            </div>
+            
+            <div id="game-mines" style="text-align:center;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px auto; max-width: 240px;" id="mines-field"></div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <input type="number" id="mines-bet" placeholder="Ставка" style="margin:0;">
+                    <button class="btn btn-success" id="mines-btn" onclick="startMines()">Играть</button>
+                </div>
+            </div>
+            
+            <div id="game-slots" style="display:none; text-align:center; padding:30px; background:#18181b; border-radius:16px;">
+                <div id="slots-view" class="slot-row">
+                    <span>🍒</span> <span>🍒</span> <span>🍒</span>
+                </div>
+                <div style="font-size:12px; color:#888; margin-bottom:10px;">Шанс на джекпот: 0.5%</div>
+                <input type="number" id="slots-bet" placeholder="Ставка">
+                <button class="btn" id="btn-spin" onclick="playSlots()">КРУТИТЬ (x5)</button>
             </div>
         </div>
-    </div>
 
-    <!-- 4. PROFILE -->
-    <div id="screen-profile" class="screen">
-        <button class="btn btn-outline" onclick="logout()" style="color:var(--danger); width:100%;">Выйти</button>
+        <!-- 6. PROFILE -->
+        <div id="screen-profile" class="screen">
+            <div class="tabs">
+                <div class="tab active" onclick="switchProfile('main', this)">Настройки</div>
+                <div class="tab" onclick="switchProfile('style', this)">Гардероб</div>
+            </div>
+
+            <div id="profile-main">
+                <div class="settings-row"><span>Пароль</span><button class="btn-sm btn-outline" onclick="changePass()">Сменить</button></div>
+                <div class="settings-row"><span style="color:var(--danger)">Зона опасности</span><button class="btn-sm btn-danger" onclick="deleteAcc()">Удалить акк</button></div>
+                <button class="btn btn-outline" onclick="logout()" style="margin-top:20px;">Выйти</button>
+            </div>
+
+            <div id="profile-style" style="display:none;">
+                <h4 style="color:white; margin:10px 0;">Цвет Ника</h4>
+                <div class="grid" style="grid-template-columns: repeat(3, 1fr);" id="style-colors">
+                    <!-- JS Injected -->
+                </div>
+                <h4 style="color:white; margin:10px 0;">Рамка Аватара</h4>
+                <div class="grid" style="grid-template-columns: repeat(3, 1fr);" id="style-frames">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- MODALS -->
-    <div id="nft-modal" class="modal-overlay">
-        <div class="modal-box" style="background: linear-gradient(145deg, #1a1a1a, #0a0a0a);">
-            <div class="inspect-box">
-                <div class="nft-3d" id="inspect-card">
-                    <div class="supply-tag" id="inspect-tag">GEN-1</div>
-                    <img src="" id="inspect-img" style="width:100px;">
-                    <div style="position:absolute; bottom:10px; color:#fff; font-weight:bold;" id="inspect-name">ITEM</div>
-                </div>
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="color:white;">Подтверждение</h3>
+            <p id="confirm-text" style="color:#ccc; margin:15px 0;">Вы уверены?</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" onclick="confirmAction()">Да</button>
+                <button class="btn btn-outline" onclick="closeModal('confirm-modal')">Отмена</button>
             </div>
-            <h3 id="modal-title">Item</h3>
-            <p id="modal-serial" style="color:#666;">#000</p>
-            <div style="display:flex; gap:5px; margin-top:10px;">
-                <button class="btn" onclick="equipNft()">Надеть</button>
-                <button class="btn btn-outline" onclick="sellSystem()">Продать (+<span id="sys-p">0</span>)</button>
-            </div>
-            <div style="border-top:1px solid #333; margin-top:15px; padding-top:10px;">
-                <input type="number" id="p2p-price" placeholder="Цена для игроков">
-                <button class="btn btn-success" onclick="sellP2P()">На Биржу</button>
-            </div>
-            <button class="btn-sm btn-outline" onclick="closeModal('nft-modal')" style="margin-top:10px;">Закрыть</button>
         </div>
     </div>
 
-    <div id="confirm-modal" class="modal-overlay">
+    <div id="nft-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Подтверждение</h3>
-            <p id="confirm-text"></p>
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn" onclick="processBuy()">ДА</button>
-                <button class="btn btn-outline" onclick="closeModal('confirm-modal')">ОТМЕНА</button>
+            <h2 id="modal-name" style="color:white; margin:0;">Item</h2>
+            <p id="modal-serial" style="color:#888; font-size:12px; margin-bottom:10px;">#000</p>
+            <div id="modal-bg-container" style="border-radius:20px; padding:20px; margin-bottom:20px; transition:0.3s;">
+                <img src="" id="modal-img" style="width:140px; height:140px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(0,0,0,0.5));">
             </div>
+            <div class="tabs">
+                <div class="tab active" onclick="setNftTab('equip')">Действия</div>
+                <div class="tab" onclick="setNftTab('sell')">Продать</div>
+            </div>
+            <div id="tab-equip">
+                <button class="btn" onclick="equipNft()">🎒 Надеть / Снять</button>
+                <button class="btn btn-outline" style="margin-top:10px;" onclick="setNftTab('gift')">🎁 Подарить</button>
+            </div>
+            <div id="tab-sell" style="display:none;">
+                <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger); margin-bottom:15px;" onclick="sellSystem()">🔥 Сжечь (+<span id="sys-price">0</span>)</button>
+                <input type="number" id="p2p-price" placeholder="Цена для биржи">
+                <button class="btn" onclick="sellP2P()" style="margin-top:10px;">Выставить</button>
+            </div>
+            <div id="tab-gift" style="display:none;">
+                <input type="text" id="gift-nick" placeholder="Ник друга">
+                <button class="btn" onclick="sendGift()" style="margin-top:10px;">Отправить</button>
+            </div>
+            <button class="btn-sm" onclick="closeModal('nft-modal')" style="margin-top:20px; background:transparent; color:#888;">Закрыть</button>
         </div>
     </div>
 
     <div id="boost-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Улучшения</h3>
-            <button class="btn-sm" style="width:100%; margin-bottom:10px;" onclick="buyTap()">Клик (<span id="cost-tap">0</span>)</button>
-            <button class="btn-sm" style="width:100%; margin-bottom:10px;" onclick="buyCrit()">Крит (<span id="cost-crit">0</span>)</button>
-            <button class="btn-sm" style="width:100%; margin-bottom:10px;" onclick="buyRegen()">Энергия (<span id="cost-regen">0</span>)</button>
-            <button class="btn-sm btn-outline" onclick="closeModal('boost-modal')">Закрыть</button>
+            <h3>Прокачка</h3>
+            <div class="settings-row">
+                <div><b>Мульти-тап</b><br><span style="font-size:11px;color:#888;">Ур. <span id="tap-lvl">1</span></span></div>
+                <button class="btn-sm btn-outline" onclick="buyTap()">+1 (<span id="tap-cost">100</span>)</button>
+            </div>
+            <div class="settings-row">
+                <div><b>Шанс Крита</b><br><span style="font-size:11px;color:#888;">Ур. <span id="crit-lvl">1</span></span></div>
+                <button class="btn-sm btn-outline" onclick="buyCrit()">+1% (<span id="crit-cost">500</span>)</button>
+            </div>
+            <div class="settings-row">
+                <div><b>Реген Энергии</b><br><span style="font-size:11px;color:#888;">Ур. <span id="regen-lvl">1</span></span></div>
+                <button class="btn-sm btn-outline" onclick="buyRegen()">+0.2/с (<span id="regen-cost">300</span>)</button>
+            </div>
+            <button class="btn-sm btn-outline" onclick="closeModal('boost-modal')" style="width:100%; margin-top:10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="chat-modal" class="modal-overlay">
+        <div class="modal-box" style="height:80vh; display:flex; flex-direction:column; padding:15px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <b id="chat-title" style="color:white;">Чат</b> <span onclick="closeModal('chat-modal')" style="cursor:pointer;color:white;">✕</span>
+            </div>
+            <div id="chat-history" style="flex:1; background:#111; border-radius:12px; overflow-y:scroll; padding:10px; display:flex; flex-direction:column; gap:10px;"></div>
+            <div style="display:flex; gap:5px; margin-top:10px;">
+                <input type="text" id="chat-msg" style="margin:0;"> <button class="btn-sm" onclick="sendMsg()">></button>
+            </div>
         </div>
     </div>
 
     <div id="admin-modal" class="modal-overlay">
-        <div class="modal-box" style="border-color:var(--danger);">
-            <h3 style="color:var(--danger)">АДМИН</h3>
-            <input type="text" id="adm-nick" placeholder="Ник">
-            <input type="number" id="adm-amt" placeholder="Сумма">
-            <button class="btn-sm" onclick="adminGive()">ВЫДАТЬ $$</button>
-            <button class="btn-sm" onclick="adminBot()">ДОБАВИТЬ БОТА В ШОП</button>
-            <button class="btn-sm btn-outline" onclick="closeModal('admin-modal')">Закрыть</button>
+        <div class="modal-box" style="border-color: var(--danger);">
+            <h2 style="color:var(--danger)">GOD MODE (kayivi)</h2>
+            <input type="text" id="adm-target" placeholder="Ник жертвы">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button class="btn-sm btn-success" onclick="adminUnban()">РАЗБАН</button>
+                <button class="btn-sm btn-gold" onclick="adminGiveSelf()">ВЫДАТЬ СЕБЕ</button>
+                <button class="btn-sm btn-danger" onclick="adminBan()">БАН</button>
+                <button class="btn-sm" onclick="adminAddShop()">+ В ШОП</button>
+            </div>
+            <button class="btn-outline btn-sm" style="margin-top:10px; width:100%;" onclick="closeModal('admin-modal')">Закрыть</button>
         </div>
     </div>
 
-    <div id="toast" class="toast">Уведомление</div>
+    <div id="toast" class="toast"><i class="ri-notification-3-fill" style="color:var(--gold)"></i> <span id="toast-msg">Alert</span></div>
 
-    <!-- NAVBAR -->
+    <!-- NAV -->
     <div class="navbar">
-        <div class="nav-item active" onclick="nav('home', this)"><i class="ri-home-fill"></i><span>Дом</span></div>
-        <div class="nav-item" onclick="nav('market', this)"><i class="ri-store-2-fill"></i><span>Шоп</span></div>
-        <div class="nav-item" onclick="nav('casino', this)"><i class="ri-gamepad-fill"></i><span>Игры</span></div>
-        <div class="nav-item" onclick="nav('profile', this)"><i class="ri-user-3-fill"></i><span>Я</span></div>
+        <div class="nav-item active" onclick="nav('home', this)"><i class="ri-home-5-line"></i><span>Дом</span></div>
+        <div class="nav-item" onclick="nav('market', this)"><i class="ri-store-2-line"></i><span>Шоп</span></div>
+        <div class="nav-item" onclick="nav('top', this)"><i class="ri-trophy-line"></i><span>Топ</span></div>
+        <div class="nav-item" onclick="nav('social', this)"><i class="ri-group-line"></i><span>Люди</span></div>
+        <div class="nav-item" onclick="nav('casino', this)"><i class="ri-gamepad-line"></i><span>Игры</span></div>
+        <div class="nav-item" onclick="nav('profile', this)"><i class="ri-user-settings-line"></i><span>Профиль</span></div>
     </div>
 
     <script>
         const firebaseConfig = { apiKey: "AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg", authDomain: "nfts-dc174.firebaseapp.com", projectId: "nfts-dc174", storageBucket: "nfts-dc174.firebasestorage.app", messagingSenderId: "327365720624", appId: "1:327365720624:web:eb42c9d671566b5d118bf5" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        // 60+ UNIQUE ASSETS (FIXED IDs)
+        // 50X PRICES HARDCORE MODE
+        const BASE_URL = "https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis";
+        const make = (n,t,u,p,l) => ({n,t,u,p:p*50,l}); // p*50 = Hardcore Price
+        
+        // Supply: l (limit) -> 1000 = common, 100 = rare, 10 = legendary
         const ASSETS = [
-            {id:"crown",n:"Корона",t:"GOD",u:"/Objects/Crown.png",p:100000000,l:3},
-            {id:"ufo",n:"НЛО",t:"GOD",u:"/Travel%20and%20places/Flying%20Saucer.png",p:80000000,l:5},
-            {id:"dragon",n:"Дракон",t:"LEGEND",u:"/Animals/Dragon.png",p:50000000,l:10},
-            {id:"unicorn",n:"Единорог",t:"LEGEND",u:"/Animals/Unicorn.png",p:45000000,l:15},
-            {id:"castle",n:"Замок",t:"LEGEND",u:"/Travel%20and%20places/Castle.png",p:60000000,l:5},
-            {id:"rocket",n:"Ракета",t:"EPIC",u:"/Travel%20and%20places/Rocket.png",p:10000000,l:30},
-            {id:"diamond",n:"Алмаз",t:"EPIC",u:"/Objects/Gem%20Stone.png",p:15000000,l:30},
-            {id:"money",n:"Деньги",t:"EPIC",u:"/Objects/Money%20Bag.png",p:20000000,l:30},
-            {id:"car",n:"Машина",t:"RARE",u:"/Travel%20and%20places/Automobile.png",p:5000000,l:100},
-            {id:"plane",n:"Самолет",t:"RARE",u:"/Travel%20and%20places/Airplane.png",p:6000000,l:100},
-            {id:"pizza",n:"Пицца",t:"COMMON",u:"/Food/Pizza.png",p:100000,l:1000},
-            {id:"burger",n:"Бургер",t:"COMMON",u:"/Food/Hamburger.png",p:100000,l:1000},
-            // Adding fillers to reach requested "60+" (simulated via shorter list for stability but logic holds any amount)
-            {id:"laptop",n:"Ноутбук",t:"UNCOMMON",u:"/Objects/Laptop.png",p:500000,l:500},
-            {id:"iphone",n:"Телефон",t:"UNCOMMON",u:"/Objects/Mobile%20Phone.png",p:600000,l:500},
-            {id:"cat",n:"Кот",t:"COMMON",u:"/Animals/Cat%20Face.png",p:150000,l:1000}
+            make("Ракета","Техно","/Travel%20and%20places/Rocket.png",2000, 100),
+            make("Корона","Роскошь","/Objects/Crown.png",50000, 10),
+            make("Алмаз","Роскошь","/Objects/Gem%20Stone.png",10000, 50),
+            make("Деньги","Роскошь","/Objects/Money%20Bag.png",10000, 50),
+            make("Дракон","Питомец","/Animals/Dragon.png",20000, 20),
+            make("Единорог","Питомец","/Animals/Unicorn.png",15000, 30),
+            make("Бургер","Еда","/Food/Hamburger.png",1000, 1000),
+            make("Пицца","Еда","/Food/Pizza.png",1000, 1000),
+            make("Кот","Питомец","/Animals/Cat%20Face.png",3000, 500),
+            make("Ноутбук","Техно","/Objects/Laptop.png",6000, 200),
+            make("Огонь","Редкое","/Travel%20and%20places/Fire.png",2500, 500),
+            make("Призрак","Редкое","/Smilies/Ghost.png",4000, 300),
+            make("Машина","Авто","/Travel%20and%20places/Automobile.png",8000, 150),
+            make("Самолет","Авто","/Travel%20and%20places/Airplane.png",9000, 100),
+            make("НЛО","Техно","/Travel%20and%20places/Flying%20Saucer.png",10000, 50)
         ];
 
-        let myNick=localStorage.getItem('nft_nick'), data, globalStats, selIdx;
-        let lastTap=0, pendingData=null; 
+        const COSMETICS = {
+            colors: [
+                {id: 'nick_def', name: 'Default', hex: '#fff', cost: 0},
+                {id: 'nick_gold', name: 'Gold', hex: '#fbbf24', cost: 250000},
+                {id: 'nick_neon', name: 'Neon', hex: '#00f2ff', cost: 150000},
+                {id: 'nick_red', name: 'Red', hex: '#ef4444', cost: 100000},
+                {id: 'nick_purple', name: 'Purple', hex: '#d946ef', cost: 120000}
+            ],
+            frames: [
+                {id: 'frame_def', name: 'Default', cls: 'frame-default', cost: 0},
+                {id: 'frame_gold', name: 'Gold', cls: 'frame-gold', cost: 500000},
+                {id: 'frame_neon', name: 'Neon', cls: 'frame-neon', cost: 350000},
+                {id: 'frame_red', name: 'Red', cls: 'frame-red', cost: 200000},
+                {id: 'frame_purple', name: 'Purple', cls: 'frame-purple', cost: 250000}
+            ]
+        };
+
+        let myNick = localStorage.getItem('nft_nick') || sessionStorage.getItem('nft_nick');
+        let data, selIdx, chatUnsub, globalStats;
+        let mines={a:false,m:[],s:0,b:0};
+        let combo=0, comboTimer=null;
+        let pendingBuy=null; 
         
+        // ANTI-CHEAT VARS
+        let clickQueue = [];
+        let warningCount = 0;
+        let isBanned = false;
+
+        // --- INIT ---
+        if(myNick) checkSession(); else document.getElementById('auth-modal').style.display='flex';
+
         // --- AUTH ---
-        if(myNick) { document.getElementById('auth-modal').style.display='none'; initGame(); }
-
+        let isReg = false;
+        function toggleAuth(){ isReg=!isReg; document.getElementById('auth-title').innerText=isReg?"Регистрация":"Вход"; }
+        
         async function submitAuth() {
-            const n = document.getElementById('auth-nick').value.trim();
-            const p = document.getElementById('auth-pass').value.trim();
-            if(!n || !p) return;
+            const n=document.getElementById('auth-nick').value.trim();
+            const p=document.getElementById('auth-pass').value.trim();
+            const remember = document.getElementById('remember-me').checked;
+            if(n.length<3||p.length<4) return alert("Короткие данные");
             
-            const ref = db.collection('users').doc(n);
-            const doc = await ref.get();
-            
-            if(doc.exists) {
-                if(doc.data().password === p) {
-                    localStorage.setItem('nft_nick', n); myNick = n;
-                    document.getElementById('auth-modal').style.display='none';
-                    initGame();
-                } else alert("Неверный пароль");
-            } else {
-                await ref.set({
-                    password: p, nickname: n, balance: 0, energy: 100, inventory: [], equipped: [],
-                    tapLvl: 1, critLvl: 1, regenLvl: 1, isBanned: false
-                });
-                localStorage.setItem('nft_nick', n); myNick = n;
-                document.getElementById('auth-modal').style.display='none';
-                initGame();
-            }
-        }
-        function logout() { localStorage.removeItem('nft_nick'); location.reload(); }
-
-        // --- CORE ---
-        function initGame() {
-            // User Data
-            db.collection('users').doc(myNick).onSnapshot(d => {
-                if(d.exists) {
-                    data = d.data();
-                    if(data.isBanned) { document.getElementById('ban-screen').style.display='flex'; return; }
-                    updateUI(); renderInv();
-                    if(myNick === 'kayivi') document.getElementById('admin-btn').style.display='block';
+            try {
+                const docRef = db.collection('users').doc(n);
+                const doc = await docRef.get();
+                
+                if(isReg) {
+                    if(doc.exists) throw "Ник занят";
+                    const defData = {
+                        password:p, nickname:n, balance:0, energy:100.0, 
+                        inventory:[], friends:[], equipped:[], 
+                        tapLvl:1, critLvl:1, regenLvl:1, 
+                        owned_colors:['nick_def'], owned_frames:['frame_def'],
+                        active_color:'nick_def', active_frame:'frame_def',
+                        isBanned: false, warnings: 0, createdAt: Date.now()
+                    };
+                    await docRef.set(defData);
+                    loginSuccess(n, remember);
+                } else {
+                    if(!doc.exists || doc.data().password!==p) throw "Неверный логин/пароль";
+                    if(doc.data().isBanned) {
+                        showBanScreen(n);
+                        throw "Аккаунт заблокирован";
+                    }
+                    loginSuccess(n, remember);
                 }
+            } catch(e){ document.getElementById('auth-error').innerText=e.toString(); }
+        }
+        
+        function loginSuccess(n, remember) { 
+            if(remember) localStorage.setItem('nft_nick', n);
+            else sessionStorage.setItem('nft_nick', n);
+            myNick=n; 
+            document.getElementById('auth-modal').style.display='none'; 
+            checkSession(); 
+        }
+        
+        function logout(){ 
+            localStorage.removeItem('nft_nick'); 
+            sessionStorage.removeItem('nft_nick'); 
+            location.reload(); 
+        }
+
+        function checkSession() {
+            // Listen to User Data
+            db.collection('users').doc(myNick).onSnapshot(d=>{
+                if(d.exists){ 
+                    data = d.data();
+                    if(data.isBanned) { showBanScreen(myNick); return; }
+                    
+                    // Defaults for old accounts compatibility
+                    if(!data.owned_colors) data.owned_colors=['nick_def'];
+                    if(!data.owned_frames) data.owned_frames=['frame_def'];
+                    if(!data.active_color) data.active_color='nick_def';
+                    if(!data.active_frame) data.active_frame='frame_def';
+                    
+                    updateUI(); renderInv(); renderShop(); renderFriends(); renderCosmetics();
+                    if(myNick==='kayivi') document.getElementById('admin-btn').style.display='block';
+                    
+                    // Check notifications (simple check)
+                    checkNotifications();
+                } else logout();
             });
-            // Shop Data
+            
+            // Listen to Global Stats (For dynamic pricing)
             db.collection('game').doc('stats').onSnapshot(s => {
-                globalStats = s.exists ? s.data().items : {};
-                renderShop();
+                if(s.exists) globalStats = s.data().items || {};
+                else globalStats = {};
+                renderShop(); // Update prices real-time
             });
-            // Energy
-            setInterval(() => {
-                if(data && data.energy < 100) {
-                    data.energy = Math.min(100, data.energy + (data.regenLvl*0.2));
-                    updateUI();
-                    if(Math.floor(data.energy)%10===0) save(); 
+
+            // Energy Loop
+            setInterval(()=>{
+                if(data && !data.isBanned){
+                    // Slower Regen in Hardcore
+                    if(data.energy < 100) {
+                        let regen = data.regenLvl * 0.2; 
+                        data.energy = Math.min(100, data.energy + regen);
+                        updateUI();
+                    }
                 }
             }, 1000);
         }
 
+        function checkNotifications() {
+             // Listener for P2P Sales is complex in single file without cloud functions,
+             // so we check inventory reduction locally or listen to 'market' deletions where seller==me?
+             // Simplified: just check messages toast
+        }
+
+        function showBanScreen(id) {
+            isBanned = true;
+            document.getElementById('ban-screen').style.display = 'flex';
+            document.getElementById('ban-id').innerText = id;
+            document.getElementById('auth-modal').style.display='none';
+        }
+
+        // --- UI UPDATES ---
         function updateUI() {
             document.getElementById('balance').innerText = Math.floor(data.balance).toLocaleString();
             document.getElementById('energy').innerText = Math.floor(data.energy);
             document.getElementById('inv-count').innerText = data.inventory.length;
-            document.getElementById('my-nick').innerText = myNick;
-            document.getElementById('my-frame').innerText = myNick[0].toUpperCase();
             
-            document.getElementById('cost-tap').innerText = (1000 * Math.pow(1.5, data.tapLvl)).toFixed(0);
-            document.getElementById('cost-crit').innerText = (5000 * data.critLvl).toLocaleString();
-            document.getElementById('cost-regen').innerText = (5000 * data.regenLvl).toLocaleString();
+            // Nick & Frame
+            const nickEl = document.getElementById('my-nick'); 
+            nickEl.innerText = myNick;
+            nickEl.className = data.active_color; // apply class
+            
+            const frameEl = document.getElementById('my-frame');
+            frameEl.innerText = myNick[0].toUpperCase();
+            const frameObj = COSMETICS.frames.find(f=>f.id===data.active_frame);
+            frameEl.className = 'avatar-frame ' + (frameObj ? frameObj.cls : '');
+
+            // Orbiters
+            ['orb-1','orb-2','orb-3'].forEach(id=>document.getElementById(id).style.display='none');
+            data.equipped.forEach((item, i) => {
+                if(i<3) {
+                    const el = document.getElementById(`orb-${i+1}`);
+                    el.src = BASE_URL + item.u;
+                    el.style.display = 'block';
+                    if(item.hue) el.style.filter = item.hue;
+                }
+            });
+
+            // Upgrade Costs
+            document.getElementById('tap-lvl').innerText=data.tapLvl;
+            document.getElementById('tap-cost').innerText=(100 * Math.pow(1.8, data.tapLvl)).toFixed(0);
+            
+            document.getElementById('crit-lvl').innerText=data.critLvl;
+            document.getElementById('crit-cost').innerText=500 + (data.critLvl*500);
+            
+            document.getElementById('regen-lvl').innerText=data.regenLvl;
+            document.getElementById('regen-cost').innerText=300 + (data.regenLvl*400);
         }
 
-        // --- GAMEPLAY ---
-        const btn = document.getElementById('tap-btn');
-        btn.addEventListener('touchstart', tap); btn.addEventListener('mousedown', tap);
-        
-        function tap(e) {
-            if(e.type==='touchstart') e.preventDefault();
-            if(data.energy < 1) return toast("Нет энергии");
-            
+        // --- ANTI-CHEAT & TAP ---
+        document.getElementById('tap-btn').addEventListener('click', e => {
+            if(data.isBanned) return;
+
+            // 1. Anti-Cheat Check
             const now = Date.now();
-            if(now - lastTap < 50) return; // Basic 20 clicks/sec cap
-            lastTap = now;
+            clickQueue.push(now);
+            if(clickQueue.length > 18) clickQueue.shift(); // Keep last 18 clicks
+            
+            if(clickQueue.length === 18) {
+                const duration = now - clickQueue[0];
+                if(duration < 1000) { // 18 clicks in < 1 sec
+                    warningCount++;
+                    toast(`⚠️ ВЫСТРЕЛ СЛИШКОМ БЫСТРЫЙ! (${warningCount}/3)`);
+                    clickQueue = []; // Reset queue
+                    if(warningCount >= 3) {
+                        banUser();
+                        return;
+                    }
+                }
+            }
 
-            let val = data.tapLvl;
-            if(Math.random() < data.critLvl * 0.01) val *= 5;
+            // 2. Logic
+            if(data.energy < 1) {
+                toast("Нет энергии! ⚡");
+                return;
+            }
 
-            data.balance += val;
+            // Combo
+            clearTimeout(comboTimer);
+            combo++;
+            if(combo > 20) combo = 20; 
+            const comboMult = 1 + (combo * 0.05); 
+            document.getElementById('combo-text').innerText = `x${comboMult.toFixed(1)}`;
+            comboTimer = setTimeout(() => { combo = 0; document.getElementById('combo-text').innerText = ""; }, 1000); 
+
+            // Crit
+            let isCrit = false;
+            let gain = Math.floor(data.tapLvl * comboMult);
+            if(Math.random() < (data.critLvl * 0.01)) { 
+                isCrit = true;
+                gain *= 5; 
+                document.getElementById('tap-btn').classList.add('crit-shake');
+                setTimeout(()=>document.getElementById('tap-btn').classList.remove('crit-shake'), 500);
+            }
+
+            data.balance += gain;
             data.energy -= 1;
             
-            if(data.balance % 10 === 0) save(); // Anti-Lag Save
+            // Visual
+            const el=document.createElement('div'); 
+            el.innerText = isCrit ? `💥+${gain}` : `+${gain}`;
+            el.style.position='absolute'; el.style.left=e.clientX+'px'; el.style.top=e.clientY+'px'; 
+            el.style.color= isCrit ? '#ffd60a' : '#fff'; 
+            el.style.fontWeight='bold'; el.style.fontSize= isCrit ? '24px' : '16px';
+            el.style.pointerEvents='none'; el.style.zIndex=1000;
+            el.style.animation = isCrit ? 'critPop 0.5s ease-out' : 'float 0.5s ease-out';
+            document.body.appendChild(el); setTimeout(()=>el.remove(),500);
+
+            // Save frequently but not every tap to save writes? For this demo, save every 10 taps
+            if(data.balance % 10 === 0) save();
             updateUI();
+        });
+
+        function banUser() {
+            db.collection('users').doc(myNick).update({ isBanned: true });
+            showBanScreen(myNick);
         }
 
-        // --- SHOP & P2P ---
-        function renderShop() {
-            const list = document.getElementById('shop-list'); 
-            if(!globalStats) return;
-            list.innerHTML = '';
+        // --- SHOP & DYNAMIC PRICING ---
+        function renderShop(){
+            const l=document.getElementById('shop-list'); 
+            if(!globalStats) return; // Wait for stats
+            l.innerHTML='';
             
-            ASSETS.forEach(a => {
-                const sold = globalStats[a.id] || 0;
-                const price = Math.floor(a.p * (1 + sold*0.01));
-                const left = a.l - sold;
-                const d = document.createElement('div'); d.className = 'card';
-                if(left <= 0) d.style.opacity = '0.5';
+            ASSETS.forEach(a=>{
+                const sold = globalStats[a.n] || 0;
+                const priceMult = 1 + (sold * 0.01); // +1% per sale
+                const currentPrice = Math.floor(a.p * priceMult);
+                const remaining = a.l - sold;
+
+                const d=document.createElement('div'); d.className='card';
+                if(remaining <= 0) d.style.opacity = '0.5';
                 
-                d.innerHTML = `
-                    <div class="supply-tag">${left}/${a.l}</div>
+                d.innerHTML=`
+                    <div class="supply-tag">${remaining}/${a.l}</div>
                     <div class="nft-pill">${a.t}</div>
-                    <img src="${"https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis"+a.u}" class="nft-img">
-                    <div style="font-weight:bold; font-size:12px;">${a.n}</div>
-                    <button class="btn btn-sm ${left>0?'btn-success':'btn-outline'}" 
-                    onclick="${left>0 ? `prepBuy('shop','${a.id}',${price})` : ''}">
-                    ${left>0 ? price.toLocaleString() : 'SOLD'}
-                    </button>
-                `;
-                list.appendChild(d);
+                    <img src="${BASE_URL+a.u}" class="nft-img" loading="lazy">
+                    <div class="nft-name">${a.n}</div>
+                    <button class="btn btn-sm ${remaining<=0?'btn-outline':'btn-primary'}" 
+                        style="margin-top:5px;" 
+                        onclick="${remaining>0 ? `reqBuyShop('${a.n}', ${currentPrice})` : ''}"
+                        ${remaining<=0 ? 'disabled' : ''}>
+                        ${remaining<=0 ? 'SOLD OUT' : currentPrice.toLocaleString() + ' 💎'}
+                    </button>`;
+                l.appendChild(d);
             });
         }
 
-        function prepBuy(type, id, price) {
-            pendingData = { type, id, price };
-            document.getElementById('confirm-text').innerText = `Купить за ${price.toLocaleString()}?`;
+        function reqBuyShop(name, price) {
+            pendingBuy = { type: 'shop', name: name, price: price };
+            document.getElementById('confirm-text').innerText = `Купить "${name}" за ${price.toLocaleString()} 💎?`;
             openModal('confirm-modal');
         }
 
-        function processBuy() {
-            closeModal('confirm-modal');
-            if(!pendingData) return;
-            const { type, id, price } = pendingData;
-            
-            if(data.balance < price) return toast("Не хватает денег");
+        function buyShop(name, price){
+            // Atomic transaction to ensure supply limit
+            const itemRef = db.collection('game').doc('stats');
+            const userRef = db.collection('users').doc(myNick);
+            const asset = ASSETS.find(x=>x.n===name);
 
-            if(type === 'shop') {
-                const item = ASSETS.find(x => x.id === id);
-                if(!item) return toast("Ошибка товара");
+            db.runTransaction(async (t) => {
+                const statsDoc = await t.get(itemRef);
+                const userDoc = await t.get(userRef);
                 
-                db.runTransaction(async t => {
-                    const sr = db.collection('game').doc('stats');
-                    const ur = db.collection('users').doc(myNick);
-                    const s = await t.get(sr);
-                    let stats = s.exists ? s.data().items : {};
-                    let sold = stats[id] || 0;
-                    if(sold >= item.l) throw "Раскуплено";
-                    
-                    const newItem = {
-                        id: Date.now(), baseId: id,
-                        n: item.n, t: item.t, u: item.u, p: item.p,
-                        s: sold + 1, max: item.l,
-                        bg: genGradient() // Auto generate BG
-                    };
-                    
-                    t.update(ur, {
-                        balance: firebase.firestore.FieldValue.increment(-price),
-                        inventory: firebase.firestore.FieldValue.arrayUnion(newItem)
-                    });
-                    t.set(sr, { items: { ...stats, [id]: sold+1 } }, {merge:true});
-                }).then(() => toast("Успешно!")).catch(e => toast(e));
-            } else if (type === 'p2p') {
-                // P2P Logic
-                const docId = id; // Here id is docId
-                db.runTransaction(async t => {
-                    const ref = db.collection('market').doc(docId);
-                    const doc = await t.get(ref);
-                    if(!doc.exists) throw "Предмет уже куплен";
-                    const offer = doc.data();
-                    
-                    // Seller is "Bot" check to fix "null properties" or firebase errors
-                    if(offer.seller !== 'Bot') {
-                        t.update(db.collection('users').doc(offer.seller), {
-                            balance: firebase.firestore.FieldValue.increment(price)
-                        });
-                    }
-                    
-                    t.update(db.collection('users').doc(myNick), {
-                        balance: firebase.firestore.FieldValue.increment(-price),
-                        inventory: firebase.firestore.FieldValue.arrayUnion(offer.item)
-                    });
-                    t.delete(ref);
-                }).then(() => { toast("Куплено у игрока"); loadP2P(); }).catch(e => toast("Ошибка P2P: " + e));
-            }
+                const stats = statsDoc.data() || { items: {} };
+                const currentSold = stats.items[name] || 0;
+                
+                if(currentSold >= asset.l) throw "Sold Out!";
+                if(userDoc.data().balance < price) throw "Не хватает денег!";
+
+                const newItem = {
+                    id: Date.now() + Math.random(),
+                    name: asset.n, type: asset.t, u: asset.u, p: asset.p,
+                    serial: currentSold + 1,
+                    bg: genUnique().bg, hue: genUnique().hue
+                };
+
+                // Update
+                t.update(itemRef, { [`items.${name}`]: currentSold + 1 });
+                t.update(userRef, {
+                    balance: firebase.firestore.FieldValue.increment(-price),
+                    inventory: firebase.firestore.FieldValue.arrayUnion(newItem)
+                });
+            }).then(() => {
+                toast("Успешная покупка!");
+            }).catch(e => toast(e));
         }
 
-        // --- INVENTORY ---
+        function genUnique() {
+            const h = Math.floor(Math.random()*360);
+            return {
+                bg: `linear-gradient(135deg, hsl(${h},60%,20%), hsl(${h+40},60%,10%))`,
+                hue: `hue-rotate(${Math.floor(Math.random()*360)}deg)`
+            };
+        }
+
+        // --- INVENTORY & P2P ---
         function renderInv() {
-            const list = document.getElementById('inventory-list'); list.innerHTML='';
-            data.inventory.forEach((i, idx) => {
-                if(!i.bg) i.bg = genGradient(); // Fix old items
-                list.innerHTML += `
-                    <div class="card" style="background:${i.bg}">
-                        <img src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis${i.u}" class="nft-img">
-                        <div style="font-weight:bold; font-size:11px;">${i.n}</div>
-                        <button class="btn-sm btn-outline" style="background:#000000aa" onclick="openNft(${idx})">Меню</button>
-                    </div>`;
+            const l=document.getElementById('inventory-list'); l.innerHTML='';
+            data.inventory.forEach((n,i)=>{
+                const isEq = data.equipped.find(e=>e.id===n.id);
+                const d=document.createElement('div'); d.className='card';
+                d.style.background = n.bg || '#222';
+                d.innerHTML=`${isEq?'<span class="equipped-marker"></span>':''}<div class="nft-pill">${n.type}</div><img src="${BASE_URL+n.u}" class="nft-img" style="filter:${n.hue||'none'}"><div class="nft-name">${n.name}</div><div style="font-size:10px;color:#aaa;">#${n.serial}</div><button class="btn btn-sm btn-outline" style="width:100%;margin-top:5px;background:rgba(0,0,0,0.5)" onclick="openNft(${i})">Меню</button>`;
+                l.appendChild(d);
             });
         }
-
-        function openNft(idx) {
-            selIdx = idx; const item = data.inventory[idx];
-            document.getElementById('inspect-card').style.background = item.bg;
-            document.getElementById('inspect-img').src = "https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis" + item.u;
-            document.getElementById('inspect-name').innerText = item.n;
-            document.getElementById('inspect-tag').innerText = "#" + item.s;
-            document.getElementById('modal-title').innerText = item.n;
-            document.getElementById('modal-serial').innerText = `Серия: #${item.s}`;
-            document.getElementById('sys-p').innerText = (item.p * 0.2).toLocaleString();
-            
-            // 3D Rotate
-            const card = document.getElementById('inspect-card');
-            document.onmousemove = (e) => {
-                if(document.getElementById('nft-modal').style.display === 'none') return;
-                let ax = (window.innerWidth/2 - e.pageX) / 20;
-                let ay = (window.innerHeight/2 - e.pageY) / 20;
-                card.style.transform = `rotateY(${ax}deg) rotateX(${ay}deg)`;
-            };
-            openModal('nft-modal');
+        function openNft(i) {
+            selIdx=i; const n=data.inventory[i];
+            document.getElementById('modal-name').innerText=n.name;
+            document.getElementById('modal-serial').innerText=`#${n.serial}`;
+            const img=document.getElementById('modal-img');
+            img.src=BASE_URL+n.u; img.style.filter = n.hue || 'none';
+            document.getElementById('modal-bg-container').style.background = n.bg || '#222';
+            document.getElementById('sys-price').innerText=Math.floor((n.p||100)*0.1); // Low burn price
+            openModal('nft-modal'); setNftTab('equip');
         }
 
         function equipNft() {
-            const item = data.inventory[selIdx];
-            // Simplification for reliability: Equipping changes bg only in this fixed version
-            closeModal('nft-modal'); toast("Надето");
-        }
-        function sellSystem() {
-            data.balance += data.inventory[selIdx].p * 0.2;
-            data.inventory.splice(selIdx, 1);
+            const n=data.inventory[selIdx];
+            const idx = data.equipped.findIndex(e=>e.id===n.id);
+            if(idx > -1) { data.equipped.splice(idx,1); toast("Снято"); } 
+            else { if(data.equipped.length>=3) return toast("Максимум 3!"); data.equipped.push(n); toast("Надето"); }
             save(); closeModal('nft-modal');
         }
-        function sellP2P() {
-            const p = parseInt(document.getElementById('p2p-price').value);
-            if(!p) return;
-            const item = data.inventory[selIdx];
-            db.collection('users').doc(myNick).update({
-                inventory: firebase.firestore.FieldValue.arrayRemove(item)
-            });
-            db.collection('market').add({
-                seller: myNick, item: item, price: p, ts: Date.now()
-            });
-            closeModal('nft-modal'); toast("Выставлено");
+
+        function sellSystem(){ 
+            const n = data.inventory[selIdx]; 
+            // Remove from equipped if present
+            data.equipped = data.equipped.filter(e => e.id !== n.id);
+            const p=Math.floor((n.p||100)*0.1); 
+            data.balance+=p; 
+            data.inventory.splice(selIdx,1); 
+            save(); closeModal('nft-modal'); toast(`Продано +${p}`); 
         }
 
-        function loadP2P() {
-            const l = document.getElementById('p2p-list'); l.innerHTML = 'Загрузка...';
-            db.collection('market').orderBy('ts', 'desc').limit(20).get().then(s => {
-                l.innerHTML = '';
-                s.forEach(d => {
-                    const o = d.data();
-                    // Generate bg if missing
-                    const bg = o.item.bg || '#222';
-                    l.innerHTML += `
-                        <div class="card" style="background:${bg}">
-                            <div style="font-size:9px;color:#aaa;">Seller: ${o.seller}</div>
-                            <div style="font-weight:bold;">${o.item.n}</div>
-                            <button class="btn btn-sm btn-success" style="margin-top:5px;" onclick="prepBuy('p2p','${d.id}',${o.price})">
-                                ${o.price}💎
-                            </button>
-                        </div>
-                    `;
+        function sellP2P(){ 
+            const p=parseInt(document.getElementById('p2p-price').value); 
+            if(!p || p<0) return; 
+            const n=data.inventory[selIdx]; 
+            data.equipped = data.equipped.filter(e => e.id !== n.id); // Unequip
+            
+            db.runTransaction(async t=>{ 
+                const d=await t.get(db.collection('users').doc(myNick)); 
+                const inv=d.data().inventory.filter(x=>x.id!==n.id); 
+                const eq = d.data().equipped.filter(x=>x.id!==n.id);
+                t.update(db.collection('users').doc(myNick), {inventory:inv, equipped:eq}); 
+                t.set(db.collection('market').doc(), {seller:myNick, price:p, nft:n, createdAt:Date.now()}); 
+            }).then(()=>{ 
+                closeModal('nft-modal'); toast("Выставлено!"); loadP2P(); 
+            }); 
+        }
+
+        function loadP2P(){
+            const l=document.getElementById('p2p-list');
+            l.innerHTML='<div style="width:100%;text-align:center;">Загрузка...</div>';
+            db.collection('market').orderBy('createdAt','desc').limit(20).get().then(s=>{
+                l.innerHTML='';
+                s.forEach(d=>{
+                    const dt=d.data();
+                    const mine=dt.seller===myNick;
+                    const el=document.createElement('div'); el.className='card'; el.style.background = dt.nft.bg || '#222';
+                    el.innerHTML=`<div class="nft-pill">By ${dt.seller}</div><img src="${BASE_URL+dt.nft.u}" class="nft-img" style="filter:${dt.nft.hue}"><div class="nft-name">${dt.nft.name}</div><div style="font-size:10px;">${dt.price.toLocaleString()}💎</div><button class="btn btn-sm ${mine?'btn-outline':'btn-blue'}" style="margin-top:5px; background:rgba(0,0,0,0.5)" onclick="${mine?`delP2P('${d.id}')`:`reqBuyP2P('${d.id}',${dt.price})`}">${mine?'Снять':'Купить'}</button>`;
+                    l.appendChild(el);
                 });
             });
         }
+        function reqBuyP2P(id, p){ pendingBuy={type:'p2p', id, price:p}; document.getElementById('confirm-text').innerText=`Купить за ${p.toLocaleString()}?`; openModal('confirm-modal'); }
+        function buyP2P(id,p){
+            if(data.balance<p)return toast("Мало денег");
+            db.runTransaction(async t=>{
+                const doc=await t.get(db.collection('market').doc(id));
+                if(!doc.exists)throw "Уже куплено";
+                const lot=doc.data();
+                t.update(db.collection('users').doc(lot.seller),{balance:firebase.firestore.FieldValue.increment(p)});
+                t.update(db.collection('users').doc(myNick),{balance:firebase.firestore.FieldValue.increment(-p),inventory:firebase.firestore.FieldValue.arrayUnion(lot.nft)});
+                t.delete(db.collection('market').doc(id));
+            }).then(()=>{toast("Куплено!");loadP2P();}).catch(e=>toast(e));
+        }
+        function delP2P(id){db.collection('market').doc(id).get().then(d=>{db.collection('users').doc(myNick).update({inventory:firebase.firestore.FieldValue.arrayUnion(d.data().nft)});d.ref.delete();loadP2P();});}
 
-        // --- CASINO FIXED ---
-        async function playSlots() {
-            const bet = parseInt(document.getElementById('slots-bet').value);
-            if(!bet || bet > data.balance) return toast("Ставка?");
+        // --- CASINO ---
+        function startMines(){
+            if(mines.a)return;
+            const b=parseInt(document.getElementById('mines-bet').value);
+            if(!b||b>data.balance||b<=0)return toast("Неверная ставка");
+            data.balance-=b; 
+            mines={a:true,m:[],s:0,b:b};
+            while(mines.m.length<3){const r=Math.floor(Math.random()*16);if(!mines.m.includes(r))mines.m.push(r);}
+            const g=document.getElementById('mines-field'); g.innerHTML='';
+            for(let i=0;i<16;i++){
+                const c=document.createElement('div'); c.className='card'; c.style.aspectRatio='1'; c.style.fontSize='20px'; c.style.justifyContent='center'; c.style.cursor='pointer';
+                c.onclick=()=>{
+                    if(!mines.a||c.innerText!=='')return;
+                    if(mines.m.includes(i)){
+                        c.innerHTML='💣'; c.style.background='var(--danger)';
+                        mines.a=false; toast("BOOM! Потеряно: "+mines.b);
+                        document.getElementById('mines-btn').innerText="Играть снова";
+                        save();
+                    } else {
+                        c.innerHTML='💎'; c.style.background='var(--success)'; mines.s++;
+                        const win = Math.floor(mines.b*(1+mines.s*0.2)); // Low multiplier
+                        document.getElementById('mines-btn').innerText=`Забрать ${win}`;
+                        document.getElementById('mines-btn').onclick=()=>{
+                            data.balance+=win; save(); toast("Победа: "+win);
+                            mines.a=false; document.getElementById('mines-btn').innerText="Играть"; document.getElementById('mines-btn').onclick=startMines;
+                        };
+                    }
+                };
+                g.appendChild(c);
+            }
+        }
+
+        async function playSlots(){
+            const b=parseInt(document.getElementById('slots-bet').value);
+            if(!b||b>data.balance||b<=0)return toast("Ставка?");
             
             const btn = document.getElementById('btn-spin');
             btn.disabled = true;
-            data.balance -= bet; updateUI();
+            data.balance-=b; updateUI();
 
-            const reels = [1,2,3].map(i => document.getElementById('reel-'+i));
-            reels.forEach(r => r.classList.add('spin-active'));
-
-            await new Promise(r => setTimeout(r, 1000));
-
-            const icons = ['🍒','💎','7️⃣','🍋'];
-            const res = [0,0,0].map(() => icons[Math.floor(Math.random()*icons.length)]);
+            const v=document.getElementById('slots-view');
+            v.classList.add('spinning');
             
-            reels.forEach((r, i) => {
-                r.classList.remove('spin-active');
-                r.innerText = res[i];
-            });
+            // Wait for animation
+            await new Promise(r => setTimeout(r, 1000));
+            
+            v.classList.remove('spinning');
+            const icons = ['🍒','💎','7️⃣','💩','🍋'];
+            // Nerfed Logic: High chance of poop
+            const r1 = Math.random() < 0.5 ? '💩' : icons[Math.floor(Math.random()*icons.length)];
+            const r2 = Math.random() < 0.5 ? '💩' : icons[Math.floor(Math.random()*icons.length)];
+            const r3 = Math.random() < 0.5 ? '💩' : icons[Math.floor(Math.random()*icons.length)];
+            
+            // HTML Update
+            v.innerHTML = `<span>${r1}</span> <span>${r2}</span> <span>${r3}</span>`;
 
-            if(res[0] === res[1] && res[1] === res[2]) {
-                const w = bet * 10;
-                data.balance += w;
-                toast("ДЖЕКПОТ: " + w);
+            let win = 0;
+            if(r1===r2 && r2===r3 && r1!=='💩') {
+                if(r1==='7️⃣') win = b*50; // Jackpot
+                else win = b*10;
+                toast(`JACKPOT! +${win}`);
+            } else if((r1===r2 || r2===r3 || r1===r3) && r1!=='💩' && r2!=='💩' && r3!=='💩') {
+                 win = Math.floor(b * 1.5);
+                 toast(`Win! +${win}`);
+            } else {
+                toast("Проигрыш");
             }
+            
+            if(win > 0) data.balance += win;
             btn.disabled = false;
             save();
         }
 
-        // --- HELPERS ---
-        function genGradient() {
-            const h = Math.floor(Math.random()*360);
-            return `linear-gradient(135deg, hsl(${h}, 50%, 20%), hsl(${h+40}, 60%, 10%))`;
-        }
-        function save() { db.collection('users').doc(myNick).update({balance: data.balance, energy: data.energy, inventory: data.inventory, tapLvl: data.tapLvl, critLvl: data.critLvl, regenLvl: data.regenLvl}); }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function toast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none', 2000); }
-        function switchTab(s,t) { 
-            document.getElementById(s+'-official').style.display = t==='official'?'block':'none';
-            document.getElementById(s+'-p2p').style.display = t==='p2p'?'block':'none';
-        }
-        function switchGame(g) { ['slots','mines','dice'].forEach(x=>document.getElementById('game-'+x).style.display='none'); document.getElementById('game-'+g).style.display='block'; }
-        function nav(s, e) {
-            document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
-            document.getElementById('screen-'+s).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
-            e.classList.add('active');
-        }
-
-        // --- UPGRADES ---
-        function buyTap() { const c = 1000*Math.pow(1.5,data.tapLvl); if(data.balance<c) return; data.balance-=c; data.tapLvl++; save(); updateUI(); }
-        function buyCrit() { const c = 5000*data.critLvl; if(data.balance<c) return; data.balance-=c; data.critLvl++; save(); updateUI(); }
-        function buyRegen() { const c = 5000*data.regenLvl; if(data.balance<c) return; data.balance-=c; data.regenLvl++; save(); updateUI(); }
-
-        // --- ADMIN ---
-        function adminGive() {
-            db.collection('users').doc(document.getElementById('adm-nick').value)
-            .update({balance: firebase.firestore.FieldValue.increment(parseInt(document.getElementById('adm-amt').value))});
-            toast("Выдано");
-        }
-        function adminBot() {
-            const item = ASSETS[Math.floor(Math.random()*ASSETS.length)];
-            const fakeItem = { n: item.n, u: item.u, t: item.t, p: item.p, s: 999, max: 999, bg: genGradient() };
-            db.collection('market').add({
-                seller: 'Bot', item: fakeItem, price: 100000, ts: Date.now()
+        // --- COSMETICS & PROFILE ---
+        function renderCosmetics() {
+            // Colors
+            const cl = document.getElementById('style-colors'); cl.innerHTML='';
+            COSMETICS.colors.forEach(c => {
+                const owned = data.owned_colors.includes(c.id);
+                const active = data.active_color === c.id;
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div style="color:${c.hex}; font-weight:bold;">${c.name}</div>
+                    <div style="font-size:10px; margin:5px 0;">${owned ? (active?'Активно':'Куплено') : c.cost+'💎'}</div>
+                    <button class="btn btn-sm ${active?'btn-gold':(owned?'btn-outline':'btn-primary')}"
+                    onclick="${owned ? `equipStyle('color','${c.id}')` : `buyStyle('color','${c.id}',${c.cost})`}">
+                    ${active ? '✓' : (owned ? 'Надеть' : 'Купить')}
+                    </button>
+                `;
+                cl.appendChild(div);
             });
-            toast("Бот лот создан");
+
+            // Frames
+            const fl = document.getElementById('style-frames'); fl.innerHTML='';
+            COSMETICS.frames.forEach(f => {
+                const owned = data.owned_frames.includes(f.id);
+                const active = data.active_frame === f.id;
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="avatar-frame ${f.cls}" style="width:30px;height:30px;font-size:12px;margin-bottom:5px;">A</div>
+                    <div style="font-size:10px; margin:5px 0;">${owned ? (active?'Активно':'Куплено') : f.cost+'💎'}</div>
+                    <button class="btn btn-sm ${active?'btn-gold':(owned?'btn-outline':'btn-primary')}"
+                    onclick="${owned ? `equipStyle('frame','${f.id}')` : `buyStyle('frame','${f.id}',${f.cost})`}">
+                    ${active ? '✓' : (owned ? 'Надеть' : 'Купить')}
+                    </button>
+                `;
+                fl.appendChild(div);
+            });
         }
+
+        function buyStyle(type, id, cost) {
+            if(data.balance < cost) return toast("Мало денег");
+            data.balance -= cost;
+            if(type === 'color') data.owned_colors.push(id);
+            if(type === 'frame') data.owned_frames.push(id);
+            save(); renderCosmetics(); toast("Куплено!");
+        }
+
+        function equipStyle(type, id) {
+            if(type === 'color') data.active_color = id;
+            if(type === 'frame') data.active_frame = id;
+            save(); renderCosmetics(); updateUI();
+        }
+
+        // --- SOCIAL ---
+        async function addFriend(){
+            const n=document.getElementById('search-nick').value.trim();
+            if(n===myNick) return toast("Это ты!");
+            const d=await db.collection('users').doc(n).get();
+            if(!d.exists) return toast("Не найден");
+            db.collection('users').doc(myNick).update({friends:firebase.firestore.FieldValue.arrayUnion(n)});
+            toast("Добавлен");
+        }
+        function renderFriends(){
+            const l=document.getElementById('friends-list'); l.innerHTML='';
+            data.friends.forEach(f=>{
+                const d=document.createElement('div'); d.style.background='#222'; d.style.padding='10px'; d.style.marginBottom='5px'; d.style.borderRadius='10px'; d.style.display='flex'; d.style.justifyContent='space-between';
+                d.innerHTML=`<span>${f}</span><button class="btn-sm btn-outline" onclick="openChat('${f}')">Чат</button>`;
+                l.appendChild(d);
+            });
+        }
+        async function openChat(f){
+            const cid = myNick<f ? `${myNick}_${f}` : `${f}_${myNick}`;
+            document.getElementById('chat-title').innerText = f;
+            
+            // Get friend's equipped items to show orbiters
+            const fData = await db.collection('users').doc(f).get();
+            let orbitersHtml = '';
+            if(fData.exists && fData.data().equipped) {
+                fData.data().equipped.forEach(item => {
+                    orbitersHtml += `<img src="${BASE_URL+item.u}" style="width:15px; margin-left:5px;">`;
+                });
+            }
+            document.getElementById('chat-title').innerHTML = `${f} ${orbitersHtml}`;
+
+            if(chatUnsub) chatUnsub();
+            const box = document.getElementById('chat-history');
+            chatUnsub = db.collection('chats').doc(cid).collection('msgs').orderBy('ts').limit(50).onSnapshot(s=>{
+                box.innerHTML='';
+                s.forEach(d=>{
+                    const m=d.data();
+                    const el=document.createElement('div'); el.style.padding='6px 10px'; el.style.borderRadius='10px'; el.style.marginBottom='5px'; el.style.maxWidth='80%'; el.style.fontSize='14px';
+                    if(m.by===myNick){ el.style.background='var(--primary)'; el.style.alignSelf='flex-end'; }
+                    else { el.style.background='#333'; el.style.alignSelf='flex-start'; }
+                    el.innerText=m.t; box.appendChild(el);
+                });
+                box.scrollTop=box.scrollHeight;
+                
+                // Toast if new msg received while modal closed (logic simplified here)
+                s.docChanges().forEach(change => {
+                   if (change.type === "added" && change.doc.data().by !== myNick && document.getElementById('chat-modal').style.display === 'none') {
+                       toast(`Сообщение от ${f}`);
+                   }
+                });
+            });
+            openModal('chat-modal');
+        }
+        function sendMsg(){
+            const t=document.getElementById('chat-msg').value.trim();
+            if(!t)return;
+            const target = document.getElementById('chat-title').innerText.split(' ')[0]; // hacky way to get nick back
+            const cid = myNick<target ? `${myNick}_${target}` : `${target}_${myNick}`;
+            db.collection('chats').doc(cid).collection('msgs').add({by:myNick, t:t, ts:Date.now()});
+            document.getElementById('chat-msg').value='';
+        }
+
+        // --- TOP ---
+        function loadTop(type, el) {
+            document.querySelectorAll('#screen-top .tab').forEach(e=>e.classList.remove('active')); el.classList.add('active');
+            const list = document.getElementById('top-list'); list.innerHTML = '<div style="text-align:center;padding:20px;">Загрузка...</div>';
+            let field = type==='balance' ? 'balance' : 'createdAt'; // Simple sorting for now
+            
+            // We need a cloud function to maintain top lists efficiently, 
+            // but for client-side demo we query users. Warning: Heavy read!
+            db.collection('users').orderBy('balance', 'desc').limit(10).get().then(snap => {
+                list.innerHTML = ''; let rank = 1;
+                snap.forEach(doc => {
+                    const u = doc.data();
+                    const val = type==='balance' ? Math.floor(u.balance) : (u.inventory?u.inventory.length:0);
+                    const row = document.createElement('div'); row.style.display='flex'; row.style.padding='10px'; row.style.borderBottom='1px solid #222';
+                    row.innerHTML = `<b style="width:30px;color:var(--gold)">${rank++}</b><span style="flex:1">${u.nickname}</span><span style="color:var(--success)">${val.toLocaleString()}</span>`;
+                    list.appendChild(row);
+                });
+            });
+        }
+
+        // --- ADMIN (kayivi only) ---
+        function adminUnban() {
+            const t = document.getElementById('adm-target').value.trim();
+            db.collection('users').doc(t).update({isBanned: false, warnings: 0});
+            toast("User Unbanned");
+        }
+        function adminBan() {
+            const t = document.getElementById('adm-target').value.trim();
+            db.collection('users').doc(t).update({isBanned: true});
+            toast("User Banned");
+        }
+        function adminGiveSelf() {
+            // Adds random Legendary item to self
+            const item = ASSETS[1]; // Crown
+            const newItem = { id: Date.now(), name: item.n, type: item.t, u: item.u, p: item.p, serial: 999, bg: genUnique().bg, hue: '' };
+            db.collection('users').doc(myNick).update({ inventory: firebase.firestore.FieldValue.arrayUnion(newItem) });
+            toast("Admin Gift Given");
+        }
+        function adminAddShop() {
+             // Simulates adding stock to global stats
+             const t = document.getElementById('adm-target').value.trim(); // Use textbox for Item Name
+             if(t) {
+                 db.collection('game').doc('stats').update({ [`items.${t}`]: 0 }); // Reset stock
+                 toast("Stock Reset for " + t);
+             }
+        }
+
+        // --- UTILS ---
+        function confirmAction(){
+            if(!pendingBuy) return;
+            if(pendingBuy.type === 'shop') buyShop(pendingBuy.name, pendingBuy.price);
+            if(pendingBuy.type === 'p2p') buyP2P(pendingBuy.id, pendingBuy.price);
+            closeModal('confirm-modal'); pendingBuy = null;
+        }
+
+        function save(){
+            if(!data || data.isBanned) return;
+            db.collection('users').doc(myNick).update({
+                balance: data.balance,
+                energy: data.energy,
+                tapLvl: data.tapLvl,
+                critLvl: data.critLvl,
+                regenLvl: data.regenLvl,
+                owned_colors: data.owned_colors,
+                owned_frames: data.owned_frames,
+                active_color: data.active_color,
+                active_frame: data.active_frame
+            });
+        }
+        
+        function buyTap(){const c=100*Math.pow(1.8,data.tapLvl);if(data.balance<c)return toast("Мало");data.balance-=c;data.tapLvl++;save();updateUI();}
+        function buyCrit(){const c=500+(data.critLvl*500);if(data.balance<c)return toast("Мало");data.balance-=c;data.critLvl++;save();updateUI();}
+        function buyRegen(){const c=300+(data.regenLvl*400);if(data.balance<c)return toast("Мало");data.balance-=c;data.regenLvl++;save();updateUI();}
+        function changePass(){const p=prompt("Новый пароль:");if(p&&p.length>3)db.collection('users').doc(myNick).update({password:p});}
+        function deleteAcc(){if(confirm("УДАЛИТЬ НАВСЕГДА?")){db.collection('users').doc(myNick).delete();logout();}}
+
+        function nav(s,el){document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));document.getElementById('screen-'+s).classList.add('active');document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
+        function switchMarket(t,el){['shop','p2p'].forEach(x=>document.getElementById('view-'+x).style.display='none');document.getElementById('view-'+t).style.display='block';document.querySelectorAll('#screen-market .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');if(t==='p2p')loadP2P();}
+        function switchGame(t,el){['mines','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none');document.getElementById('game-'+t).style.display='block';document.querySelectorAll('#screen-casino .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
+        function switchProfile(t,el){['main','style'].forEach(x=>document.getElementById('profile-'+x).style.display='none');document.getElementById('profile-'+t).style.display='block';document.querySelectorAll('#screen-profile .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
+        function setNftTab(t){['equip','sell','gift'].forEach(x=>document.getElementById('tab-'+x).style.display='none');document.getElementById('tab-'+t).style.display='block';document.querySelectorAll('#nft-modal .tab').forEach(e=>e.classList.remove('active'));event.target.classList.add('active');}
+        function openModal(id){document.getElementById(id).style.display='flex';}
+        function closeModal(id){document.getElementById(id).style.display='none';}
+        function toast(m){const t=document.getElementById('toast');document.getElementById('toast-msg').innerText=m;t.style.display='flex';setTimeout(()=>t.style.display='none',2500);}
     </script>
 </body>
 </html>
