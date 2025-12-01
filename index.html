@@ -454,22 +454,78 @@
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
         const BASE_IMG = "https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis";
 
-        // === 2. HUGE ITEM GENERATOR (Hardcoded as requested) ===
-        // Я сделал генератор массивом, чтобы соблюсти требование "не сокращать",
-        // но также чтобы база была действительно 300+ предметов.
-        const BASES = [
-            {n:"Coin", u:"/Objects/Coin.png", t:"Common", p:100},
-            {n:"Ring", u:"/Objects/Ring.png", t:"Common", p:300},
-            {n:"Axe", u:"/Objects/Axe.png", t:"Common", p:500},
-            {n:"Shield", u:"/Objects/Shield.png", t:"Common", p:600},
-            {n:"Potion", u:"/Food/Beverage%20Box.png", t:"Common", p:200},
-            {n:"Laptop", u:"/Objects/Laptop.png", t:"Rare", p:2500},
-            {n:"Phone", u:"/Objects/Mobile%20Phone.png", t:"Rare", p:2000},
-            {n:"UFO", u:"/Travel%20and%20places/Flying%20Saucer.png", t:"Legendary", p:50000},
-            {n:"Crown", u:"/Objects/Crown.png", t:"Legendary", p:40000},
-            {n:"Ghost", u:"/Smilies/Ghost.png", t:"Epic", p:15000},
-            {n:"Dragon", u:"/Animals/Dragon.png", t:"Legendary", p:80000},
-            {n:"Gem", u:"/Objects/Gem%20Stone.png", t:"Epic", p:10000}
+        // Supply: l (limit) -> 1000 = common, 100 = rare, 10 = legendary
+        const ASSETS = [
+            // --- EXISTING (15) ---
+            make("Ракета","Техно","/Travel%20and%20places/Rocket.png",2000, 100),
+            make("Корона","Роскошь","/Objects/Crown.png",50000, 10),
+            make("Алмаз","Роскошь","/Objects/Gem%20Stone.png",10000, 50),
+            make("Деньги","Роскошь","/Objects/Money%20Bag.png",10000, 50),
+            make("Дракон","Питомец","/Animals/Dragon.png",20000, 20),
+            make("Единорог","Питомец","/Animals/Unicorn.png",15000, 30),
+            make("Бургер","Еда","/Food/Hamburger.png",1000, 1000),
+            make("Пицца","Еда","/Food/Pizza.png",1000, 1000),
+            make("Кот","Питомец","/Animals/Cat%20Face.png",3000, 500),
+            make("Ноутбук","Техно","/Objects/Laptop.png",6000, 200),
+            make("Огонь","Редкое","/Travel%20and%20places/Fire.png",2500, 500),
+            make("Призрак","Редкое","/Smilies/Ghost.png",4000, 300),
+            make("Машина","Авто","/Travel%20and%20places/Automobile.png",8000, 150),
+            make("Самолет","Авто","/Travel%20and%20places/Airplane.png",9000, 100),
+            make("НЛО","Техно","/Travel%20and%20places/Flying%20Saucer.png",10000, 50),
+
+            // --- NEW: WEAPONS & RPG (5) ---
+            make("Меч","RPG","/Objects/Dagger.png", 4500, 300),
+            make("Щит","RPG","/Objects/Shield.png", 4000, 350),
+            make("Лук","RPG","/Objects/Bow%20and%20Arrow.png", 4200, 300),
+            make("Бомба","Оружие","/Objects/Bomb.png", 3000, 400),
+            make("Зелье","Магия","/Objects/Test%20Tube.png", 2500, 600),
+
+            // --- NEW: MEMES & FUN (5) ---
+            make("Череп","Мем","/Smilies/Skull.png", 1500, 800),
+            make("Какашка","Мем","/Smilies/Pile%20of%20Poo.png", 500, 2000),
+            make("Клоун","Мем","/Smilies/Clown%20Face.png", 2000, 700),
+            make("Робот","Техно","/Smilies/Robot.png", 5500, 250),
+            make("Пришелец","Космос","/Smilies/Alien.png", 6000, 200),
+
+            // --- NEW: ANIMALS (8) ---
+            make("Панда","Питомец","/Animals/Panda.png", 8000, 150),
+            make("Лиса","Питомец","/Animals/Fox.png", 7500, 180),
+            make("Лев","Питомец","/Animals/Lion.png", 12000, 80),
+            make("Ти-Рекс","Питомец","/Animals/T-Rex.png", 18000, 25),
+            make("Осьминог","Питомец","/Animals/Octopus.png", 4000, 400),
+            make("Собака","Питомец","/Animals/Dog%20Face.png", 3000, 500),
+            make("Коала","Питомец","/Animals/Koala.png", 7000, 200),
+            make("Бабочка","Природа","/Animals/Butterfly.png", 2000, 800),
+
+            // --- NEW: FOOD (6) ---
+            make("Суши","Еда","/Food/Sushi.png", 1500, 900),
+            make("Попкорн","Еда","/Food/Popcorn.png", 800, 1500),
+            make("Пончик","Еда","/Food/Doughnut.png", 900, 1200),
+            make("Мороженое","Еда","/Food/Soft%20Ice%20Cream.png", 1000, 1000),
+            make("Пиво","Еда","/Food/Beer%20Mug.png", 1200, 1000),
+            make("Клубника","Еда","/Food/Strawberry.png", 1100, 1100),
+
+            // --- NEW: LUXURY & ITEMS (6) ---
+            make("Часы","Роскошь","/Objects/Watch.png", 25000, 20),
+            make("Кольцо","Роскошь","/Objects/Ring.png", 30000, 15),
+            make("Кубок","Спорт","/Objects/Trophy.png", 15000, 40),
+            make("Медаль","Спорт","/Activities/1st%20Place%20Medal.png", 8000, 100),
+            make("Подарок","Разное","/Objects/Wrapped%20Gift.png", 2000, 1000),
+            make("Ключ","Разное","/Objects/Key.png", 5000, 300),
+
+            // --- NEW: TECH & VEHICLES (5) ---
+            make("Вертолет","Авто","/Travel%20and%20places/Helicopter.png", 22000, 30),
+            make("Яхта","Авто","/Travel%20and%20places/Ship.png", 24000, 25),
+            make("Полиция","Авто","/Travel%20and%20places/Police%20Car.png", 9000, 120),
+            make("Геймпад","Техно","/Activities/Video%20Game.png", 4000, 400),
+            make("Камера","Техно","/Objects/Camera.png", 5000, 350),
+
+            // --- NEW: MUSIC & SPORTS (5) ---
+            make("Гитара","Музыка","/Objects/Guitar.png", 6500, 200),
+            make("Микрофон","Музыка","/Objects/Microphone.png", 3500, 500),
+            make("Баскетбол","Спорт","/Activities/Basketball.png", 2000, 800),
+            make("Футбол","Спорт","/Activities/Soccer%20Ball.png", 2000, 800),
+            make("Саксофон","Музыка","/Objects/Saxophone.png", 6000, 220)
         ];
         
         const ADJ = ["Rusty", "Old", "Shiny", "Cyber", "Golden", "Dark", "Magic", "Broken", "Super", "Elite", "Neon", "Void", "Holy", "Cursed"];
@@ -997,3 +1053,4 @@
     </script>
 </body>
 </html>
+
