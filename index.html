@@ -590,7 +590,7 @@
             setInterval(()=>{
                 if(data && !data.isBanned){
                     // Slower Regen in Hardcore
-                    if(data.energy < 100) {
+                    if(data.energy < 1000) {
                         let regen = (data.regenLvl || 1) * 0.2; 
                         data.energy = Math.min(100, data.energy + regen);
                         updateUI();
@@ -1164,4 +1164,5 @@
     </script>
 </body>
 </html>
+
 
