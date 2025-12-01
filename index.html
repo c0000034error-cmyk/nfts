@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe: FIXED LOGIN</title>
+    <title>NFT Universe: FIX 36.0</title>
     
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase 8.10.1 (Самая стабильная версия для веб) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
     <style>
@@ -23,19 +26,19 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
 
         /* ANIMATIONS */
         @keyframes crit { 0% { transform: scale(1); } 50% { transform: scale(1.3) rotate(10deg); } 100% { transform: scale(1); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @keyframes orbit1 { from { transform: rotate(0deg) translateX(45px) rotate(0deg); } to { transform: rotate(360deg) translateX(45px) rotate(-360deg); } }
         @keyframes orbit2 { from { transform: rotate(120deg) translateX(45px) rotate(-120deg); } to { transform: rotate(480deg) translateX(45px) rotate(-480deg); } }
         @keyframes orbit3 { from { transform: rotate(240deg) translateX(45px) rotate(-240deg); } to { transform: rotate(600deg) translateX(45px) rotate(-600deg); } }
         @keyframes spin { 0% { transform: translateY(0); } 100% { transform: translateY(-1000px); } }
 
         /* UI */
-        .btn { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
+        .btn { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.2s; }
         .btn:active { transform: scale(0.95); }
+        .btn:disabled { opacity: 0.5; cursor: wait; }
         .btn-outline { background: rgba(255,255,255,0.1); border: 1px solid #333; }
         .btn-danger { background: var(--danger); }
         .btn-sm { padding: 6px 12px; font-size: 11px; width: auto; }
@@ -93,11 +96,9 @@
         /* MODALS */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .modal-box { width: 90%; max-width: 350px; background: #1a1a1a; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #333; }
-        .checkbox-container { display: flex; align-items: center; gap: 10px; color: #888; font-size: 13px; margin-top: 10px; justify-content: center; cursor: pointer; }
-        .checkbox-container input { width: auto; margin: 0; }
 
         /* TOAST & BAN */
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid #444; padding: 10px 20px; border-radius: 20px; z-index: 3000; display: none; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid #444; padding: 10px 20px; border-radius: 20px; z-index: 3000; display: none; color: white; }
         .banned { position: fixed; top:0; left:0; width:100%; height:100%; background:black; color:red; z-index:9999; display:none; justify-content:center; align-items:center; flex-direction:column; font-size: 20px; font-weight:bold; }
 
         /* LEADERBOARD */
@@ -118,6 +119,7 @@
         .mine { aspect-ratio: 1; background: #27272a; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .mine.boom { background: var(--danger); }
         .mine.safe { background: var(--success); color: #000; }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; color: #888; font-size: 13px; margin-top: 10px; justify-content: center; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -136,8 +138,11 @@
                 <input type="checkbox" id="remember-me" checked>
                 Запомнить меня
             </label>
-            <button class="btn" onclick="auth()" style="margin-top:15px;">Войти</button>
-            <p id="auth-msg" style="color:red; font-size:12px; margin-top:10px;"></p>
+            <button id="auth-btn" class="btn" onclick="auth()" style="margin-top: 15px;">Войти</button>
+            <div onclick="toggleAuth()" style="margin-top:20px; font-size:13px; color: #a1a1aa; cursor:pointer;">
+                Нет аккаунта? <span style="text-decoration: underline; color:var(--primary);">Регистрация</span>
+            </div>
+            <div id="auth-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></div>
         </div>
     </div>
 
@@ -174,13 +179,32 @@
 
         <!-- SHOP -->
         <div id="tab-shop" class="screen">
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button class="btn-sm btn-outline" onclick="renderShop('cheap')">Дешевые</button>
-                <button class="btn-sm btn-outline" onclick="renderShop('exp')">Дорогие</button>
+            <div class="tabs">
+                <div class="tab active" onclick="switchShop('shop', this)">Магазин</div>
+                <div class="tab" onclick="switchShop('p2p', this)">Биржа</div>
             </div>
-            <div class="grid" id="shop-grid"></div>
+            <div id="view-shop">
+                 <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <button class="btn-sm btn-outline" onclick="renderShop('cheap')">Дешевые</button>
+                    <button class="btn-sm btn-outline" onclick="renderShop('exp')">Дорогие</button>
+                </div>
+                <div class="grid" id="shop-grid"></div>
+            </div>
+            <div id="view-p2p" style="display:none;">
+                <button class="btn btn-outline" onclick="loadP2P()" style="width:100%; margin-bottom:10px;">Обновить</button>
+                <div class="grid" id="p2p-grid"></div>
+            </div>
         </div>
 
+        <!-- TOP -->
+        <div id="tab-top" class="screen">
+             <div class="tabs">
+                <div class="tab active" onclick="loadTop('balance', this)">Богачи</div>
+                <div class="tab" onclick="loadTop('inv', this)">Магнаты</div>
+            </div>
+            <div id="top-list"></div>
+        </div>
+        
         <!-- SOCIAL -->
         <div id="tab-social" class="screen">
             <div style="display:flex; gap:5px; margin-bottom:15px;">
@@ -189,45 +213,6 @@
             </div>
             <h3>Друзья</h3>
             <div id="friends-list"></div>
-        </div>
-
-        <!-- TOP -->
-        <div id="tab-top" class="screen">
-            <div style="display:flex; gap:5px; margin-bottom:15px;">
-                <button class="btn-sm" onclick="loadTop('balance')">Богачи</button>
-                <button class="btn-sm" onclick="loadTop('inv')">Магнаты</button>
-            </div>
-            <div id="top-list"></div>
-        </div>
-
-        <!-- PROFILE -->
-        <div id="tab-profile" class="screen">
-            <h2>Настройки</h2>
-            <div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:10px;">
-                <h4 style="margin:0 0 5px 0;">Магазин Стиля</h4>
-                <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                    <button class="btn-sm btn-outline" style="color:gold" onclick="buyCosm('nick_gold', 50000)">Gold Nick (50k)</button>
-                    <button class="btn-sm btn-outline" style="color:#00f2ff" onclick="buyCosm('nick_neon', 30000)">Neon Nick (30k)</button>
-                    <button class="btn-sm btn-outline" style="color:red" onclick="buyCosm('nick_red', 20000)">Red Nick (20k)</button>
-                    <button class="btn-sm btn-outline" style="border-color:gold" onclick="buyCosm('frame_gold', 100000)">Gold Frame (100k)</button>
-                    <button class="btn-sm btn-outline" style="border-color:#00f2ff" onclick="buyCosm('frame_neon', 80000)">Neon Frame (80k)</button>
-                </div>
-            </div>
-            <div style="margin-bottom:10px;">
-                <button class="btn-sm btn-outline" onclick="setStyle('nick')">Применить Цвет</button>
-                <button class="btn-sm btn-outline" onclick="setStyle('frame')">Применить Рамку</button>
-            </div>
-            <button class="btn btn-outline" onclick="changePass()" style="margin-top:10px;">Сменить пароль</button>
-            <button class="btn btn-danger" onclick="deleteAcc()" style="margin-top:10px;">Удалить аккаунт</button>
-            <button class="btn" onclick="logout()" style="margin-top:20px;">Выйти</button>
-            
-            <div id="admin-panel" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:10px;">
-                <h3 style="color:red;">ADMIN</h3>
-                <input id="adm-u" placeholder="User">
-                <input id="adm-a" placeholder="Amount">
-                <button class="btn-sm btn-danger" onclick="adminGive()">Give Money</button>
-                <button class="btn-sm btn-danger" onclick="adminUnban()">Unban</button>
-            </div>
         </div>
 
         <!-- CASINO -->
@@ -259,6 +244,47 @@
                 <button class="btn" id="slots-btn" onclick="playSlots()">SPIN</button>
             </div>
         </div>
+
+        <!-- PROFILE -->
+        <div id="tab-profile" class="screen">
+            <h2>Настройки</h2>
+            
+            <div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:10px;">
+                <h4 style="margin:0 0 5px 0;">Магазин Стиля</h4>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button class="btn-sm btn-outline" style="color:gold" onclick="buyCosm('nick_gold', 50000)">Gold Nick (50k)</button>
+                    <button class="btn-sm btn-outline" style="color:#00f2ff" onclick="buyCosm('nick_neon', 30000)">Neon Nick (30k)</button>
+                    <button class="btn-sm btn-outline" style="color:red" onclick="buyCosm('nick_red', 20000)">Red Nick (20k)</button>
+                    <button class="btn-sm btn-outline" style="border-color:gold" onclick="buyCosm('frame_gold', 100000)">Gold Frame (100k)</button>
+                    <button class="btn-sm btn-outline" style="border-color:#00f2ff" onclick="buyCosm('frame_neon', 80000)">Neon Frame (80k)</button>
+                </div>
+            </div>
+            
+            <div class="settings-row">
+                <span>Цвет Ника</span>
+                <select id="sel-nick" onchange="setStyle()" style="width:100px; padding:5px; background:#222; color:white; border:1px solid #333;">
+                    <option value="">Def</option>
+                </select>
+            </div>
+            <div class="settings-row">
+                <span>Рамка</span>
+                <select id="sel-frame" onchange="setStyle()" style="width:100px; padding:5px; background:#222; color:white; border:1px solid #333;">
+                    <option value="">Def</option>
+                </select>
+            </div>
+
+            <button class="btn btn-outline" onclick="changePass()" style="margin-top:10px;">Сменить пароль</button>
+            <button class="btn btn-danger" onclick="deleteAcc()" style="margin-top:10px;">Удалить аккаунт</button>
+            <button class="btn" onclick="logout()" style="margin-top:20px;">Выйти</button>
+            
+            <div id="admin-panel" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:10px;">
+                <h3 style="color:red;">ADMIN</h3>
+                <input id="adm-u" placeholder="User">
+                <input id="adm-a" placeholder="Amount">
+                <button class="btn-sm btn-danger" onclick="adminGive()">Give Money</button>
+                <button class="btn-sm btn-outline" onclick="adminUnban()">Unban</button>
+            </div>
+        </div>
     </div>
 
     <div class="navbar">
@@ -282,20 +308,24 @@
                 <div class="tab active" onclick="setModalTab('equip')">Действия</div>
                 <div class="tab" onclick="setModalTab('sell')">Продать</div>
             </div>
+            
             <div id="mt-equip">
                 <button class="btn" onclick="equipItem()">Надеть / Снять</button>
                 <button class="btn btn-outline" onclick="setModalTab('gift')" style="margin-top:10px;">Подарить</button>
             </div>
+            
             <div id="mt-sell" style="display:none;">
                 <button class="btn btn-danger" onclick="sellItem()">Сжечь (+<span id="m-price"></span>)</button>
                 <div style="margin:10px 0; font-size:12px;">ИЛИ БИРЖА</div>
                 <input id="p2p-p" type="number" placeholder="Цена">
                 <button class="btn" onclick="sellP2P()">Выставить</button>
             </div>
+
             <div id="mt-gift" style="display:none;">
                 <input id="gift-n" placeholder="Ник друга">
                 <button class="btn" onclick="sendGift()">Отправить</button>
             </div>
+
             <button class="btn-sm btn-outline" onclick="closeModal('modal-item')" style="margin-top:10px; width:100%;">Закрыть</button>
         </div>
     </div>
@@ -304,10 +334,10 @@
         <div class="modal-box">
             <h3>Boosters</h3>
             <p>Multitap Lvl: <span id="b-tap">1</span></p>
-            <button class="btn" onclick="upTap()">Upgrade (<span id="c-tap">100</span>)</button>
+            <button class="btn" onclick="upTap()">Up (<span id="c-tap">100</span>)</button>
             <hr style="border-color:#333; margin:10px 0;">
             <p>Regen Lvl: <span id="b-reg">1</span></p>
-            <button class="btn" onclick="upReg()">Upgrade (<span id="c-reg">100</span>)</button>
+            <button class="btn" onclick="upReg()">Up (<span id="c-reg">100</span>)</button>
             <hr style="border-color:#333; margin:10px 0;">
              <p>Auto-Bot (30m)</p>
             <button class="btn btn-gold" onclick="buyBot()">Buy (25000)</button>
@@ -361,31 +391,40 @@
         if(myNick) login(myNick);
 
         async function auth(){
+            const btn = document.getElementById('auth-btn');
             const n=document.getElementById('auth-nick').value.trim();
             const p=document.getElementById('auth-pass').value.trim();
             const rem=document.getElementById('remember').checked;
-            if(n.length<3) return alert("Короткий ник");
+            const err=document.getElementById('auth-error');
             
-            // ADMIN BACKDOOR TO FIX BROKEN ACCOUNTS
-            if(n === 'kayivi') {
-                 await db.collection('users').doc(n).update({password: p});
-                 finishAuth(n, rem);
-                 return;
-            }
+            if(n.length<3) return err.innerText="Короткий ник";
+            
+            btn.disabled = true; 
+            btn.innerText = "Загрузка...";
+            err.innerText = "";
 
-            const ref = db.collection('users').doc(n);
-            const doc = await ref.get();
-            
-            if(!doc.exists) {
-                await ref.set({
-                    pass:p, nick:n, bal:0, en:1000, inv:[], fr:[], 
-                    eq:[], tap:1, reg:1, ban:false, upg:{}, style:{n:'',f:''},
-                    ts:Date.now(), invVal:0, botExp:0
-                });
-                finishAuth(n,rem);
-            } else {
-                if(doc.data().pass === p) finishAuth(n,rem);
-                else document.getElementById('auth-msg').innerText="Неверный пароль";
+            try {
+                // TIMEOUT PROTECTION
+                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Таймаут. Проверь интернет/Rules")), 5000));
+                const req = db.collection('users').doc(n).get();
+                const doc = await Promise.race([req, timeout]);
+
+                if(!doc.exists) {
+                    await db.collection('users').doc(n).set({
+                        pass:p, nick:n, bal:0, en:1000, inv:[], fr:[], 
+                        eq:[], tap:1, reg:1, ban:false, upg:{}, style:{n:'',f:''},
+                        ts:Date.now(), invVal:0, botExp:0
+                    });
+                    finishAuth(n,rem);
+                } else {
+                    if(doc.data().pass === p) finishAuth(n,rem);
+                    else err.innerText="Неверный пароль";
+                }
+            } catch(e) {
+                err.innerText = e.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Войти";
             }
         }
 
@@ -401,7 +440,6 @@
                     data = d.data();
                     if(data.ban) { document.getElementById('banned-screen').style.display='flex'; return; }
                     if(!data.upg) data.upg={}; if(!data.style) data.style={n:'',f:''}; if(!data.botExp) data.botExp=0;
-                    if(!data.fr) data.fr=[];
                     
                     // EXCLUSIVE DROP
                     if(n==='kayivi' && !data.inv.find(x=>x.n==='Zone Dancer')) {
@@ -412,10 +450,14 @@
                     renderUI();
                     if(n==='kayivi') document.getElementById('admin-panel').style.display='block';
                 }
+            }, err => {
+                console.error(err);
+                document.getElementById('auth-modal').style.display='flex';
             });
+            
             setInterval(loop, 1000);
             renderShop('cheap');
-            loadTop('balance');
+            loadTop('bal');
             renderFriends();
         }
 
@@ -427,7 +469,9 @@
                     document.getElementById('bot-timer').innerText = "🤖 " + Math.ceil((data.botExp-Date.now())/60000)+"m";
                     document.getElementById('bot-timer').style.display='inline';
                 } else document.getElementById('bot-timer').style.display='none';
-                clicks=0; renderUI();
+                
+                clicks=0;
+                renderUI();
             }
         }
 
@@ -461,17 +505,21 @@
             });
             
             renderInv();
+            updateSettingsUI();
         }
 
         // --- TAP ---
         document.getElementById('tap-btn').addEventListener('mousedown', e=>{
             if(data.en<1) return toast("Нет энергии");
+            
+            // ANTI CHEAT
             clicks++;
             if(clicks > 15) {
                 warn++; toast(`WARNING ${warn}/3`);
                 if(warn>=3) db.collection('users').doc(myNick).update({ban:true});
                 return;
             }
+
             // COMBO
             clearTimeout(comboT);
             combo++; if(combo>20)combo=20;
@@ -479,14 +527,16 @@
             document.getElementById('combo-txt').innerText = `x${(1+combo*0.1).toFixed(1)}`;
             comboT = setTimeout(()=>{combo=0;document.getElementById('combo-fill').style.width='0%';document.getElementById('combo-txt').innerText='';}, 1000);
 
+            // CRIT
             let mult = 1 + (combo*0.1);
-            let isCrit = Math.random() < 0.05;
+            let isCrit = Math.random() < 0.05; // 5% crit
             if(isCrit) { mult *= 5; toast("CRIT x5!"); document.getElementById('tap-btn').style.animation='shake 0.2s'; }
             else document.getElementById('tap-btn').style.animation='none';
 
             const gain = Math.floor(data.tap * mult);
             data.bal += gain;
             data.en -= 1;
+
             if(Math.floor(data.bal)%10===0) save();
             renderUI();
             
@@ -500,14 +550,25 @@
             const l=document.getElementById('shop-grid'); l.innerHTML='';
             let list = [...ITEMS];
             if(sort==='cheap') list.sort((a,b)=>a.p-b.p); else list.sort((a,b)=>b.p-a.p);
+            
             list.forEach(i=>{
                 const d=document.createElement('div'); d.className=`card bg-${getRare(i.p)}`;
-                d.innerHTML=`<div class="nft-pill">${i.t}</div><img src="${BASE+i.u}" class="nft-img" loading="lazy"><div class="nft-name">${i.n}</div><button class="btn-sm btn-outline" style="margin-top:5px;" onclick="askBuy('${i.n}')">${i.p}</button>`;
+                d.innerHTML=`
+                    <div class="nft-pill">${i.t}</div>
+                    <img src="${BASE+i.u}" class="nft-img" loading="lazy">
+                    <div class="nft-name">${i.n}</div>
+                    <button class="btn-sm btn-outline" style="margin-top:5px;" onclick="askBuy('${i.n}')">${i.p}</button>
+                `;
                 l.appendChild(d);
             });
         }
         function getRare(p){ if(p>50000)return'Legendary'; if(p>10000)return'Epic'; if(p>4000)return'Rare'; return'Common'; }
-        function askBuy(n){ buyTarget=ITEMS.find(x=>x.n===n); document.getElementById('conf-name').innerText=`Купить ${n} за ${buyTarget.p}?`; document.getElementById('modal-confirm').style.display='flex'; }
+        
+        function askBuy(n){ 
+            buyTarget=ITEMS.find(x=>x.n===n); 
+            document.getElementById('conf-name').innerText=`Купить ${n} за ${buyTarget.p}?`;
+            document.getElementById('modal-confirm').style.display='flex';
+        }
         function buyConfirm(){
             if(data.bal<buyTarget.p) return toast("Мало денег");
             data.bal-=buyTarget.p;
@@ -523,7 +584,13 @@
                 const isEq = data.eq.find(x=>x.id===it.id);
                 const d=document.createElement('div'); d.className=`card bg-${it.r}`;
                 const src = it.gif ? it.u : BASE+it.u;
-                d.innerHTML=`${isEq?'<div style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:#10b981;border-radius:50%"></div>':''}<img src="${src}" class="nft-img"><div class="nft-name">${it.n}</div><div style="font-size:10px;color:#aaa">#${it.s}</div><button class="btn-sm btn-outline" style="width:100%;margin-top:5px;" onclick="openItem(${i})">Menu</button>`;
+                d.innerHTML=`
+                    ${isEq?'<div style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:#10b981;border-radius:50%"></div>':''}
+                    <img src="${src}" class="nft-img">
+                    <div class="nft-name">${it.n}</div>
+                    <div style="font-size:10px;color:#aaa">#${it.s}</div>
+                    <button class="btn-sm btn-outline" style="width:100%;margin-top:5px;" onclick="openItem(${i})">Menu</button>
+                `;
                 l.appendChild(d);
             });
         }
@@ -537,7 +604,13 @@
             document.getElementById('modal-item').style.display='flex';
             setModalTab('equip');
         }
-        function setModalTab(t) { ['equip','sell','gift'].forEach(x=>document.getElementById('mt-'+x).style.display='none'); document.getElementById('mt-'+t).style.display='block'; }
+        function setModalTab(t) {
+            ['equip','sell','gift'].forEach(x=>document.getElementById('mt-'+x).style.display='none');
+            document.getElementById('mt-'+t).style.display='block';
+            document.querySelectorAll('#modal-item .tab').forEach(x=>x.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
         function equipItem(){
             const exists = data.eq.findIndex(x=>x.id===curItem.id);
             if(exists>-1) { data.eq.splice(exists,1); toast("Снято"); }
@@ -545,13 +618,16 @@
             save(); closeModal('modal-item');
         }
         function sellItem(){
-            const p = Math.floor(curItem.p * 0.5); data.bal += p;
-            data.inv = data.inv.filter(x=>x.id!==curItem.id); data.eq = data.eq.filter(x=>x.id!==curItem.id);
+            const p = Math.floor(curItem.p * 0.5);
+            data.bal += p;
+            data.inv = data.inv.filter(x=>x.id!==curItem.id);
+            data.eq = data.eq.filter(x=>x.id!==curItem.id);
             save(); closeModal('modal-item'); toast("Продано +"+p);
         }
         function sellP2P(){
             const p=parseInt(document.getElementById('p2p-p').value); if(!p)return;
-            data.inv = data.inv.filter(x=>x.id!==curItem.id); data.eq = data.eq.filter(x=>x.id!==curItem.id);
+            data.inv = data.inv.filter(x=>x.id!==curItem.id);
+            data.eq = data.eq.filter(x=>x.id!==curItem.id);
             db.runTransaction(async t=>{
                 const d=await t.get(db.collection('users').doc(myNick));
                 t.update(db.collection('users').doc(myNick), {inv:d.data().inv.filter(x=>x.id!==curItem.id), eq:d.data().eq.filter(x=>x.id!==curItem.id)});
@@ -583,7 +659,7 @@
                 l.innerHTML=''; let r=1;
                 sn.forEach(d=>{
                     const u=d.data();
-                    const v = f==='balance' ? Math.floor(u.bal) : (u.inv?u.inv.length:0);
+                    const v = f==='balance' ? Math.floor(u.bal) : (u.inv?u.inv.length:0); // Count for magnate
                     l.innerHTML+=`<div class="lb-row"><span class="lb-rank">${r++}</span><span>${u.nick}</span><span style="font-family:monospace">${val.toLocaleString()}</span></div>`;
                 });
             });
@@ -638,27 +714,12 @@
                 const i=['🍒','💎','7️⃣']; const r=[i[Math.floor(Math.random()*3)],i[Math.floor(Math.random()*3)],i[Math.floor(Math.random()*3)]];
                 res.innerText = r.join(' ');
                 if(r[0]==r[1]&&r[1]==r[2]){data.bal+=b*10;toast("JACKPOT!");}
-                else if(r[0]==r[1]||r[1]==r[2]||r[0]==r[2]){data.bal+=Math.floor(b*2);toast("WIN");}
+                else if(r[0]==r[1]||r[1]==r[2]||r[0]==r[2]){data.bal+=Math.floor(b*1.5);toast("WIN");}
                 save();
             },1000);
         }
 
-        // --- UTILS ---
-        function save(){
-            let v=0; data.inv.forEach(i=>v+=i.p);
-            db.collection('users').doc(myNick).update({bal:data.bal,en:data.en,inv:data.inv,eq:data.eq,upg:data.upg,style:data.style,tap:data.tap,reg:data.reg,botExp:data.botExp,invVal:v});
-        }
-        function nav(t,e){ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); e.classList.add('active'); if(t==='shop')renderShop('cheap'); if(t==='top')loadTop('balance'); if(t==='social') renderFriends(); }
-        function switchShop(t){ document.getElementById('view-shop').style.display=t==='shop'?'block':'none'; document.getElementById('view-p2p').style.display=t==='p2p'?'block':'none'; if(t==='p2p')loadP2P(); }
-        function switchGame(t){ ['mines','coin','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none'); document.getElementById('game-'+t).style.display='block'; }
-        function openModal(id){document.getElementById(id).style.display='flex'}
-        function closeModal(id){document.getElementById(id).style.display='none'}
-        function openBoost(){openModal('modal-boost')}
-        function toast(m){const t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
-        function adminGive(){const u=document.getElementById('adm-u').value;const a=parseInt(document.getElementById('adm-a').value);db.collection('users').doc(u).update({bal:firebase.firestore.FieldValue.increment(a)});toast("Gave");}
-        function adminUnban(){const u=document.getElementById('adm-u').value;db.collection('users').doc(u).update({ban:false});toast("Unbanned");}
-        function deleteAcc(){if(confirm("Удалить?")){db.collection('users').doc(myNick).delete();logout();}}
-        function changePass(){const p=prompt("Pass");if(p)db.collection('users').doc(myNick).update({pass:p});}
+        // --- SETTINGS & SOCIAL ---
         function buyCosm(t,c){ if(data.bal<c)return toast("$$"); if(data.upg[t])return toast("Есть"); data.bal-=c; data.upg[t]=true; save(); updateSettingsUI(); }
         function updateSettingsUI(){
             const ns=document.getElementById('sel-nick'); const fs=document.getElementById('sel-frame');
@@ -673,11 +734,30 @@
         function setStyle(){ data.style.n=document.getElementById('sel-nick').value; data.style.f=document.getElementById('sel-frame').value; save(); }
         function addFriend(){const n=document.getElementById('friend-nick').value;db.collection('users').doc(n).get().then(d=>{if(d.exists){db.collection('users').doc(myNick).update({fr:firebase.firestore.FieldValue.arrayUnion(n)});toast("Added");}});}
         function renderFriends(){const l=document.getElementById('friends-list');l.innerHTML='';data.fr.forEach(f=>{l.innerHTML+=`<div style="padding:10px;background:#222;margin-bottom:5px;border-radius:10px;display:flex;justify-content:space-between"><span>${f}</span><button class="btn-sm" onclick="openChat('${f}')">Chat</button></div>`});}
-        function openChat(f){curChat=f;document.getElementById('chat-title').innerText=f;const c=myNick<f?myNick+f:f+myNick;if(chatUnsub)chatUnsub();chatUnsub=db.collection('chats').doc(c).collection('m').orderBy('t').limit(20).onSnapshot(s=>{const b=document.getElementById('chat-history');b.innerHTML='';s.forEach(d=>{const m=d.data();b.innerHTML+=`<div style="background:${m.u===myNick?'#444':'#222'};padding:5px;margin:5px;">${m.m}</div>`});});document.getElementById('modal-chat').style.display='flex';}
-        function sendMsg(){const m=document.getElementById('chat-msg').value;if(!m)return;const c=myNick<curChat?myNick+curChat:curChat+myNick;db.collection('chats').doc(c).collection('m').add({u:myNick,m:m,t:Date.now()});document.getElementById('chat-msg').value='';}
+        function openChat(f){curChat=f;document.getElementById('chat-title').innerText=f;const c=myNick<f?myNick+f:f+myNick;if(chatUnsub)chatUnsub();chatUnsub=db.collection('chats').doc(c).collection('m').orderBy('t').limit(20).onSnapshot(s=>{const b=document.getElementById('chat-box');b.innerHTML='';s.forEach(d=>{const m=d.data();b.innerHTML+=`<div style="background:${m.u===myNick?'#444':'#222'};padding:5px;margin:5px;">${m.m}</div>`});});document.getElementById('modal-chat').style.display='flex';}
+        function sendMsg(){const m=document.getElementById('chat-in').value;if(!m)return;const c=myNick<curChat?myNick+curChat:curChat+myNick;db.collection('chats').doc(c).collection('m').add({u:myNick,m:m,t:Date.now()});document.getElementById('chat-in').value='';}
+
+        // --- UPGRADES ---
         function upTap(){ const c=Math.floor(100*Math.pow(2,data.tap-1)); if(data.bal>=c){data.bal-=c;data.tap++;save();toast("UP!");} }
         function upReg(){ const c=Math.floor(100*Math.pow(2,data.reg-1)); if(data.bal>=c){data.bal-=c;data.reg++;save();toast("UP!");} }
         function buyBot(){ if(data.bal>=25000){data.bal-=25000;data.botExp=Date.now()+1800000;save();toast("Bot!");} }
+
+        // --- UTIL ---
+        function save(){
+            let v=0; data.inv.forEach(i=>v+=i.p);
+            db.collection('users').doc(myNick).update({bal:data.bal,en:data.en,inv:data.inv,eq:data.eq,upg:data.upg,style:data.style,tap:data.tap,reg:data.reg,botExp:data.botExp,invVal:v});
+        }
+        function nav(t,e){ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); e.classList.add('active'); if(t==='shop')renderShop('cheap'); if(t==='top')loadTop('balance'); }
+        function switchShop(t){ document.getElementById('view-shop').style.display=t==='shop'?'block':'none'; document.getElementById('view-p2p').style.display=t==='p2p'?'block':'none'; if(t==='p2p')loadP2P(); }
+        function switchGame(t){ ['mines','coin','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none'); document.getElementById('game-'+t).style.display='block'; }
+        function openModal(id){document.getElementById(id).style.display='flex'}
+        function closeModal(id){document.getElementById(id).style.display='none'}
+        function openBoost(){openModal('modal-boost')}
+        function toast(m){const t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
+        function adminGive(){const u=document.getElementById('adm-u').value;const a=parseInt(document.getElementById('adm-a').value);db.collection('users').doc(u).update({bal:firebase.firestore.FieldValue.increment(a)});toast("Gave");}
+        function adminUnban(){const u=document.getElementById('adm-u').value;db.collection('users').doc(u).update({ban:false});toast("Unbanned");}
+        function deleteAcc(){if(confirm("Удалить?")){db.collection('users').doc(myNick).delete();logout();}}
+        function changePass(){const p=prompt("Pass");if(p)db.collection('users').doc(myNick).update({pass:p});}
     </script>
 </body>
 </html>
