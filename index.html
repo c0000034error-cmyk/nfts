@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -586,7 +585,7 @@
                 renderShop(); // Update prices real-time
             });
 
-            // Energy Loop (ИСПРАВЛЕННЫЙ)
+            // Energy Loop (FIXED)
             let saveTick = 0;
             setInterval(()=>{
                 if(data && !data.isBanned){
@@ -596,32 +595,12 @@
                         data.energy = Math.min(100, data.energy + regen);
                         updateUI();
                         
-                        // Сохраняем энергию в базу каждые 3 секунды
+                        // Save to DB every 3 seconds to persist energy across refreshes
                         saveTick++;
                         if(saveTick >= 3) {
                             save();
                             saveTick = 0;
                         }
-                    }
-                }
-            }, 1000);
-        }
-            
-            // Listen to Global Stats (For dynamic pricing)
-            db.collection('game').doc('stats').onSnapshot(s => {
-                if(s.exists) globalStats = s.data().items || {};
-                else globalStats = {};
-                renderShop(); // Update prices real-time
-            });
-
-            // Energy Loop
-            setInterval(()=>{
-                if(data && !data.isBanned){
-                    // Slower Regen in Hardcore
-                    if(data.energy < 100) {
-                        let regen = data.regenLvl * 0.2; 
-                        data.energy = Math.min(100, data.energy + regen);
-                        updateUI();
                     }
                 }
             }, 1000);
@@ -1185,5 +1164,3 @@
     </script>
 </body>
 </html>
-
-
