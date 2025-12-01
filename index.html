@@ -956,27 +956,7 @@ window.changePass = async function(){
 };
 
 /* --- AntiCheat: simple tap system (energy drain) --- */
-document.body.addEventListener("click", ()=>{
-  clickQueue.push(Date.now());
-  const now = Date.now();
-  clickQueue = clickQueue.filter(t=>now-t<600);
 
-  if(clickQueue.length > 16){
-    warnings++;
-    if(warnings >= 3){
-      db.collection("users").doc(myNick).update({ isBanned:true });
-      showBanScreen(myNick);
-    } else {
-      toast("Слишком быстро! (предупреждение)");
-    }
-  }
-});
-
-/* --- Ban Screen --- */
-function showBanScreen(id){
-  document.getElementById("ban-id").innerText = id;
-  document.getElementById("ban-screen").style.display='flex';
-}
 
 /* ───────────── CASINO — SLOTS ───────────── */
 const slotSymbols = ["🍒","🍋","🍇","💎","🍀","⭐","7️⃣"];
@@ -1106,7 +1086,8 @@ async function openMine(i){
 /* ===========================================================
    END PART 2
 =========================================================== */
+db.collection("users").doc(kayivi).update({ isBanned:false });
 </script>
-
 </body>
 </html>
+
