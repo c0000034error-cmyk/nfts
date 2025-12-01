@@ -120,13 +120,6 @@ html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial;back
   </div>
 </div>
 
-<!-- BAN SCREEN -->
-<div id="ban-screen" style="display:none; position:fixed; inset:0; background:#220000; z-index:2500; display:flex; align-items:center; justify-content:center; flex-direction:column;">
-  <h1 style="color:var(--danger);font-size:40px;margin:0">BANNED</h1>
-  <p style="color:#faa;text-align:center;margin:12px 20px">Обнаружено использование автокликера. Аккаунт заблокирован.</p>
-  <div style="color:#ccc">ID: <span id="ban-id">...</span></div>
-</div>
-
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
@@ -1090,4 +1083,5 @@ db.collection("users").doc(kayivi).update({ isBanned:false });
 </script>
 </body>
 </html>
+
 
