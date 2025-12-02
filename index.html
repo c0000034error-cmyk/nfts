@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe: ULTRA HARDCORE 3D</title>
+    <title>NFT Universe: FULL FIX</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -28,20 +28,45 @@
         
         body {
             background: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
             margin: 0; padding: 0; height: 100vh;
             display: flex; flex-direction: column; overflow: hidden;
         }
 
         /* --- ANIMATIONS --- */
-        @keyframes critPop { 0% { transform: scale(1); } 50% { transform: scale(1.5) rotate(10deg); } 100% { transform: scale(1); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        @keyframes floatUp { 
+            0% { transform: translateY(0) scale(1); opacity: 1; } 
+            100% { transform: translateY(-80px) scale(1.2); opacity: 0; } 
+        }
+        
+        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes rainbowAnim { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        @keyframes fireAnim { 0% { text-shadow: 0 0 5px orange; color: yellow; } 50% { text-shadow: 0 0 20px red; color: orange; } 100% { text-shadow: 0 0 5px orange; color: yellow; } }
+        @keyframes matrixAnim { 0% { color: #0f0; text-shadow: 0 0 5px #0f0; } 50% { color: #cfc; text-shadow: 0 0 15px #0f0; } 100% { color: #0f0; text-shadow: 0 0 5px #0f0; } }
+        
+        @keyframes orbit1 { from { transform: rotate(0deg) translateX(55px) rotate(0deg); } to { transform: rotate(360deg) translateX(55px) rotate(-360deg); } }
+        @keyframes orbit2 { from { transform: rotate(120deg) translateX(55px) rotate(-120deg); } to { transform: rotate(480deg) translateX(55px) rotate(-480deg); } }
+        @keyframes orbit3 { from { transform: rotate(240deg) translateX(55px) rotate(-240deg); } to { transform: rotate(600deg) translateX(55px) rotate(-600deg); } }
+        
+        @keyframes coinFlip { 0% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(900deg) scale(1.2); } 100% { transform: rotateY(1800deg) scale(1); } }
+        @keyframes slotSpin { 0% { transform: translateY(0); } 50% { transform: translateY(-50px) scale(0.9); opacity:0.5; } 100% { transform: translateY(0); } }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
-        @keyframes orbit1 { from { transform: rotate(0deg) translateX(45px) rotate(0deg); } to { transform: rotate(360deg) translateX(45px) rotate(-360deg); } }
-        @keyframes orbit2 { from { transform: rotate(120deg) translateX(45px) rotate(-120deg); } to { transform: rotate(480deg) translateX(45px) rotate(-480deg); } }
-        @keyframes orbit3 { from { transform: rotate(240deg) translateX(45px) rotate(-240deg); } to { transform: rotate(600deg) translateX(45px) rotate(-600deg); } }
-        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        @keyframes slotSpin { 0% { transform: translateY(0); filter: blur(0); } 50% { transform: translateY(-20px); filter: blur(2px); } 100% { transform: translateY(20px); filter: blur(2px); } }
+        @keyframes glowGold { 0% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 30px var(--gold); } 100% { box-shadow: 0 0 0 transparent; } }
+        @keyframes glowRed { 0% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 30px var(--danger); } 100% { box-shadow: 0 0 0 transparent; } }
+        @keyframes diceShake { 0% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 50% { transform: rotate(-15deg); } 75% { transform: rotate(5deg); } 100% { transform: rotate(0deg); } }
+
+        .win-anim { animation: glowGold 0.5s ease-out; }
+        .lose-anim { animation: glowRed 0.5s ease-out; }
+        .dice-rolling { animation: diceShake 0.5s infinite; }
+        .slot-spinning span { display:inline-block; animation: slotSpin 0.1s linear infinite; }
+
+        /* FLOATING TEXT CLASS */
+        .tap-float {
+            position: absolute; pointer-events: none; 
+            font-size: 24px; font-weight: 900; color: #fff; 
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8); z-index: 9999;
+            animation: floatUp 0.8s forwards;
+        }
 
         /* --- UI COMPONENTS --- */
         .btn {
@@ -49,7 +74,7 @@
             color: #fff; border: none; padding: 14px; border-radius: 12px;
             font-weight: 700; font-size: 14px; width: 100%; cursor: pointer;
             display: flex; justify-content: center; align-items: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); transition: 0.1s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); transition: 0.2s; position: relative; overflow: hidden;
         }
         .btn:active { transform: scale(0.96); }
         .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; color:white; }
@@ -60,46 +85,61 @@
 
         input, select {
             background: #222; border: 1px solid #333;
-            padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; font-size: 16px;
+            padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; font-size: 16px; transition: 0.3s;
         }
-        input:focus { border-color: var(--primary); }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
 
         .header {
             padding: 10px 15px; padding-top: max(10px, env(safe-area-inset-top));
-            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
+            background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(20px);
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 50;
         }
 
-        .avatar-container { margin-right: 10px; position: relative; width: 45px; height: 45px; }
+        .avatar-container { margin-right: 10px; position: relative; width: 45px; height: 45px; flex-shrink: 0; }
         .avatar-frame {
             width: 45px; height: 45px; border-radius: 50%; background: #222;
             display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;
-            border: 2px solid transparent; position: relative; z-index: 2;
+            border: 3px solid #333; position: relative; z-index: 10; box-sizing: border-box;
         }
-        .orbiter { position: absolute; top:0; left:0; width: 20px; height: 20px; z-index: 1; pointer-events: none; filter: drop-shadow(0 0 3px black); }
+        
+        /* COSMETICS */
+        .nick_gold { color: var(--gold); text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+        .nick_neon { color: #00f2ff; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+        .nick_red { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+        .nick_purple { color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.5); }
+        .nick_rainbow { background: linear-gradient(90deg, red, orange, yellow, green, blue, violet); -webkit-background-clip: text; color: transparent; animation: rainbowAnim 2s linear infinite; }
+        .nick_fire { animation: fireAnim 1s infinite alternate; }
+        .nick_matrix { font-family: monospace; animation: matrixAnim 2s infinite; }
+        .nick_ice { color: #a5f3fc; text-shadow: 0 0 10px #0891b2; }
+
+        .frame-default { border-color: #444; }
+        .frame-gold { border-color: var(--gold); box-shadow: 0 0 15px var(--gold); }
+        .frame-neon { border-color: #00f2ff; box-shadow: 0 0 15px #00f2ff; }
+        .frame-red { border-color: var(--danger); box-shadow: 0 0 15px var(--danger); }
+        .frame-purple { border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .frame-diamond { border-color: #e0f2fe; box-shadow: 0 0 20px #0ea5e9; background: #0c4a6e; }
+        .frame-rainbow { border: 3px solid transparent; background: linear-gradient(#222, #222) padding-box, linear-gradient(45deg, red, orange, yellow, green, blue, violet) border-box; animation: rainbowAnim 2s linear infinite; }
+        .frame-ghost { border-color: rgba(255,255,255,0.5); box-shadow: 0 0 10px rgba(255,255,255,0.2); opacity: 0.8; }
+
+        .orbiter { position: absolute; top:0; left:0; width: 22px; height: 22px; z-index: 5; pointer-events: none; filter: drop-shadow(0 0 3px black); }
         .orb-1 { animation: orbit1 6s linear infinite; }
         .orb-2 { animation: orbit2 6s linear infinite; }
         .orb-3 { animation: orbit3 6s linear infinite; }
 
-        /* Cosmetics Styles */
-        .frame-default { border: 2px solid #333; }
-        .frame-gold { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); }
-        .frame-neon { border-color: #00f2ff; box-shadow: 0 0 10px #00f2ff; }
-        .frame-red { border-color: var(--danger); box-shadow: 0 0 10px var(--danger); }
-        .frame-purple { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
-        
-        .nick-gold { color: var(--gold); text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
-        .nick-neon { color: #00f2ff; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
-        .nick-red { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
-        .nick-purple { color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.5); }
-
         .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
-        .screen { display: none; animation: float 0.3s ease-out; }
-        .screen.active { display: block; }
+        .screen { display: none; opacity: 0; transform: translateY(10px); transition: 0.3s ease; }
+        .screen.active { display: block; opacity: 1; transform: translateY(0); animation: fadeUp 0.3s ease forwards; }
 
         /* TAP AREA */
-        #tap-btn { transition: transform 0.05s; position: relative; }
+        #tap-btn { 
+            width:240px; height:240px; border-radius:50%; 
+            background:radial-gradient(circle at 30%, #6366f1, #000); 
+            box-shadow:0 0 60px rgba(99, 102, 241, 0.3); 
+            display:flex; justify-content:center; align-items:center; cursor:pointer; 
+            position:relative; border:4px solid rgba(255,255,255,0.1);
+            transition: transform 0.05s;
+        }
         #tap-btn:active { transform: scale(0.95); }
         .crit-shake { animation: shake 0.5s; }
 
@@ -109,24 +149,24 @@
             border-radius: var(--radius); padding: 10px; position: relative;
             display: flex; flex-direction: column; align-items: center;
             border: 1px solid rgba(255,255,255,0.05); overflow: hidden;
-            background: #18181b;
+            background: #18181b; transition: 0.2s;
         }
+        .card:active { transform: scale(0.98); }
         
         .nft-img { width: 80px; height: 80px; object-fit: contain; margin: 10px 0; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); transition: 0.2s; }
         .nft-name { font-size: 12px; font-weight: 700; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
         .nft-pill { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); color: #ccc; margin-bottom: 2px; }
         .equipped-marker { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 5px var(--success); }
 
-        .navbar { position: fixed; bottom: 0; width: 100%; background: rgba(24, 24, 27, 0.95); display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); z-index: 100; }
+        .navbar { position: fixed; bottom: 0; width: 100%; background: rgba(24, 24, 27, 0.85); display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); z-index: 100; }
         .nav-item { color: #71717a; font-size: 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
-        .nav-item i { font-size: 22px; }
-        .nav-item.active { color: var(--primary); transform: translateY(-3px); }
+        .nav-item i { font-size: 22px; transition: 0.2s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-3px) scale(1.2); text-shadow: 0 0 10px var(--primary); }
 
-        /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-        .modal-box { width: 100%; max-width: 380px; background: #18181b; padding: 24px; border-radius: 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(15px); opacity: 0; transition: opacity 0.3s; }
+        .modal-box { width: 100%; max-width: 380px; background: #18181b; padding: 24px; border-radius: 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        /* 3D TILT EFFECT */
         #modal-bg-container {
             border-radius:20px; padding:20px; margin-bottom:20px; transition: transform 0.1s; 
             transform-style: preserve-3d; perspective: 1000px; cursor: grab;
@@ -134,32 +174,41 @@
         #modal-img { pointer-events: none; }
 
         .tabs { display: flex; background: #27272a; padding: 4px; border-radius: 12px; margin-bottom: 20px; overflow-x: auto; }
-        .tab { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 12px; color: #a1a1aa; cursor: pointer; white-space: nowrap; }
+        .tab { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 12px; color: #a1a1aa; cursor: pointer; white-space: nowrap; transition: 0.2s; }
         .tab.active { background: #3f3f46; color: white; font-weight: bold; }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); padding: 12px 24px; border-radius: 30px; z-index: 3000; display: none; border: 1px solid rgba(255,255,255,0.15); font-size: 14px; font-weight: 500; box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: white; display: flex; align-items: center; gap: 10px; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.9); padding: 12px 24px; border-radius: 30px; z-index: 3000; display: none; border: 1px solid rgba(255,255,255,0.15); font-size: 14px; font-weight: 500; box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: white; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); }
 
-        /* BAN SCREEN */
         #ban-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #220000; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
         #ban-screen h1 { font-size: 40px; color: var(--danger); text-transform: uppercase; animation: pulseRed 1s infinite; }
 
-        /* GAME SPECIFICS */
         .slot-row { font-size: 50px; margin: 20px 0; letter-spacing: 15px; background: #000; padding: 10px; border-radius: 10px; border: 2px solid #333; overflow: hidden; height: 80px; display: flex; align-items: center; justify-content: center; }
         .spinning span { display: inline-block; animation: slotSpin 0.1s linear infinite; }
         
         .settings-row { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 12px; border-radius: 12px; margin-bottom: 8px; }
-        
         .supply-tag { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; font-size: 9px; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
+        
+        #coin { 
+            width: 100px; height: 100px; background: var(--gold); border-radius: 50%; margin: 20px auto; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 50px; font-weight: bold; color: black; border: 4px solid #fff; 
+            box-shadow: 0 0 30px var(--gold);
+            font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+            line-height: 100px;
+        }
+        .flipping { animation: coinFlip 0.5s infinite linear; }
+        .range-slider { width: 100%; margin: 10px 0; -webkit-appearance: none; background: #333; height: 6px; border-radius: 5px; outline: none; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--primary); border-radius: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <!-- AUTH SCREEN -->
-    <div id="auth-modal" class="modal-overlay" style="display:flex; z-index:9000; background:#000;">
-        <div class="modal-box" style="border:none; background:transparent;">
+    <div id="auth-modal" class="modal-overlay" style="display:flex; z-index:9000; background:#000; opacity:1;">
+        <div class="modal-box" style="border:none; background:transparent; transform:scale(1);">
             <div style="font-size: 70px; margin-bottom: 20px; animation: float 3s infinite;">🏆</div>
             <h1 style="margin-bottom: 10px; font-weight:900; letter-spacing: 1px; color: white;">NFT UNIVERSE</h1>
-            <div style="color:var(--danger); font-size:12px; letter-spacing:2px; margin-bottom:30px;">ULTRA HARDCORE 3D</div>
+            <div style="color:var(--danger); font-size:12px; letter-spacing:2px; margin-bottom:30px;">FULL FIX</div>
             <div style="background: #18181b; padding: 24px; border-radius: 24px; border:1px solid #333;">
                 <h3 id="auth-title" style="margin-top:0; color:white;">Вход</h3>
                 <input type="text" id="auth-nick" placeholder="Никнейм">
@@ -212,7 +261,7 @@
         <div id="screen-home" class="screen active">
             <div style="text-align:center; height:30px; font-weight:bold; color:var(--gold);" id="combo-text"></div>
             <div style="display:flex; justify-content:center; padding:20px 0;">
-                <div id="tap-btn" style="width:240px; height:240px; border-radius:50%; background:radial-gradient(circle at 30%, #6366f1, #000); box-shadow:0 0 60px rgba(99, 102, 241, 0.3); display:flex; justify-content:center; align-items:center; cursor:pointer; position:relative; border:4px solid rgba(255,255,255,0.1);">
+                <div id="tap-btn">
                     <img src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis/Objects/Money%20Bag.png" width="160" style="pointer-events: none;">
                 </div>
             </div>
@@ -229,7 +278,7 @@
             </div>
             <div id="view-shop">
                 <div style="margin-bottom:10px; font-size:11px; color:#aaa; text-align:center;">
-                    ⚠️ Цены растут на 1% с каждой покупкой в мире!<br>Спеши, пока не разобрали!
+                    ⚠️ Цены растут на 1% с каждой покупкой в мире!<br>Серийные номера глобальные!
                 </div>
                 <div class="grid" id="shop-list"></div>
             </div>
@@ -262,10 +311,13 @@
             <div class="tabs">
                 <div class="tab active" onclick="switchGame('mines', this)">Мины</div>
                 <div class="tab" onclick="switchGame('slots', this)">Слоты</div>
+                <div class="tab" onclick="switchGame('coin', this)">Монетка</div>
+                <div class="tab" onclick="switchGame('dice', this)">Кости</div>
             </div>
             
             <div id="game-mines" style="text-align:center;">
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px auto; max-width: 240px;" id="mines-field"></div>
+                <div style="font-size:12px; color:#aaa; margin-bottom:10px;">⚠️ 10 МИН | Мин. 3 хода для вывода!</div>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 10px auto; max-width: 280px;" id="mines-field"></div>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <input type="number" id="mines-bet" placeholder="Ставка" style="margin:0;">
                     <button class="btn btn-success" id="mines-btn" onclick="startMines()">Играть</button>
@@ -273,12 +325,28 @@
             </div>
             
             <div id="game-slots" style="display:none; text-align:center; padding:30px; background:#18181b; border-radius:16px;">
-                <div id="slots-view" class="slot-row">
-                    <span>🍒</span> <span>🍒</span> <span>🍒</span>
-                </div>
-                <div style="font-size:12px; color:#888; margin-bottom:10px;">Два знака = Win | Три знака = JACKPOT</div>
+                <div id="slots-view" class="slot-row"><span>🍒</span> <span>🍒</span> <span>🍒</span></div>
+                <div style="font-size:12px; color:#888; margin-bottom:10px;">2 знака = x3 | 3 знака = x6 (JACKPOT)</div>
                 <input type="number" id="slots-bet" placeholder="Ставка">
-                <button class="btn" id="btn-spin" onclick="playSlots()">КРУТИТЬ (x5)</button>
+                <button class="btn" id="btn-spin" onclick="playSlots()">КРУТИТЬ (CD 2s)</button>
+            </div>
+
+            <div id="game-coin" style="display:none; text-align:center; padding:20px; background:#18181b; border-radius:16px;">
+                <div id="coin">?</div>
+                <div style="margin:15px 0; color:#aaa; font-size:12px;">Выигрыш x2</div>
+                <input type="number" id="coin-bet" placeholder="Ставка">
+                <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+                    <button class="btn btn-outline" onclick="playCoin('H')">Орел 🦅</button>
+                    <button class="btn btn-outline" onclick="playCoin('T')">Решка ⚪</button>
+                </div>
+            </div>
+
+            <div id="game-dice" style="display:none; text-align:center; padding:20px; background:#18181b; border-radius:16px;">
+                <div id="dice-box" style="font-size:60px; margin:20px;">🎲 <span id="dice-res">00</span></div>
+                <div style="margin-bottom:15px; color:#ef4444; font-weight:bold;">Надо выбить > 90</div>
+                <div style="margin:15px 0; color:#aaa; font-size:12px;">Выигрыш x4</div>
+                <input type="number" id="dice-bet" placeholder="Ставка">
+                <button class="btn btn-primary" id="dice-btn" onclick="playDice()">БРОСИТЬ</button>
             </div>
         </div>
 
@@ -290,6 +358,11 @@
             </div>
 
             <div id="profile-main">
+                <h4 style="color:white; margin:10px 0;">Аудио (SFX)</h4>
+                <div style="margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Громкость</span><span id="sfx-val">100%</span></div>
+                    <input type="range" class="range-slider" min="0" max="1" step="0.1" value="1" oninput="setVolume(this.value)">
+                </div>
                 <div class="settings-row"><span>Пароль</span><button class="btn-sm btn-outline" onclick="changePass()">Сменить</button></div>
                 <div class="settings-row"><span style="color:var(--danger)">Зона опасности</span><button class="btn-sm btn-danger" onclick="deleteAcc()">Удалить акк</button></div>
                 <button class="btn btn-outline" onclick="logout()" style="margin-top:20px;">Выйти</button>
@@ -297,13 +370,9 @@
 
             <div id="profile-style" style="display:none;">
                 <h4 style="color:white; margin:10px 0;">Цвет Ника</h4>
-                <div class="grid" style="grid-template-columns: repeat(3, 1fr);" id="style-colors">
-                    <!-- JS Injected -->
-                </div>
+                <div class="grid" style="grid-template-columns: repeat(3, 1fr);" id="style-colors"></div>
                 <h4 style="color:white; margin:10px 0;">Рамка Аватара</h4>
-                <div class="grid" style="grid-template-columns: repeat(3, 1fr);" id="style-frames">
-                    <!-- JS Injected -->
-                </div>
+                <div class="grid" style="grid-template-columns: repeat(3, 1fr);" id="style-frames"></div>
             </div>
         </div>
 
@@ -325,12 +394,9 @@
         <div class="modal-box">
             <h2 id="modal-name" style="color:white; margin:0;">Item</h2>
             <p id="modal-serial" style="color:#888; font-size:12px; margin-bottom:10px;">#00000</p>
-            
-            <!-- 3D CARD CONTAINER -->
             <div id="modal-bg-container" onmousemove="rotateCard(event)" onmouseleave="resetCard()" style="transform-style: preserve-3d; transition: transform 0.1s ease;">
                 <img src="" id="modal-img" style="width:140px; height:140px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(0,0,0,0.5)); transform: translateZ(50px);">
             </div>
-            
             <div class="tabs">
                 <div class="tab active" onclick="setNftTab('equip')">Действия</div>
                 <div class="tab" onclick="setNftTab('sell')">Продать</div>
@@ -355,47 +421,33 @@
     <div id="boost-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Прокачка</h3>
-            <div class="settings-row">
-                <div><b>Мульти-тап</b><br><span style="font-size:11px;color:#888;">Ур. <span id="tap-lvl">1</span></span></div>
-                <button class="btn-sm btn-outline" onclick="buyTap()">+1 (<span id="tap-cost">100</span>)</button>
-            </div>
-            <div class="settings-row">
-                <div><b>Шанс Крита</b><br><span style="font-size:11px;color:#888;">Ур. <span id="crit-lvl">1</span></span></div>
-                <button class="btn-sm btn-outline" onclick="buyCrit()">+1% (<span id="crit-cost">500</span>)</button>
-            </div>
-            <div class="settings-row">
-                <div><b>Реген Энергии</b><br><span style="font-size:11px;color:#888;">Ур. <span id="regen-lvl">1</span></span></div>
-                <button class="btn-sm btn-outline" onclick="buyRegen()">+0.2/с (<span id="regen-cost">300</span>)</button>
-            </div>
+            <div class="settings-row"><div><b>Мульти-тап</b><br><span style="font-size:11px;color:#888;">Ур. <span id="tap-lvl">1</span></span></div><button class="btn-sm btn-outline" onclick="buyTap()">+1 (<span id="tap-cost">100</span>)</button></div>
+            <div class="settings-row"><div><b>Шанс Крита</b><br><span style="font-size:11px;color:#888;">Ур. <span id="crit-lvl">1</span></span></div><button class="btn-sm btn-outline" onclick="buyCrit()">+1% (<span id="crit-cost">500</span>)</button></div>
+            <div class="settings-row"><div><b>Реген Энергии</b><br><span style="font-size:11px;color:#888;">Ур. <span id="regen-lvl">1</span></span></div><button class="btn-sm btn-outline" onclick="buyRegen()">+0.1/с (<span id="regen-cost">300</span>)</button></div>
             <button class="btn-sm btn-outline" onclick="closeModal('boost-modal')" style="width:100%; margin-top:10px;">Закрыть</button>
         </div>
     </div>
 
     <div id="chat-modal" class="modal-overlay">
         <div class="modal-box" style="height:80vh; display:flex; flex-direction:column; padding:15px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <b id="chat-title" style="color:white;">Чат</b> <span onclick="closeModal('chat-modal')" style="cursor:pointer;color:white;">✕</span>
-            </div>
+            <div id="chat-header-visual" style="display:flex; gap:10px; align-items:center; padding:10px; background:rgba(255,255,255,0.05); border-radius:12px; margin-bottom:10px;"></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b id="chat-title" style="color:white;">Чат</b> <span onclick="closeModal('chat-modal')" style="cursor:pointer;color:white;">✕</span></div>
             <div id="chat-history" style="flex:1; background:#111; border-radius:12px; overflow-y:scroll; padding:10px; display:flex; flex-direction:column; gap:10px;"></div>
-            <div style="display:flex; gap:5px; margin-top:10px;">
-                <input type="text" id="chat-msg" style="margin:0;"> <button class="btn-sm" onclick="sendMsg()">></button>
-            </div>
+            <div style="display:flex; gap:5px; margin-top:10px;"><input type="text" id="chat-msg" style="margin:0;"> <button class="btn-sm" onclick="sendMsg()">></button></div>
         </div>
     </div>
 
-    <!-- ADMIN MODAL -->
     <div id="admin-modal" class="modal-overlay">
         <div class="modal-box" style="border-color: var(--danger);">
-            <h2 style="color:var(--danger)">GOD MODE (kayivi)</h2>
-            <input type="text" id="adm-target" placeholder="Ник жертвы (для бана/разбана)">
+            <h2 style="color:var(--danger)">GOD MODE</h2>
+            <input type="text" id="adm-target" placeholder="Ник">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <button class="btn-sm btn-success" onclick="adminUnban()">РАЗБАН</button>
                 <button class="btn-sm btn-gold" onclick="adminGiveSelf()">ВЫДАТЬ СЕБЕ</button>
                 <button class="btn-sm btn-danger" onclick="adminBan()">БАН</button>
-                <button class="btn-sm" onclick="adminAddShop()">📦 РЕСТОК В ШОП</button>
+                <button class="btn-sm" onclick="adminAddShop()">📦 РЕСТОК</button>
             </div>
-            <button class="btn btn-outline" style="margin-top:10px; border-color:#d946ef; color:#d946ef; width:100%;" onclick="adminGiveCustom()">💎 ПОЛУЧИТЬ ЛАМБУ (EXC)</button>
-            
+            <button class="btn btn-outline" style="margin-top:10px; border-color:#d946ef; color:#d946ef; width:100%;" onclick="adminGiveCustom()">💎 ЛАМБУ (EXC)</button>
             <button class="btn-outline btn-sm" style="margin-top:10px; width:100%;" onclick="closeModal('admin-modal')">Закрыть</button>
         </div>
     </div>
@@ -416,14 +468,63 @@
         const firebaseConfig = { apiKey: "AIzaSyDpX5YSiVr6ekrQRYhALaTo8C69mc1vLcg", authDomain: "nfts-dc174.firebaseapp.com", projectId: "nfts-dc174", storageBucket: "nfts-dc174.firebasestorage.app", messagingSenderId: "327365720624", appId: "1:327365720624:web:eb42c9d671566b5d118bf5" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        // BASE SETTINGS
+        // --- AUDIO ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let volSFX = 1.0;
+
+        function setVolume(val) {
+            volSFX = val;
+            document.getElementById('sfx-val').innerText = Math.round(val*100) + '%';
+        }
+
+        function playSound(type) {
+            if (!audioCtx || volSFX <= 0) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if(type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05 * volSFX, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            }
+            if(type === 'win') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1 * volSFX, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            }
+            if(type === 'lose') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1 * volSFX, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+        document.body.addEventListener('click', () => { if(audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
+
+        // FLOATING TEXT HELPER
+        function spawnFloatingText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'tap-float';
+            el.innerText = text;
+            el.style.left = (x - 20) + 'px';
+            el.style.top = (y - 20) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
         const BASE_URL = "https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis@master/Emojis";
         const getImg = (u) => u.startsWith('http') ? u : BASE_URL + u;
         const formatSerial = (n) => n.toString().padStart(5, '0');
         const make = (n,t,u,p,l) => ({n,t,u,p:p*150,l}); 
         
         const ASSETS = [
-            make("Тыква","Праздник","/Activities/Jack-O-Lantern.png", 5000, 50),
+            make("Ламба (Mask)","Уникальное","https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExemFwa2djbzIyZGdnajIzcmNpaWZjZ21lMDNuNXVyNXU3dzRjdGdqcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/omk8al8C3Af2iNCsFt/giphy.gif", 750000000, 3),
+                        make("Тыква","Праздник","/Activities/Jack-O-Lantern.png", 5000, 50),
             make("Елка","Праздник","/Objects/Christmas%20Tree.png", 6000, 45),
             make("Фейерверк","Праздник","/Activities/Fireworks.png", 4000, 60),
             make("Бенгальский","Праздник","/Activities/Sparkler.png", 2000, 100),
@@ -502,50 +603,48 @@
                 {id: 'nick_gold', name: 'Gold', hex: '#fbbf24', cost: 250000},
                 {id: 'nick_neon', name: 'Neon', hex: '#00f2ff', cost: 150000},
                 {id: 'nick_red', name: 'Red', hex: '#ef4444', cost: 100000},
-                {id: 'nick_purple', name: 'Purple', hex: '#d946ef', cost: 120000}
+                {id: 'nick_purple', name: 'Purple', hex: '#d946ef', cost: 120000},
+                {id: 'nick_rainbow', name: 'Rainbow', hex: 'linear-gradient(90deg, red, blue)', cost: 5000000},
+                {id: 'nick_fire', name: 'Fire', hex: 'orange', cost: 1000000},
+                {id: 'nick_matrix', name: 'Matrix', hex: '#0f0', cost: 2000000},
+                {id: 'nick_ice', name: 'Ice', hex: '#a5f3fc', cost: 800000}
             ],
             frames: [
                 {id: 'frame_def', name: 'Default', cls: 'frame-default', cost: 0},
                 {id: 'frame_gold', name: 'Gold', cls: 'frame-gold', cost: 500000},
                 {id: 'frame_neon', name: 'Neon', cls: 'frame-neon', cost: 350000},
                 {id: 'frame_red', name: 'Red', cls: 'frame-red', cost: 200000},
-                {id: 'frame_purple', name: 'Purple', cls: 'frame-purple', cost: 250000}
+                {id: 'frame_purple', name: 'Purple', cls: 'frame-purple', cost: 250000},
+                {id: 'frame_diamond', name: 'Diamond', cls: 'frame-diamond', cost: 5000000},
+                {id: 'frame_rainbow', name: 'Rainbow', cls: 'frame-rainbow', cost: 10000000},
+                {id: 'frame_ghost', name: 'Ghost', cls: 'frame-ghost', cost: 2000000}
             ]
         };
 
         let myNick = localStorage.getItem('nft_nick') || sessionStorage.getItem('nft_nick');
         let data, selIdx, chatUnsub, globalStats;
-        let mines={a:false,m:[],s:0,b:0};
-        let combo=0, comboTimer=null;
-        let pendingBuy=null; 
-        let clickQueue = [];
-        let warningCount = 0;
-        let isBanned = false;
+        let mines={a:false,m:[],s:0,b:0,count:10}; 
+        let lastMineClick = 0; let combo=0; let pendingBuy=null; let clickQueue=[]; let warningCount=0; let isBanned=false;
+        let isSlotSpinning = false; let lastSlotTime = 0; let isFlipping = false; let isRolling = false;
 
-        // --- 3D TILT ---
+        // 3D TILT
         function rotateCard(event) {
             const card = document.getElementById('modal-bg-container');
             const cardRect = card.getBoundingClientRect();
-            const x = event.clientX - cardRect.left;
-            const y = event.clientY - cardRect.top;
-            const midCardWidth = cardRect.width / 2;
-            const midCardHeight = cardRect.height / 2;
-            const angleY = -(x - midCardWidth) / 8; // Adjust rotation speed
-            const angleX = (y - midCardHeight) / 8;
-            card.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg) scale(1.1)`;
+            const x = event.clientX - cardRect.left - cardRect.width / 2;
+            const y = event.clientY - cardRect.top - cardRect.height / 2;
+            card.style.transform = `rotateX(${-y/8}deg) rotateY(${x/8}deg) scale(1.1)`;
         }
-        function resetCard() {
-            const card = document.getElementById('modal-bg-container');
-            card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
-        }
+        function resetCard() { document.getElementById('modal-bg-container').style.transform = `rotateX(0) rotateY(0) scale(1)`; }
 
-        // --- INIT ---
-        if(myNick) checkSession(); else document.getElementById('auth-modal').style.display='flex';
+        // INIT
+        if(myNick) checkSession(); else { document.getElementById('auth-modal').style.display='flex'; setTimeout(()=>document.getElementById('auth-modal').style.opacity='1',10); }
 
         let isReg = false;
-        function toggleAuth(){ isReg=!isReg; document.getElementById('auth-title').innerText=isReg?"Регистрация":"Вход"; }
+        function toggleAuth(){ isReg=!isReg; document.getElementById('auth-title').innerText=isReg?"Регистрация":"Вход"; playSound('click'); }
         
         async function submitAuth() {
+            playSound('click');
             const n=document.getElementById('auth-nick').value.trim();
             const p=document.getElementById('auth-pass').value.trim();
             const remember = document.getElementById('remember-me').checked;
@@ -555,16 +654,16 @@
                 const doc = await docRef.get();
                 if(isReg) {
                     if(doc.exists) throw "Ник занят";
-                    const defData = {password:p, nickname:n, balance:0, energy:100.0, inventory:[], friends:[], equipped:[], tapLvl:1, critLvl:1, regenLvl:1, owned_colors:['nick_def'], owned_frames:['frame_def'], active_color:'nick_def', active_frame:'frame_def', isBanned: false, warnings: 0, createdAt: Date.now()};
+                    const defData = {password:p, nickname:n, balance:0, energy:1000.0, inventory:[], friends:[], equipped:[], tapLvl:1, critLvl:1, regenLvl:1, owned_colors:['nick_def'], owned_frames:['frame_def'], active_color:'nick_def', active_frame:'frame_def', isBanned: false, warnings: 0, createdAt: Date.now()};
                     await docRef.set(defData); loginSuccess(n, remember);
                 } else {
                     if(!doc.exists || doc.data().password!==p) throw "Неверный логин/пароль";
                     if(doc.data().isBanned) { showBanScreen(n); throw "Аккаунт заблокирован"; }
                     loginSuccess(n, remember);
                 }
-            } catch(e){ document.getElementById('auth-error').innerText=e.toString(); }
+            } catch(e){ document.getElementById('auth-error').innerText=e.toString(); playSound('lose'); }
         }
-        function loginSuccess(n, remember) { if(remember) localStorage.setItem('nft_nick', n); else sessionStorage.setItem('nft_nick', n); myNick=n; document.getElementById('auth-modal').style.display='none'; checkSession(); }
+        function loginSuccess(n, remember) { if(remember) localStorage.setItem('nft_nick', n); else sessionStorage.setItem('nft_nick', n); myNick=n; document.getElementById('auth-modal').style.display='none'; playSound('win'); checkSession(); }
         function logout(){ localStorage.removeItem('nft_nick'); sessionStorage.removeItem('nft_nick'); location.reload(); }
 
         function checkSession() {
@@ -572,31 +671,25 @@
                 if(d.exists){ 
                     data = d.data();
                     if(data.isBanned) { showBanScreen(myNick); return; }
-                    // Safety checks
                     if(!data.owned_colors) data.owned_colors=['nick_def'];
                     if(!data.owned_frames) data.owned_frames=['frame_def'];
                     
                     updateUI(); renderInv(); renderShop(); renderFriends(); renderCosmetics();
-                    // FORCE SHOW ADMIN IF KAYIVI
                     if(myNick === 'kayivi') document.getElementById('admin-btn').style.display = 'block';
                     
                     checkNotifications();
                 } else logout();
             });
-            
             db.collection('game').doc('stats').onSnapshot(s => {
                 if(s.exists) globalStats = s.data().items || {}; else globalStats = {};
                 renderShop();
             });
-
-            let saveTick = 0;
             setInterval(()=>{
                 if(data && !data.isBanned){
-                    if(data.energy < 100) {
-                        let regen = (data.regenLvl || 1) * 0.2; 
-                        data.energy = Math.min(100, data.energy + regen);
+                    if(data.energy < 1000) {
+                        let regen = (data.regenLvl || 1) * 0.1; 
+                        data.energy = Math.min(1000, data.energy + regen);
                         updateUI();
-                        saveTick++; if(saveTick >= 3) { save(); saveTick = 0; }
                     }
                 }
             }, 1000);
@@ -605,6 +698,14 @@
         function checkNotifications() {}
         function showBanScreen(id) { isBanned = true; document.getElementById('ban-screen').style.display = 'flex'; document.getElementById('ban-id').innerText = id; document.getElementById('auth-modal').style.display='none'; }
 
+        function getCost(type, lvl) {
+            if(lvl < 3) { if(type==='tap')return 100; if(type==='crit')return 500; if(type==='regen')return 500; }
+            if(type==='tap') return Math.floor(1000 * Math.pow(2.0, lvl - 2));
+            if(type==='crit') return Math.floor(2000 * Math.pow(2.0, lvl - 2));
+            if(type==='regen') return Math.floor(5000 * Math.pow(2.5, lvl - 2));
+            return 9999999;
+        }
+
         function updateUI() {
             document.getElementById('balance').innerText = Math.floor(data.balance).toLocaleString();
             document.getElementById('energy').innerText = Math.floor(data.energy);
@@ -612,62 +713,69 @@
             const nickEl = document.getElementById('my-nick'); nickEl.innerText = myNick; nickEl.className = data.active_color;
             const frameEl = document.getElementById('my-frame'); frameEl.innerText = myNick[0].toUpperCase();
             const frameObj = COSMETICS.frames.find(f=>f.id===data.active_frame);
-            frameEl.className = 'avatar-frame ' + (frameObj ? frameObj.cls : '');
-            
-            // ADMIN CHECK HERE TOO just in case
-            if(myNick === 'kayivi') document.getElementById('admin-btn').style.display = 'block';
+            frameEl.className = 'avatar-frame ' + (frameObj ? frameObj.cls : 'frame-default');
 
             ['orb-1','orb-2','orb-3'].forEach(id=>document.getElementById(id).style.display='none');
             data.equipped.forEach((item, i) => { if(i<3) { const el = document.getElementById(`orb-${i+1}`); el.src = getImg(item.u); el.style.display = 'block'; if(item.hue) el.style.filter = item.hue; } });
             
-            document.getElementById('tap-lvl').innerText=data.tapLvl; document.getElementById('tap-cost').innerText=(100 * Math.pow(1.8, data.tapLvl)).toFixed(0);
-            document.getElementById('crit-lvl').innerText=data.critLvl; document.getElementById('crit-cost').innerText=500 + (data.critLvl*500);
-            document.getElementById('regen-lvl').innerText=data.regenLvl; document.getElementById('regen-cost').innerText=300 + (data.regenLvl*400);
+            document.getElementById('tap-lvl').innerText=data.tapLvl; document.getElementById('tap-cost').innerText=getCost('tap', data.tapLvl).toLocaleString();
+            document.getElementById('crit-lvl').innerText=data.critLvl; document.getElementById('crit-cost').innerText=getCost('crit', data.critLvl).toLocaleString();
+            document.getElementById('regen-lvl').innerText=data.regenLvl; document.getElementById('regen-cost').innerText=getCost('regen', data.regenLvl).toLocaleString();
         }
 
         document.getElementById('tap-btn').addEventListener('click', e => {
             if(data.isBanned) return;
+            playSound('click');
             const now = Date.now(); clickQueue.push(now); if(clickQueue.length > 18) clickQueue.shift();
             if(clickQueue.length === 18) { if(now - clickQueue[0] < 1000) { warningCount++; toast(`⚠️ CALM DOWN! (${warningCount}/3)`); clickQueue = []; if(warningCount >= 3) banUser(); return; } }
             if(data.energy < 1) { toast("No Energy! ⚡"); return; }
-            clearTimeout(comboTimer); combo++; if(combo > 20) combo = 20; 
-            const comboMult = 1 + (combo * 0.05); document.getElementById('combo-text').innerText = `x${comboMult.toFixed(1)}`;
-            comboTimer = setTimeout(() => { combo = 0; document.getElementById('combo-text').innerText = ""; }, 1000); 
-            let isCrit = false; let gain = Math.floor(data.tapLvl * comboMult);
-            if(Math.random() < (data.critLvl * 0.01)) { isCrit = true; gain *= 5; document.getElementById('tap-btn').classList.add('crit-shake'); setTimeout(()=>document.getElementById('tap-btn').classList.remove('crit-shake'), 500); }
+            
+            let gain = Math.floor(data.tapLvl);
+            let isCrit = false;
+            // x2 CRIT CHANCE
+            if(Math.random() < (data.critLvl * 0.02)) { gain *= 2; isCrit = true; document.getElementById('tap-btn').classList.add('crit-shake'); setTimeout(()=>document.getElementById('tap-btn').classList.remove('crit-shake'), 500); }
+            
+            // Floating Text
+            spawnFloatingText(e.clientX, e.clientY, isCrit ? `🔥 CRIT x2 +${gain}` : `+${gain}`);
+            
+            // Random Emojis
+            if(Math.random() < 0.3) spawnFloatingText(e.clientX + (Math.random()*40-20), e.clientY + (Math.random()*40-20), ['🤑','💎','🚀','💰'][Math.floor(Math.random()*4)]);
+
             data.balance += gain; data.energy -= 1;
-            const el=document.createElement('div'); el.innerText = isCrit ? `💥+${gain}` : `+${gain}`;
-            el.style.position='absolute'; el.style.left=e.clientX+'px'; el.style.top=e.clientY+'px'; el.style.color= isCrit ? '#ffd60a' : '#fff'; el.style.fontWeight='bold'; el.style.fontSize= isCrit ? '24px' : '16px'; el.style.pointerEvents='none'; el.style.zIndex=1000; el.style.animation = isCrit ? 'critPop 0.5s ease-out' : 'float 0.5s ease-out';
-            document.body.appendChild(el); setTimeout(()=>el.remove(),500);
-            if(data.balance % 10 === 0) save(); updateUI();
+            updateUI(); save();
         });
 
         function banUser() { db.collection('users').doc(myNick).update({ isBanned: true }); showBanScreen(myNick); }
 
         function renderShop(){
             const l=document.getElementById('shop-list'); if(!globalStats) return; l.innerHTML='';
-            ASSETS.forEach(a=>{
+            ASSETS.forEach((a, idx)=>{
                 const sold = globalStats[a.n] || 0;
                 const priceMult = 1 + (sold * 0.01);
                 const currentPrice = Math.floor(a.p * priceMult);
                 const remaining = a.l - sold;
                 const d=document.createElement('div'); d.className='card'; if(remaining <= 0) d.style.opacity = '0.5';
-                d.innerHTML=`<div class="supply-tag">${remaining}/${a.l}</div><div class="nft-pill">${a.t}</div><img src="${getImg(a.u)}" class="nft-img" loading="lazy"><div class="nft-name">${a.n}</div><button class="btn btn-sm ${remaining<=0?'btn-outline':'btn-primary'}" style="margin-top:5px;" onclick="${remaining>0 ? `reqBuyShop('${a.n}', ${currentPrice})` : ''}" ${remaining<=0 ? 'disabled' : ''}>${remaining<=0 ? 'SOLD OUT' : currentPrice.toLocaleString() + ' 💎'}</button>`;
+                d.innerHTML=`<div class="supply-tag">${remaining}/${a.l}</div><div class="nft-pill">${a.t}</div><img src="${getImg(a.u)}" class="nft-img" loading="lazy"><div class="nft-name">${a.n}</div>
+                <button class="btn btn-sm btn-primary" style="margin-top:5px; width:100%;" onclick="${remaining>0 ? `reqBuyShop('${a.n}', ${currentPrice})` : ''}" ${remaining<=0 ? 'disabled' : ''}>${remaining<=0 ? 'SOLD OUT' : 'Купить ' + currentPrice.toLocaleString()}</button>`;
                 l.appendChild(d);
             });
         }
-        function reqBuyShop(name, price) { pendingBuy = { type: 'shop', name: name, price: price }; document.getElementById('confirm-text').innerText = `Купить "${name}" за ${price.toLocaleString()}?`; openModal('confirm-modal'); }
+        
+        function reqBuyShop(name, price) { playSound('click'); pendingBuy = { type: 'shop', name: name, price: price }; document.getElementById('confirm-text').innerText = `Купить "${name}" за ${price.toLocaleString()}?`; openModal('confirm-modal'); }
+        
         function buyShop(name, price){
             const itemRef = db.collection('game').doc('stats'); const userRef = db.collection('users').doc(myNick); const asset = ASSETS.find(x=>x.n===name);
+            const visuals = genUnique();
+            const newItem = { id: Date.now()+Math.random(), name: asset.n, type: asset.t, u: asset.u, p: asset.p, serial: 0, bg: visuals.bg, hue: visuals.hue };
             db.runTransaction(async (t) => {
-                const stats = (await t.get(itemRef)).data() || { items: {} }; const currentSold = stats.items[name] || 0;
+                const stats = (await t.get(itemRef)).data() || { items: {} }; const currentSold = stats.items ? stats.items[name] || 0 : 0;
                 if(currentSold >= asset.l) throw "Sold Out!";
                 const userDoc = (await t.get(userRef)).data();
                 if(userDoc.balance < price) throw "No Money!";
-                const newItem = { id: Date.now()+Math.random(), name: asset.n, type: asset.t, u: asset.u, p: asset.p, serial: currentSold + 1, bg: genUnique().bg, hue: genUnique().hue };
+                newItem.serial = currentSold + 1;
                 t.update(itemRef, { [`items.${name}`]: currentSold + 1 });
                 t.update(userRef, { balance: firebase.firestore.FieldValue.increment(-price), inventory: firebase.firestore.FieldValue.arrayUnion(newItem) });
-            }).then(() => toast("Куплено!")).catch(e => toast(e));
+            }).then(() => { data.balance -= price; data.inventory.push(newItem); updateUI(); renderInv(); playSound('win'); toast("Куплено!"); }).catch(e => toast(e));
         }
         function genUnique() { const h = Math.floor(Math.random()*360); return { bg: `linear-gradient(135deg, hsl(${h},60%,20%), hsl(${h+40},60%,10%))`, hue: `hue-rotate(${Math.floor(Math.random()*360)}deg)` }; }
 
@@ -681,31 +789,62 @@
             });
         }
         function openNft(i) {
-            selIdx=i; const n=data.inventory[i];
+            playSound('click'); selIdx=i; const n=data.inventory[i];
+            let price = n.p; if(!price) { const asset = ASSETS.find(a => a.n === n.name); price = asset ? asset.p : 0; }
             document.getElementById('modal-name').innerText=n.name;
             document.getElementById('modal-serial').innerText=`#${formatSerial(n.serial)}`;
             document.getElementById('modal-img').src=getImg(n.u); 
             document.getElementById('modal-img').style.filter = n.hue || 'none';
             document.getElementById('modal-bg-container').style.background = n.bg || '#222';
-            document.getElementById('sys-price').innerText=Math.floor((n.p||100)*0.1); 
+            document.getElementById('sys-price').innerText=Math.floor(price*0.5).toLocaleString();
             openModal('nft-modal'); setNftTab('equip');
         }
+
         function equipNft() {
-            const n=data.inventory[selIdx]; const idx = data.equipped.findIndex(e=>e.id===n.id);
-            if(idx > -1) { data.equipped.splice(idx,1); toast("Снято"); } else { if(data.equipped.length>=3) return toast("Максимум 3"); data.equipped.push(n); toast("Надето"); }
-            save(); closeModal('nft-modal');
+            const n = data.inventory[selIdx]; const isEquipped = data.equipped.some(e => e.id === n.id);
+            if(isEquipped) { data.equipped = data.equipped.filter(e => e.id !== n.id); toast("Снято"); } else { if(data.equipped.length >= 3) return toast("Максимум 3"); data.equipped.push(n); toast("Надето"); }
+            save(); updateUI(); renderInv(); closeModal('nft-modal'); playSound('click');
         }
+
+        async function sendGift() {
+            const targetNick = document.getElementById('gift-nick').value.trim();
+            if(!targetNick) return toast("Введите ник");
+            if(targetNick === myNick) return toast("Себе?");
+            const item = data.inventory[selIdx];
+            db.runTransaction(async (t) => {
+                const targetRef = db.collection('users').doc(targetNick);
+                const myRef = db.collection('users').doc(myNick);
+                const targetDoc = await t.get(targetRef);
+                if(!targetDoc.exists) throw "Игрок не найден";
+                const myDoc = await t.get(myRef);
+                const myInv = myDoc.data().inventory;
+                if(!myInv.some(x => x.id === item.id)) throw "Предмет уже пропал";
+                const newInv = myInv.filter(x => x.id !== item.id);
+                const newEq = myDoc.data().equipped.filter(x => x.id !== item.id);
+                t.update(myRef, { inventory: newInv, equipped: newEq });
+                t.update(targetRef, { inventory: firebase.firestore.FieldValue.arrayUnion(item) });
+            }).then(() => {
+                data.inventory = data.inventory.filter(x => x.id !== item.id);
+                data.equipped = data.equipped.filter(x => x.id !== item.id);
+                updateUI(); renderInv(); closeModal('nft-modal'); toast(`Отправлено ${targetNick}!`); playSound('win');
+            }).catch(e => { toast(e); playSound('lose'); });
+        }
+
         function sellSystem(){ 
-            const n = data.inventory[selIdx]; data.equipped = data.equipped.filter(e => e.id !== n.id);
-            data.balance+=Math.floor((n.p||100)*0.1); data.inventory.splice(selIdx,1); save(); closeModal('nft-modal'); toast("Продано"); 
+            const n = data.inventory[selIdx]; if(!n) return;
+            let price = n.p; if(!price) { const asset = ASSETS.find(a => a.n === n.name); price = asset ? asset.p : 0; }
+            data.equipped = data.equipped.filter(e => e.id !== n.id);
+            data.balance += Math.floor(price*0.5); data.inventory = data.inventory.filter(x => x.id !== n.id);
+            save(); updateUI(); renderInv(); closeModal('nft-modal'); toast("Продано"); playSound('win');
         }
+
         function sellP2P(){ 
             const p=parseInt(document.getElementById('p2p-price').value); if(!p)return; const n=data.inventory[selIdx]; 
             db.runTransaction(async t=>{ 
                 const d=(await t.get(db.collection('users').doc(myNick))).data();
                 t.update(db.collection('users').doc(myNick), {inventory:d.inventory.filter(x=>x.id!==n.id), equipped:d.equipped.filter(x=>x.id!==n.id)}); 
                 t.set(db.collection('market').doc(), {seller:myNick, price:p, nft:n, createdAt:Date.now()}); 
-            }).then(()=>{ closeModal('nft-modal'); toast("На бирже"); loadP2P(); }); 
+            }).then(()=>{ closeModal('nft-modal'); toast("На бирже"); loadP2P(); playSound('click'); }); 
         }
         function loadP2P(){
             const l=document.getElementById('p2p-list'); l.innerHTML='<div style="width:100%;text-align:center;">Загрузка...</div>';
@@ -713,12 +852,13 @@
                 l.innerHTML=''; s.forEach(d=>{
                     const dt=d.data(); const mine=dt.seller===myNick;
                     const el=document.createElement('div'); el.className='card'; el.style.background = dt.nft.bg || '#222';
-                    el.innerHTML=`<div class="nft-pill">By ${dt.seller}</div><img src="${getImg(dt.nft.u)}" class="nft-img" style="filter:${dt.nft.hue}"><div class="nft-name">${dt.nft.name}</div><div style="font-size:10px;">${formatSerial(dt.nft.serial)}<br>${dt.price.toLocaleString()}💎</div><button class="btn btn-sm ${mine?'btn-outline':'btn-blue'}" style="margin-top:5px; background:rgba(0,0,0,0.5)" onclick="${mine?`delP2P('${d.id}')`:`reqBuyP2P('${d.id}',${dt.price})`}">${mine?'Снять':'Купить'}</button>`;
+                    el.innerHTML=`<div class="nft-pill">By ${dt.seller}</div><img src="${getImg(dt.nft.u)}" class="nft-img" style="filter:${dt.nft.hue}"><div class="nft-name">${dt.nft.name}</div><div style="font-size:10px;">${formatSerial(dt.nft.serial)}<br>${dt.price.toLocaleString()}💎</div>
+                    <button class="btn btn-sm ${mine?'btn-outline':'btn-blue'}" style="margin-top:5px; width:100%;" onclick="${mine?`delP2P('${d.id}')`:`reqBuyP2P('${d.id}',${dt.price})`}">${mine?'Снять':'Купить'}</button>`;
                     l.appendChild(el);
                 });
             });
         }
-        function reqBuyP2P(id, p){ pendingBuy={type:'p2p', id, price:p}; document.getElementById('confirm-text').innerText=`Купить за ${p.toLocaleString()}?`; openModal('confirm-modal'); }
+        function reqBuyP2P(id, p){ playSound('click'); pendingBuy={type:'p2p', id, price:p}; document.getElementById('confirm-text').innerText=`Купить за ${p.toLocaleString()}?`; openModal('confirm-modal'); }
         function buyP2P(id,p){
             if(data.balance<p)return toast("Мало денег");
             db.runTransaction(async t=>{
@@ -726,104 +866,256 @@
                 t.update(db.collection('users').doc(lot.seller),{balance:firebase.firestore.FieldValue.increment(p)});
                 t.update(db.collection('users').doc(myNick),{balance:firebase.firestore.FieldValue.increment(-p),inventory:firebase.firestore.FieldValue.arrayUnion(lot.nft)});
                 t.delete(db.collection('market').doc(id));
-            }).then(()=>{toast("Куплено!");loadP2P();}).catch(e=>toast(e));
+            }).then(()=>{toast("Куплено!");loadP2P(); playSound('win');}).catch(e=>{toast(e); playSound('lose');});
         }
         function delP2P(id){db.collection('market').doc(id).get().then(d=>{db.collection('users').doc(myNick).update({inventory:firebase.firestore.FieldValue.arrayUnion(d.data().nft)});d.ref.delete();loadP2P();});}
 
+        // MINES
         function startMines(){
-            if(mines.a)return; const b=parseInt(document.getElementById('mines-bet').value); if(!b||b>data.balance)return toast("Ставка?");
-            data.balance-=b; mines={a:true,m:[],s:0,b:b};
-            while(mines.m.length<3){const r=Math.floor(Math.random()*16);if(!mines.m.includes(r))mines.m.push(r);}
-            const g=document.getElementById('mines-field'); g.innerHTML='';
-            for(let i=0;i<16;i++){
-                const c=document.createElement('div'); c.className='card'; c.style.aspectRatio='1'; c.style.fontSize='20px'; c.style.justifyContent='center'; c.style.cursor='pointer';
-                c.onclick=()=>{
-                    if(!mines.a||c.innerText!=='')return;
-                    if(mines.m.includes(i)){ c.innerHTML='💣'; c.style.background='var(--danger)'; mines.a=false; toast("BOOM!"); document.getElementById('mines-btn').innerText="Снова"; save(); }
-                    else { c.innerHTML='💎'; c.style.background='var(--success)'; mines.s++; 
-                    const win=Math.floor(mines.b*(1+mines.s*0.2)); 
-                    document.getElementById('mines-btn').innerText=`Забрать ${win}`;
-                    document.getElementById('mines-btn').onclick=()=>{ data.balance+=win; save(); toast(`+${win}`); mines.a=false; document.getElementById('mines-btn').innerText="Играть"; document.getElementById('mines-btn').onclick=startMines; }; }
+            const btn = document.getElementById('mines-btn');
+            if(btn.innerText === "Снова" || (!mines.a && btn.innerText !== "Играть")) {
+               mines.a = false; mines.s = 0; document.getElementById('mines-field').innerHTML = ''; btn.innerText = "Играть"; btn.onclick = startMines; return;
+            }
+            if(mines.a) return; 
+            const b = parseInt(document.getElementById('mines-bet').value); 
+            if(!b || b > data.balance) return toast("Ставка?");
+            playSound('click'); data.balance -= b; 
+            mines = {a: true, m: [], s: 0, b: b, count: 10}; 
+            while(mines.m.length < 10) { const r = Math.floor(Math.random()*25); if(!mines.m.includes(r)) mines.m.push(r); }
+            const g = document.getElementById('mines-field'); g.innerHTML = '';
+            for(let i=0; i<25; i++){
+                const c = document.createElement('div'); c.className='card'; c.style.aspectRatio='1'; c.style.fontSize='16px'; c.style.justifyContent='center'; c.style.cursor='pointer';
+                c.onclick = () => {
+                    if(!mines.a) return;
+                    if(c.innerText !== '') { return; }
+                    if(Date.now() - lastMineClick < 500) return toast("Не спеши!"); lastMineClick = Date.now();
+                    if(mines.m.includes(i)){ c.innerHTML='💣'; c.style.background='var(--danger)'; mines.a=false; playSound('lose'); btn.innerText="Снова"; btn.onclick=startMines; save(); document.getElementById('game-mines').classList.add('lose-anim'); setTimeout(()=>document.getElementById('game-mines').classList.remove('lose-anim'),500);}
+                    else { 
+                        c.innerHTML='💎'; c.style.background='var(--success)'; mines.s++; playSound('click');
+                        const multi = 1 + (mines.s * 0.2); const win = Math.floor(mines.b * multi); 
+                        if(mines.s < 3) { btn.innerText = `Еще ${3 - mines.s} 🔒`; btn.onclick = () => toast(`Нужно еще ${3 - mines.s}!`); } 
+                        else { btn.innerText = `Забрать ${win}`; btn.onclick = () => { data.balance+=win; save(); toast(`+${win}`); mines.a=false; playSound('win'); btn.innerText="Снова"; btn.onclick=startMines; document.getElementById('game-mines').classList.add('win-anim'); setTimeout(()=>document.getElementById('game-mines').classList.remove('win-anim'),500); }; }
+                    }
                 }; g.appendChild(c);
             }
+            btn.innerText = "Еще 3 🔒"; btn.onclick = () => toast("Начни игру!");
         }
 
         async function playSlots(){
+            if(isSlotSpinning) return;
+            if(Date.now() - lastSlotTime < 2000) return toast("Подождите...");
+
             const b=parseInt(document.getElementById('slots-bet').value); if(!b||b>data.balance)return toast("Ставка?");
+            
+            playSound('click');
+            isSlotSpinning = true; lastSlotTime = Date.now();
             const btn = document.getElementById('btn-spin'); btn.disabled = true; data.balance-=b; updateUI();
             const v=document.getElementById('slots-view'); v.classList.add('spinning');
+            
             await new Promise(r => setTimeout(r, 1000));
             v.classList.remove('spinning');
-            const icons = ['🍒','💎','7️⃣','✨']; // ONLY 4 ICONS (Math tweak)
+            
+            const icons = ['🍒','🍇','🍋','🍉','🍌','🔔','💎','7️⃣','💰','👑','🎲','🃏'];
             const r1=icons[Math.floor(Math.random()*icons.length)], r2=icons[Math.floor(Math.random()*icons.length)], r3=icons[Math.floor(Math.random()*icons.length)];
             v.innerHTML = `<span>${r1}</span> <span>${r2}</span> <span>${r3}</span>`;
+            
             let win = 0;
-            // HARDCORE CASINO MATH
             if(r1===r2 && r2===r3) { 
-                if(r1==='7️⃣') win=b*20; else if(r1==='💎') win=b*10; else win=b*5; 
-                toast(`JACKPOT! +${win}`); 
+                if(r1==='7️⃣') win=b*20; else if(r1==='💎') win=b*10; else win=b*6; 
+                toast(`JACKPOT! +${win}`); playSound('win');
+                document.getElementById('game-slots').classList.add('win-anim');
             }
-            else if(r1===r2 || r2===r3 || r1===r3) { win=Math.floor(b*1.5); toast(`Win +${win}`); } // Pair returns x1.5 (Loss of hard win)
-            else toast("Потеря");
-            if(win > 0) data.balance += win; btn.disabled = false; save();
+            else if(r1===r2 || r2===r3 || r1===r3) { 
+                win=Math.floor(b*3); toast(`Пара x3`); playSound('win');
+            } 
+            else { toast("Потеря"); playSound('lose'); }
+            
+            setTimeout(()=>document.getElementById('game-slots').classList.remove('win-anim'), 500);
+            if(win > 0) data.balance += win; 
+            btn.disabled = false; isSlotSpinning = false; save();
         }
 
-        // Cosmetics & Social & Admin Functions remain standard...
-        function renderCosmetics(){ /* Code already updated in top */ 
+        function playCoin(pick){
+            if(isFlipping) return;
+            const b = parseInt(document.getElementById('coin-bet').value);
+            if(!b || b > data.balance) return toast("Ставка?");
+            
+            isFlipping = true;
+            data.balance -= b;
+            const coin = document.getElementById('coin');
+            coin.classList.add('flipping');
+            playSound('click');
+            
+            setTimeout(()=>{
+                coin.classList.remove('flipping');
+                const res = Math.random() < 0.5 ? 'H' : 'T'; 
+                coin.innerText = res === 'H' ? '🦅' : '⚪';
+                
+                const win = Math.random() < 0.45; 
+                
+                if(win) {
+                    if(pick === res) {
+                         const reward = b*2; data.balance += reward; toast(`WIN +${reward}`); playSound('win');
+                         document.getElementById('game-coin').classList.add('win-anim');
+                    } else { toast("LOSE"); playSound('lose'); }
+                } else {
+                    if(pick === res) coin.innerText = res === 'H' ? '⚪' : '🦅';
+                    toast("LOSE"); playSound('lose');
+                    document.getElementById('game-coin').classList.add('lose-anim');
+                }
+                setTimeout(()=>{
+                    document.getElementById('game-coin').classList.remove('win-anim');
+                    document.getElementById('game-coin').classList.remove('lose-anim');
+                    isFlipping = false;
+                }, 500);
+                save(); updateUI();
+            }, 2000); 
+        }
+
+        function playDice(){
+            if(isRolling) return;
+            const b = parseInt(document.getElementById('dice-bet').value);
+            if(!b || b > data.balance) return toast("Ставка?");
+            
+            isRolling = true;
+            data.balance -= b;
+            const resEl = document.getElementById('dice-res');
+            const btn = document.getElementById('dice-btn');
+            btn.disabled = true;
+            document.getElementById('dice-box').classList.add('dice-rolling'); 
+            playSound('click');
+            
+            let rolls = 0;
+            const rollInterval = setInterval(() => {
+                resEl.innerText = Math.floor(Math.random() * 100) + 1;
+                rolls++;
+                if(rolls > 20) {
+                    clearInterval(rollInterval);
+                    document.getElementById('dice-box').classList.remove('dice-rolling');
+                    const roll = Math.floor(Math.random() * 100) + 1;
+                    resEl.innerText = roll;
+                    
+                    if(roll > 90) { 
+                        const win = b*4; data.balance += win; toast(`WIN +${win}`); playSound('win');
+                        document.getElementById('game-dice').classList.add('win-anim');
+                    } else {
+                        toast("LOSE"); playSound('lose');
+                        document.getElementById('game-dice').classList.add('lose-anim');
+                    }
+                    setTimeout(()=>{
+                        document.getElementById('game-dice').classList.remove('win-anim');
+                        document.getElementById('game-dice').classList.remove('lose-anim');
+                        isRolling = false;
+                        btn.disabled = false;
+                    }, 500);
+                    save(); updateUI();
+                }
+            }, 100); 
+        }
+
+        function renderCosmetics(){ 
             const cl = document.getElementById('style-colors'); cl.innerHTML='';
             COSMETICS.colors.forEach(c => {
                 const owned = data.owned_colors.includes(c.id); const active = data.active_color === c.id;
-                cl.innerHTML += `<div class="card"><div style="color:${c.hex};font-weight:bold">${c.name}</div><div style="font-size:10px">${owned?active?'Активно':'Куплено':c.cost}</div><button class="btn btn-sm ${active?'btn-gold':owned?'btn-outline':'btn'}" onclick="${owned?`equipStyle('color','${c.id}')`:`buyStyle('color','${c.id}',${c.cost})`}">${active?'✓':owned?'Надеть':'Купить'}</button></div>`;
+                cl.innerHTML += `<div class="card"><div style="color:${c.hex};font-weight:bold">${c.name}</div><button class="btn btn-sm ${active?'btn-gold':owned?'btn-outline':'btn'}" onclick="${owned?`equipStyle('color','${c.id}')`:`buyStyle('color','${c.id}',${c.cost})`}">${active?'✓':owned?'Надеть':c.cost}</button></div>`;
             });
             const fl = document.getElementById('style-frames'); fl.innerHTML='';
             COSMETICS.frames.forEach(f => {
                 const owned = data.owned_frames.includes(f.id); const active = data.active_frame === f.id;
-                fl.innerHTML += `<div class="card"><div class="avatar-frame ${f.cls}" style="width:30px;height:30px;font-size:10px">A</div><div style="font-size:10px">${owned?active?'Активно':'Куплено':f.cost}</div><button class="btn btn-sm ${active?'btn-gold':owned?'btn-outline':'btn'}" onclick="${owned?`equipStyle('frame','${f.id}')`:`buyStyle('frame','${f.id}',${f.cost})`}">${active?'✓':owned?'Надеть':'Купить'}</button></div>`;
+                fl.innerHTML += `<div class="card"><div class="avatar-frame ${f.cls}" style="width:30px;height:30px;font-size:10px">A</div><button class="btn btn-sm ${active?'btn-gold':owned?'btn-outline':'btn'}" onclick="${owned?`equipStyle('frame','${f.id}')`:`buyStyle('frame','${f.id}',${f.cost})`}">${active?'✓':owned?'Надеть':f.cost}</button></div>`;
             });
         }
-        function buyStyle(t,id,c){if(data.balance<c)return toast("Мало"); data.balance-=c; if(t=='color')data.owned_colors.push(id);else data.owned_frames.push(id); save(); renderCosmetics(); }
-        function equipStyle(t,id){if(t=='color')data.active_color=id;else data.active_frame=id; save(); renderCosmetics(); updateUI();}
+        function buyStyle(t,id,c){if(data.balance<c)return toast("Мало"); data.balance-=c; if(t=='color')data.owned_colors.push(id);else data.owned_frames.push(id); save(); renderCosmetics(); playSound('click');}
+        function equipStyle(t,id){if(t=='color')data.active_color=id;else data.active_frame=id; save(); renderCosmetics(); updateUI(); playSound('click');}
         
-        async function addFriend(){const n=document.getElementById('search-nick').value.trim();if(!n)return;db.collection('users').doc(myNick).update({friends:firebase.firestore.FieldValue.arrayUnion(n)});toast("Ок");}
         function renderFriends(){const l=document.getElementById('friends-list');l.innerHTML='';data.friends.forEach(f=>{l.innerHTML+=`<div style="background:#222;padding:10px;margin:5px;display:flex;justify-content:space-between">${f}<button class="btn-sm" onclick="openChat('${f}')">Chat</button></div>`});}
         async function openChat(f){
+            playSound('click');
             const cid=myNick<f?`${myNick}_${f}`:`${f}_${myNick}`; document.getElementById('chat-title').innerText=f;
+            const v = document.getElementById('chat-header-visual'); v.innerHTML = 'Загрузка...';
+            db.collection('users').doc(f).get().then(doc=>{
+                 if(!doc.exists) return;
+                 const u = doc.data();
+                 let orbs = '';
+                 if(u.equipped) u.equipped.forEach(e => { orbs += `<img src="${getImg(e.u)}" style="width:20px;height:20px;">` });
+                 v.innerHTML = `<div class="avatar-frame ${COSMETICS.frames.find(fr=>fr.id===u.active_frame)?.cls||'frame-default'}">${f[0]}</div><div style="display:flex;">${orbs}</div>`;
+            });
+
             if(chatUnsub)chatUnsub(); const box=document.getElementById('chat-history');
             chatUnsub=db.collection('chats').doc(cid).collection('msgs').orderBy('ts').limit(20).onSnapshot(s=>{
                 box.innerHTML='';s.forEach(d=>{const m=d.data();box.innerHTML+=`<div style="padding:5px;background:${m.by===myNick?'#444':'#222'};margin:2px;border-radius:5px">${m.t}</div>`});
             }); openModal('chat-modal');
         }
         function sendMsg(){const t=document.getElementById('chat-msg').value;if(!t)return;const f=document.getElementById('chat-title').innerText;const cid=myNick<f?`${myNick}_${f}`:`${f}_${myNick}`;db.collection('chats').doc(cid).collection('msgs').add({by:myNick,t:t,ts:Date.now()});}
-        function loadTop(t,el){document.querySelectorAll('#screen-top .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');
-            db.collection('users').orderBy(t==='balance'?'balance':'createdAt','desc').limit(10).get().then(s=>{
-                const l=document.getElementById('top-list');l.innerHTML='';s.forEach((d,i)=>{const u=d.data();l.innerHTML+=`<div style="padding:10px;border-bottom:1px solid #333">${i+1}. ${u.nickname} - ${Math.floor(u.balance)}</div>`});
+        async function addFriend(){const n=document.getElementById('search-nick').value.trim();if(!n)return;db.collection('users').doc(myNick).update({friends:firebase.firestore.FieldValue.arrayUnion(n)});toast("Ок"); playSound('click'); renderFriends();}
+
+        // FIX: Auto-load top
+        function loadTop(t,el){
+            playSound('click'); 
+            document.querySelectorAll('#screen-top .tab').forEach(e=>e.classList.remove('active')); 
+            if(el) el.classList.add('active');
+            
+            const l=document.getElementById('top-list'); l.innerHTML='';
+
+            if(t === 'count') {
+                 db.collection('users').get().then(s => {
+                    const all = []; s.forEach(d => all.push(d.data()));
+                    all.sort((a,b) => (b.inventory?b.inventory.length:0) - (a.inventory?a.inventory.length:0));
+                    renderTopList(all.slice(0,10), 'count');
+                });
+            } else {
+                 db.collection('users').orderBy('balance','desc').limit(10).get().then(s=>{
+                    const all = []; s.forEach(d => all.push(d.data()));
+                    renderTopList(all, 'balance');
+                });
+            }
+        }
+
+        function renderTopList(users, type) {
+            const l=document.getElementById('top-list'); l.innerHTML='';
+            const medals = ['🥇','🥈','🥉'];
+            users.forEach((u, i)=>{ 
+                const rank = i < 3 ? medals[i] : (i+1)+'.';
+                const val = type === 'balance' ? Math.floor(u.balance || 0).toLocaleString() : (u.inventory ? u.inventory.length : 0);
+                l.innerHTML+=`<div style="padding:10px;border-bottom:1px solid #333; animation: fadeUp 0.5s ease forwards; opacity: 0; animation-delay: ${i*0.1}s;">${rank} ${u.nickname} - ${val}</div>`
             });
         }
 
-        // Admin
         function adminUnban(){db.collection('users').doc(document.getElementById('adm-target').value).update({isBanned:false});toast("Unbanned");}
         function adminBan(){db.collection('users').doc(document.getElementById('adm-target').value).update({isBanned:true});toast("Banned");}
-        function adminGiveSelf(){db.collection('users').doc(myNick).update({inventory:firebase.firestore.FieldValue.arrayUnion(ASSETS[0])});toast("Gave Pumpkin");}
+        function adminGiveSelf(){db.collection('users').doc(myNick).update({inventory:firebase.firestore.FieldValue.arrayUnion(ASSETS[0])});toast("Gave Lambo");}
         async function adminAddShop(){ const n=prompt("Item Name"); db.collection('game').doc('stats').update({[`items.${n}`]:0}); }
         function adminGiveCustom() {
-             const c = { id: Date.now(), name: "Ламба", type: "УНИКАЛЬНОЕ", u: "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExemFwa2djbzIyZGdnajIzcmNpaWZjZ21lMDNuNXVyNXU3dzRjdGdqcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/omk8al8C3Af2iNCsFt/giphy.gif", p: 10000000, serial: 1, bg: "linear-gradient(45deg, #FFD700, #FF4500)", hue: "" };
+             const c = { id: Date.now(), name: "Ламба (Mask)", type: "УНИКАЛЬНОЕ", u: "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExemFwa2djbzIyZGdnajIzcmNpaWZjZ21lMDNuNXVyNXU3dzRjdGdqcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/omk8al8C3Af2iNCsFt/giphy.gif", p: 10000000, serial: 1, bg: "linear-gradient(45deg, #FFD700, #FF4500)", hue: "" };
              db.collection('users').doc(myNick).update({ inventory: firebase.firestore.FieldValue.arrayUnion(c) }); toast("Given Lamba");
         }
 
         function confirmAction(){if(pendingBuy){if(pendingBuy.type=='shop')buyShop(pendingBuy.name,pendingBuy.price);else buyP2P(pendingBuy.id,pendingBuy.price);}closeModal('confirm-modal');}
-        function save(){if(data&&!data.isBanned)db.collection('users').doc(myNick).update({balance:data.balance,energy:data.energy,tapLvl:data.tapLvl,critLvl:data.critLvl,regenLvl:data.regenLvl,owned_colors:data.owned_colors,owned_frames:data.owned_frames,active_color:data.active_color,active_frame:data.active_frame});}
-        function buyTap(){const c=100*Math.pow(1.8,data.tapLvl);if(data.balance<c)return toast("Мало");data.balance-=c;data.tapLvl++;save();updateUI();}
-        function buyCrit(){const c=500+(data.critLvl*500);if(data.balance<c)return toast("Мало");data.balance-=c;data.critLvl++;save();updateUI();}
-        function buyRegen(){const c=300+(data.regenLvl*400);if(data.balance<c)return toast("Мало");data.balance-=c;data.regenLvl++;save();updateUI();}
+        function save(){ if(data&&!data.isBanned) db.collection('users').doc(myNick).update({balance:data.balance,energy:data.energy,tapLvl:data.tapLvl,critLvl:data.critLvl,regenLvl:data.regenLvl,owned_colors:data.owned_colors,owned_frames:data.owned_frames,active_color:data.active_color,active_frame:data.active_frame,inventory:data.inventory,equipped:data.equipped}); }
+        
+        function buyTap(){const c=getCost('tap',data.tapLvl);if(data.balance<c)return toast("Мало");data.balance-=c;data.tapLvl++;save();updateUI();playSound('click');}
+        function buyCrit(){const c=getCost('crit',data.critLvl);if(data.balance<c)return toast("Мало");data.balance-=c;data.critLvl++;save();updateUI();playSound('click');}
+        function buyRegen(){const c=getCost('regen',data.regenLvl);if(data.balance<c)return toast("Мало");data.balance-=c;data.regenLvl++;save();updateUI();playSound('click');}
         function changePass(){const p=prompt("Pass:");if(p)db.collection('users').doc(myNick).update({password:p});}
         function deleteAcc(){if(confirm("DEL?"))db.collection('users').doc(myNick).delete().then(logout);}
-        function nav(s,el){document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));document.getElementById('screen-'+s).classList.add('active');document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
-        function switchMarket(t,el){['shop','p2p'].forEach(x=>document.getElementById('view-'+x).style.display='none');document.getElementById('view-'+t).style.display='block';document.querySelectorAll('#screen-market .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');if(t=='p2p')loadP2P();}
-        function switchGame(t,el){['mines','slots'].forEach(x=>document.getElementById('game-'+x).style.display='none');document.getElementById('game-'+t).style.display='block';document.querySelectorAll('#screen-casino .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
-        function switchProfile(t,el){['main','style'].forEach(x=>document.getElementById('profile-'+x).style.display='none');document.getElementById('profile-'+t).style.display='block';document.querySelectorAll('#screen-profile .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
-        function setNftTab(t){['equip','sell','gift'].forEach(x=>document.getElementById('tab-'+x).style.display='none');document.getElementById('tab-'+t).style.display='block';document.querySelectorAll('#nft-modal .tab').forEach(e=>e.classList.remove('active'));event.target.classList.add('active');}
-        function openModal(id){document.getElementById(id).style.display='flex';}
-        function closeModal(id){document.getElementById(id).style.display='none';}
+        
+        // FIXED NAV
+        function nav(s,el){
+            playSound('click'); 
+            document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+            document.getElementById('screen-'+s).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+            el.classList.add('active');
+            
+            if(s === 'top') loadTop('balance', document.querySelector('#screen-top .tab:first-child'));
+        }
+        
+        function switchMarket(t,el){playSound('click'); ['shop','p2p'].forEach(x=>document.getElementById('view-'+x).style.display='none');document.getElementById('view-'+t).style.display='block';document.querySelectorAll('#screen-market .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');if(t=='p2p')loadP2P();}
+        function switchGame(t,el){playSound('click'); ['mines','slots','coin','dice'].forEach(x=>document.getElementById('game-'+x).style.display='none');document.getElementById('game-'+t).style.display='block';document.querySelectorAll('#screen-casino .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
+        function switchProfile(t,el){playSound('click'); ['main','style'].forEach(x=>document.getElementById('profile-'+x).style.display='none');document.getElementById('profile-'+t).style.display='block';document.querySelectorAll('#screen-profile .tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
+        function setNftTab(t){playSound('click'); ['equip','sell','gift'].forEach(x=>document.getElementById('tab-'+x).style.display='none');document.getElementById('tab-'+t).style.display='block';document.querySelectorAll('#nft-modal .tab').forEach(e=>e.classList.remove('active'));event.target.classList.add('active');}
+        function openModal(id){playSound('click'); const m=document.getElementById(id); m.style.display='flex'; setTimeout(()=>m.style.opacity='1',10); }
+        function closeModal(id){const m=document.getElementById(id); m.style.opacity='0'; setTimeout(()=>m.style.display='none',300); }
         function toast(m){const t=document.getElementById('toast');document.getElementById('toast-msg').innerText=m;t.style.display='flex';setTimeout(()=>t.style.display='none',2500);}
     </script>
 </body>
