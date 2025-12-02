@@ -457,7 +457,7 @@
         </div>
     </div>
 
-    <div id="toast" class="toast"><i class="ri-notification-3-fill" style="color:var(--gold)"></i> <span id="toast-msg">Alert</span></div>
+    <div id="toast" class="toast"><i class="ri-notification-3-fill" style="color:var(--gold)"></i> <span id="toast-msg"></span></div>
 
     <!-- NAV -->
     <div class="navbar">
@@ -645,7 +645,7 @@
             const n=document.getElementById('auth-nick').value.trim();
             const p=document.getElementById('auth-pass').value.trim();
             const remember = document.getElementById('remember-me').checked;
-            if(n.length<3||p.length<4) return alert("Короткие данные");
+            if(n.length<3||p.length<4) return ("Короткие данные");
             try {
                 const docRef = db.collection('users').doc(n);
                 const doc = await docRef.get();
@@ -1130,3 +1130,4 @@
     </script>
 </body>
 </html>
+
