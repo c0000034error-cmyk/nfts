@@ -936,7 +936,7 @@
                 document.getElementById('game-slots').classList.add('win-anim');
             }
             else if(r1===r2 || r2===r3 || r1===r3) { 
-                win=Math.floor(b*3); toast(`Пара x3`); playSound('win');
+                win=Math.floor(b*1.2); toast(`Пара x1.2`); playSound('win');
             } 
             else { toast("Потеря"); playSound('lose'); }
             
