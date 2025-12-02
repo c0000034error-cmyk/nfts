@@ -331,7 +331,7 @@
             
             <div id="game-slots" style="display:none; text-align:center; padding:30px; background:#18181b; border-radius:16px;">
                 <div id="slots-view" class="slot-row"><span>🍒</span> <span>🍒</span> <span>🍒</span></div>
-                <div style="font-size:12px; color:#888; margin-bottom:10px;">2 знака = x3 | 3 знака = x6 (JACKPOT)</div>
+                <div style="font-size:12px; color:#888; margin-bottom:10px;">2 знака = x2 | 3 знака = x3 (JACKPOT)</div>
                 <input type="number" id="slots-bet" placeholder="Ставка">
                 <button class="btn" id="btn-spin" onclick="playSlots()">КРУТИТЬ (CD 2s)</button>
             </div>
@@ -890,8 +890,8 @@
             const b = parseInt(document.getElementById('mines-bet').value); 
             if(!b || b > data.balance) return toast("Ставка?");
             playSound('click'); data.balance -= b; 
-            mines = {a: true, m: [], s: 0, b: b, count: 10}; 
-            while(mines.m.length < 10) { const r = Math.floor(Math.random()*25); if(!mines.m.includes(r)) mines.m.push(r); }
+            mines = {a: true, m: [], s: 0, b: b, count: 8}; 
+            while(mines.m.length < 10) { const r = Math.floor(Math.random()*20); if(!mines.m.includes(r)) mines.m.push(r); }
             const g = document.getElementById('mines-field'); g.innerHTML = '';
             for(let i=0; i<25; i++){
                 const c = document.createElement('div'); c.className='card'; c.style.aspectRatio='1'; c.style.fontSize='16px'; c.style.justifyContent='center'; c.style.cursor='pointer';
@@ -931,7 +931,7 @@
             
             let win = 0;
             if(r1===r2 && r2===r3) { 
-                if(r1==='7️⃣') win=b*20; else if(r1==='💎') win=b*10; else win=b*6; 
+                if(r1==='7️⃣') win=b*20; else if(r1==='💎') win=b*10; else win=b*3; 
                 toast(`JACKPOT! +${win}`); playSound('win');
                 document.getElementById('game-slots').classList.add('win-anim');
             }
