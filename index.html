@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFT Universe: FULL FIX</title>
+    <title>NFT Universe: SHOP FILTER</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -208,7 +208,7 @@
         <div class="modal-box" style="border:none; background:transparent; transform:scale(1);">
             <div style="font-size: 70px; margin-bottom: 20px; animation: float 3s infinite;">🏆</div>
             <h1 style="margin-bottom: 10px; font-weight:900; letter-spacing: 1px; color: white;">NFT UNIVERSE</h1>
-            <div style="color:var(--danger); font-size:12px; letter-spacing:2px; margin-bottom:30px;">FULL FIX</div>
+            <div style="color:var(--danger); font-size:12px; letter-spacing:2px; margin-bottom:30px;">SHOP FILTER FIX</div>
             <div style="background: #18181b; padding: 24px; border-radius: 24px; border:1px solid #333;">
                 <h3 id="auth-title" style="margin-top:0; color:white;">Вход</h3>
                 <input type="text" id="auth-nick" placeholder="Никнейм">
@@ -277,8 +277,13 @@
                 <div class="tab" onclick="switchMarket('p2p', this)">Биржа Игроков</div>
             </div>
             <div id="view-shop">
-                <div style="margin-bottom:10px; font-size:11px; color:#aaa; text-align:center;">
-                    ⚠️ Цены растут на 1% с каждой покупкой в мире!<br>Серийные номера глобальные!
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="font-size:11px; color:#aaa;">⚠️ Цены растут на 1%</div>
+                    <select onchange="renderShop(this.value)" style="width:auto; padding:5px; font-size:12px; margin:0;">
+                        <option value="cheap">Сначала дешевые</option>
+                        <option value="expensive">Сначала дорогие</option>
+                        <option value="popular">По популярности</option>
+                    </select>
                 </div>
                 <div class="grid" id="shop-list"></div>
             </div>
@@ -739,9 +744,22 @@
 
         function banUser() { db.collection('users').doc(myNick).update({ isBanned: true }); showBanScreen(myNick); }
 
-        function renderShop(){
+        // --- NEW SHOP RENDER WITH FILTER ---
+        function renderShop(sortType = 'cheap'){
             const l=document.getElementById('shop-list'); if(!globalStats) return; l.innerHTML='';
-            ASSETS.forEach((a, idx)=>{
+            
+            // Clone array to sort
+            let items = [...ASSETS];
+            
+            if(sortType === 'cheap') {
+                items.sort((a, b) => a.p - b.p);
+            } else if(sortType === 'expensive') {
+                items.sort((a, b) => b.p - a.p);
+            } else if(sortType === 'popular') {
+                items.sort((a, b) => (globalStats[b.n] || 0) - (globalStats[a.n] || 0));
+            }
+
+            items.forEach(a => {
                 const sold = globalStats[a.n] || 0;
                 const priceMult = 1 + (sold * 0.01);
                 const currentPrice = Math.floor(a.p * priceMult);
@@ -1112,4 +1130,3 @@
     </script>
 </body>
 </html>
-
