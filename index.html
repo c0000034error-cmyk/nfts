@@ -925,7 +925,7 @@
             await new Promise(r => setTimeout(r, 1000));
             v.classList.remove('spinning');
             
-            const icons = ['🍒','🍋','🍉','🔔','💎','7️⃣','🍇','🍓'];
+            const icons = ['🍒','🍋','🍉','🔔','💎','7️⃣','🍇','🍓','🍍','🍊'];
             const r1=icons[Math.floor(Math.random()*icons.length)], r2=icons[Math.floor(Math.random()*icons.length)], r3=icons[Math.floor(Math.random()*icons.length)];
             v.innerHTML = `<span>${r1}</span> <span>${r2}</span> <span>${r3}</span>`;
             
@@ -936,7 +936,7 @@
                 document.getElementById('game-slots').classList.add('win-anim');
             }
             else if(r1===r2 || r2===r3 || r1===r3) { 
-                win=Math.floor(b*1.2); toast(`Пара x1.2`); playSound('win');
+                win=Math.floor(b*2); toast(`Пара x2`); playSound('win');
             } 
             else { toast("Потеря"); playSound('lose'); }
             
@@ -961,7 +961,7 @@
                 const res = Math.random() < 0.5 ? 'H' : 'T'; 
                 coin.innerText = res === 'H' ? '🦅' : '⚪';
                 
-                const win = Math.random() < 0.45; 
+                const win = Math.random() < 0.80; 
                 
                 if(win) {
                     if(pick === res) {
